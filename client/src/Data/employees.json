@@ -1,0 +1,58 @@
+[
+  {
+    "id": 101,
+    "name": "User",
+    "email": "user@taskpilot.com",
+    "password": "user112233",
+    "role": "employee"
+  },
+  {
+    "id": 102,
+    "name": "Sabbir",
+    "email": "sabbir@taskpilot.com",
+    "password": "sabbir123",
+    "role": "employee"
+  },
+  {
+    "id": 103,
+    "name": "Nusrat",
+    "email": "nusrat@taskpilot.com",
+    "password": "nusrat123",
+    "role": "employee"
+  },
+  {
+    "id": 104,
+    "name": "Jack",
+    "email": "jack@taskpilot.com",
+    "password": "jack123",
+    "role": "employee"
+  },
+  {
+    "id": 105,
+    "name": "Rana",
+    "email": "rana@taskpilot.com",
+    "password": "rana123",
+    "role": "employee"
+  },
+  {
+    "id": 106,
+    "name": "Lina",
+    "email": "lina@taskpilot.com",
+    "password": "lina123",
+    "role": "employee"
+  },
+  {
+    "id": 107,
+    "name": "Tariq",
+    "email": "tariq@taskpilot.com",
+    "password": "tariq123",
+    "role": "employee"
+  },
+  {
+    "id": 108,
+    "name": "Mina",
+    "email": "mina@taskpilot.com",
+    "password": "mina123",
+    "role": "employee"
+  }
+]

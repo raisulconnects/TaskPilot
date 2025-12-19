@@ -1,13 +1,13 @@
 import Header from "../Header/Header";
-import NewTask from "../Task Boxes/NewTask";
-import TaskList from "../Task Boxes/TaskList";
+import AllTask from "../Task Boxes/AllTask";
+import CreateTask from "../Task Boxes/CreateTask";
 
-export default function EmployeeDashboard() {
+export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black text-white p-20">
       <Header />
-      <NewTask />
-      <TaskList />
+      <CreateTask />
+      <AllTask />
     </div>
   );
 }

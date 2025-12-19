@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1001,
+    "title": "Design login button",
+    "description": "Create a modern login button using Tailwind with hover effects and accessibility in mind",
+    "category": "Design",
+    "assignedTo": 101,
+    "assignedBy": 1,
+    "status": "assigned",
+    "priority": "High",
+    "dueDate": "2025-01-10",
+    "createdAt": "2025-01-05"
+  },
+  {
+    "id": 1002,
+    "title": "Fix navbar bug",
+    "description": "Resolve alignment issue in navbar on mobile devices and add responsive breakpoints",
+    "category": "Debugging",
+    "assignedTo": 102,
+    "assignedBy": 1,
+    "status": "assigned",
+    "priority": "Medium",
+    "dueDate": "2025-01-08",
+    "createdAt": "2025-01-03"
+  },
+  {
+    "id": 1003,
+    "title": "Implement footer",
+    "description": "Add a responsive footer with social media links and company info",
+    "category": "Development",
+    "assignedTo": 103,
+    "assignedBy": 1,
+    "status": "completed",
+    "priority": "General",
+    "dueDate": "2025-01-12",
+    "createdAt": "2025-01-04"
+  },
+  {
+    "id": 1004,
+    "title": "Fix login form validation",
+    "description": "Ensure form displays proper error messages for invalid inputs",
+    "category": "Debugging",
+    "assignedTo": 101,
+    "assignedBy": 1,
+    "status": "failed",
+    "priority": "High",
+    "dueDate": "2025-01-07",
+    "createdAt": "2025-01-03"
+  },
+  {
+    "id": 1005,
+    "title": "Create dashboard UI",
+    "description": "Design the admin dashboard with Tailwind, including cards for stats and charts",
+    "category": "Design",
+    "assignedTo": 102,
+    "assignedBy": 1,
+    "status": "in_progress",
+    "priority": "Medium",
+    "dueDate": "2025-01-15",
+    "createdAt": "2025-01-06"
+  },
+  {
+    "id": 1006,
+    "title": "Connect API endpoints",
+    "description": "Integrate the frontend with mock backend endpoints using fetch/axios",
+    "category": "Development",
+    "assignedTo": 103,
+    "assignedBy": 1,
+    "status": "assigned",
+    "priority": "High",
+    "dueDate": "2025-01-14",
+    "createdAt": "2025-01-06"
+  },
+  {
+    "id": 1007,
+    "title": "Optimize images",
+    "description": "Compress and optimize images for faster page loading",
+    "category": "Debugging",
+    "assignedTo": 101,
+    "assignedBy": 1,
+    "status": "completed",
+    "priority": "General",
+    "dueDate": "2025-01-11",
+    "createdAt": "2025-01-05"
+  },
+  {
+    "id": 1008,
+    "title": "Update README",
+    "description": "Add instructions for setting up the project and running locally",
+    "category": "Development",
+    "assignedTo": 102,
+    "assignedBy": 1,
+    "status": "completed",
+    "priority": "Medium",
+    "dueDate": "2025-01-09",
+    "createdAt": "2025-01-04"
+  },
+  {
+    "id": 1009,
+    "title": "Create login animation",
+    "description": "Add smooth fade-in animation for login form and buttons",
+    "category": "Design",
+    "assignedTo": 103,
+    "assignedBy": 1,
+    "status": "in_progress",
+    "priority": "High",
+    "dueDate": "2025-01-13",
+    "createdAt": "2025-01-06"
+  },
+  {
+    "id": 1010,
+    "title": "Fix responsive table",
+    "description": "Ensure tables resize correctly on mobile and tablet screens",
+    "category": "Debugging",
+    "assignedTo": 101,
+    "assignedBy": 1,
+    "status": "assigned",
+    "priority": "Medium",
+    "dueDate": "2025-01-12",
+    "createdAt": "2025-01-07"
+  }
+]

@@ -1,13 +1,18 @@
 import { useState } from "react";
+import { useAuthContext } from "../../context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const submitHander = (e) => {
+  const { login, loading, error } = useAuthContext();
+
+  const submitHander = async (e) => {
     e.preventDefault();
     console.log("Login Button Pressed!");
     console.log(email, password);
+
+    await login(email, password);
 
     setEmail("");
     setPassword("");
@@ -73,9 +78,11 @@ export default function Login() {
 
           {/* Actions */}
           <div className="flex flex-col gap-3 pt-2">
+            {error && <p className="text-white text-center">{error}</p>}
             <button
               type="submit"
               className="w-full rounded-xl bg-amber-400 text-gray-900 font-semibold py-2.5 hover:bg-amber-300 active:scale-[0.98] transition"
+              disabled={loading}
             >
               Login
             </button>
