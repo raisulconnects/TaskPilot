@@ -42,6 +42,17 @@ export const TaskContextProvider = ({ children }) => {
     }
   };
 
+  // inside TaskContext.jsx (or wherever you manage tasks)
+  const markTaskCompleted = (taskId) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((t) =>
+        t.id === taskId ? { ...t, status: "completed" } : t
+      )
+    );
+
+    console.log("From MarkTaskCompleted = TaskContext");
+  };
+
   // Admin creates new task
   const createTask = async (task) => {
     if (!user || user.role !== "admin") {
@@ -104,6 +115,7 @@ export const TaskContextProvider = ({ children }) => {
     <TaskContext.Provider
       value={{
         tasks,
+        markTaskCompleted,
         loading,
         error,
         fetchTasks,

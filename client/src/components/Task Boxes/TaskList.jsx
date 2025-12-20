@@ -1,9 +1,13 @@
+import { useEffect, useRef } from "react";
 import { useTaskContext } from "../../context/TaskContext";
+import { useDraggable } from "react-use-draggable-scroll";
 import SingleTask from "./SingleTask";
-import { useEffect } from "react";
 
 export default function TaskList() {
   const { tasks, fetchTasks } = useTaskContext();
+  const scrollRef = useRef(null);
+
+  const { events } = useDraggable(scrollRef);
 
   useEffect(() => {
     fetchTasks(); // load tasks on mount
@@ -11,8 +15,17 @@ export default function TaskList() {
 
   return (
     <div
-      className="mt-5 h-80 flex gap-5 items-center overflow-auto px-4 py-2"
+      ref={scrollRef}
+      {...events}
       id="TaskList"
+      className="
+        mt-5 h-80
+        flex gap-5 items-center
+        overflow-auto
+        px-4 py-2
+        cursor-grab
+        select-none
+      "
     >
       {tasks.map((t) => (
         <SingleTask
