@@ -1,4 +1,14 @@
+import { useEffect } from "react";
+import { useTaskContext } from "../../context/TaskContext";
+import AllTaskTaskCard from "./AllTaskTaskCard";
+
 export default function AllTask() {
+  const { fetchTasks, tasks } = useTaskContext();
+
+  useEffect(() => {
+    fetchTasks();
+  });
+
   return (
     <div className="bg-gray-900/70 p-6 rounded-2xl space-y-4">
       {/* Header */}
@@ -9,13 +19,15 @@ export default function AllTask() {
       </div>
 
       {/* Task Card */}
-      <div className="grid grid-cols-3 items-center bg-red-500/15 border border-red-500/30 px-4 py-4 rounded-xl text-white hover:bg-red-500/25 transition">
-        <span className="font-medium">John Doe</span>
-        <span className="text-gray-200">Make a UI Design</span>
-        <span className="text-right text-red-400 font-semibold">Pending</span>
-      </div>
+      {tasks.map((t) => (
+        <AllTaskTaskCard
+          id={t.id}
+          description={t.description}
+          status={t.status}
+        />
+      ))}
 
-      <div className="grid grid-cols-3 items-center bg-green-500/15 border border-green-500/30 px-4 py-4 rounded-xl text-white hover:bg-green-500/25 transition">
+      {/* <div className="grid grid-cols-3 items-center bg-green-500/15 border border-green-500/30 px-4 py-4 rounded-xl text-white hover:bg-green-500/25 transition">
         <span className="font-medium">John Doe</span>
         <span className="text-gray-200">Make a UI Design</span>
         <span className="text-right text-green-400 font-semibold">
@@ -29,7 +41,7 @@ export default function AllTask() {
         <span className="text-right text-blue-400 font-semibold">
           In Progress
         </span>
-      </div>
+      </div> */}
     </div>
   );
 }
