@@ -8,32 +8,24 @@ export const handleLogin = async (email, password) => {
       body: JSON.stringify({ email, password }),
     });
 
-    const { user } = await response.json();
+    const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(user.message || "Login failed");
+      // backend error message
+      throw new Error(data.message || "Invalid credentials");
     }
 
+    // success case
     return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+      id: data.user.id,
+      name: data.user.name,
+      email: data.user.email,
+      role: data.user.role,
     };
-  } catch (e) {
-    console.log("Error in Authorization.", e.message);
+  } catch (err) {
+    console.error("Auth error:", err.message);
+    throw err; // important
   }
-
-  // // simulate API delay
-  // await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // const users = [...admins, ...employees];
-
-  // const user = users.find((u) => u.email === email && u.password === password);
-
-  // if (!user) {
-  //   throw new Error("Invalid email or password!");
-  // }
 };
 
 export const logoutUser = async () => {
