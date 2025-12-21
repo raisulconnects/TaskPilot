@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useTaskContext } from "../../context/TaskContext";
 
 export default function CreateTask() {
   const [category, setCategory] = useState("General");
   const [priority, setPriority] = useState("General");
+  const [assignedTo, setAssignedTo] = useState("");
+
+  const { fetchOnlyEmployees, allEmployees } = useTaskContext();
+
+  useEffect(() => {
+    fetchOnlyEmployees();
+  }, []);
 
   return (
     <div className="flex justify-center px-6 py-16">
@@ -26,11 +34,19 @@ export default function CreateTask() {
           {/* Assign To */}
           <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-300">Assign To</label>
-            <input
-              type="text"
-              placeholder="Employee name"
+            <select
+              value={assignedTo}
+              onChange={(e) => setAssignedTo(e.target.value)}
               className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            >
+              {allEmployees
+                ?.filter((emp) => emp.role !== "admin")
+                .map((emp) => (
+                  <option key={emp._id} value={emp._id}>
+                    {emp.name}
+                  </option>
+                ))}
+            </select>
           </div>
 
           {/* Due Date */}

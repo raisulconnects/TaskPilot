@@ -57,3 +57,17 @@ export const updateTaskStatus = async (taskId, status) => {
   task.status = status;
   return task;
 };
+
+// Amra Task er Pashapashi Employee er info gulao ekhane fetch kore anbo
+export const fetchAllEmployeeInfo = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/allemployees`);
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    console.log(
+      "Error Occured While FetchingAllEmployee Info in Task Service! ",
+      e.message
+    );
+  }
+};

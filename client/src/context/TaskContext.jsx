@@ -4,6 +4,7 @@ import {
   fetchTasksByEmployee,
   createTask as createTaskService,
   updateTaskStatus as updateTaskStatusService,
+  fetchAllEmployeeInfo,
 } from "../services/taskService";
 import { useAuthContext } from "./AuthContext";
 
@@ -15,6 +16,16 @@ export const TaskContextProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [allEmployees, setAllEmployees] = useState(null);
+
+  const fetchOnlyEmployees = async () => {
+    try {
+      const info = await fetchAllEmployeeInfo();
+      setAllEmployees(info);
+    } catch (e) {
+      console.log("Error from TaskContext fetchOnlyEmployees.", e.message);
+    }
+  };
 
   // Fetch tasks based on role
   const fetchTasks = async () => {
@@ -122,6 +133,8 @@ export const TaskContextProvider = ({ children }) => {
         createTask,
         updateTaskStatus,
         getDashboardStats,
+        fetchOnlyEmployees,
+        allEmployees,
       }}
     >
       {children}
