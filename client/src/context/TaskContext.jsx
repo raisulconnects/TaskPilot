@@ -65,21 +65,17 @@ export const TaskContextProvider = ({ children }) => {
   };
 
   // Admin creates new task
-  const createTask = async (task) => {
-    if (!user || user.role !== "admin") {
-      throw new Error("Unauthorized");
-    }
-
+  const createTask = async (taskData) => {
     setLoading(true);
     setError(null);
 
     try {
-      const newTask = await createTaskService({ ...task, assignedBy: user.id });
-      setTasks((prev) => [...prev, newTask]);
-      return newTask;
+      const newTask = await createTaskService(taskData);
+      setTasks((prev) => [newTask, ...prev]); // optional
+      return true;
     } catch (err) {
       setError(err.message);
-      throw err;
+      return false;
     } finally {
       setLoading(false);
     }

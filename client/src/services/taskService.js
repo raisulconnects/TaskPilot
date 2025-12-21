@@ -4,10 +4,6 @@ import tasksData from "../Data/tasks.json";
 /**
  * Simulate fetching all tasks (admin)
  */
-// export const fetchAllTasks = async () => {
-//   await new Promise((res) => setTimeout(res, 500));
-//   return tasksData;
-// };
 export const fetchAllTasks = async () => {
   const response = await fetch(`${API_BASE_URL}/tasks`);
   const data = await response.json();
@@ -24,25 +20,6 @@ export const fetchTasksByEmployee = async (employeeId) => {
 };
 
 /**
- * Admin assigns a new task
- */
-export const createTask = async (task) => {
-  await new Promise((res) => setTimeout(res, 400));
-
-  const newTask = {
-    ...task,
-    id: Date.now(),
-    status: "assigned",
-    createdAt: new Date().toISOString().split("T")[0],
-  };
-
-  // mock DB write (in-memory only)
-  tasksData.push(newTask);
-
-  return newTask;
-};
-
-/**
  * Employee updates task status
  */
 export const updateTaskStatus = async (taskId, status) => {
@@ -56,6 +33,25 @@ export const updateTaskStatus = async (taskId, status) => {
 
   task.status = status;
   return task;
+};
+
+// Admin Task Create korle AdminDashboard theke eita trigger korbo
+export const createTask = async (taskData) => {
+  const response = await fetch(`${API_BASE_URL}/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(taskData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to create task");
+  }
+
+  return data.task;
 };
 
 // Amra Task er Pashapashi Employee er info gulao ekhane fetch kore anbo
