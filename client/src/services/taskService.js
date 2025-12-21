@@ -1,5 +1,4 @@
 import { API_BASE_URL } from "../api";
-import tasksData from "../Data/tasks.json";
 
 /**
  * Simulate fetching all tasks (admin)
@@ -22,17 +21,24 @@ export const fetchTasksByEmployee = async (employeeId) => {
 /**
  * Employee updates task status
  */
-export const updateTaskStatus = async (taskId, status) => {
-  await new Promise((res) => setTimeout(res, 300));
+export const updateTaskStatus = async (taskId) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/tasks/${taskId}/complete`, {
+      method: "PATCH",
+    });
 
-  const task = tasksData.find((t) => t.id === taskId);
+    if (!res.ok) {
+      throw new Error("Failed to mark task as completed");
+    }
 
-  if (!task) {
-    throw new Error("Task not found");
+    return await res.json();
+  } catch (e) {
+    console.log(
+      "Error Occurred While Updating Task as Marking for Completion",
+      e.message
+    );
+    throw e;
   }
-
-  task.status = status;
-  return task;
 };
 
 // Admin Task Create korle AdminDashboard theke eita trigger korbo

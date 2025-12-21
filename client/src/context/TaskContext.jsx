@@ -53,7 +53,7 @@ export const TaskContextProvider = ({ children }) => {
     }
   };
 
-  // inside TaskContext.jsx (or wherever you manage tasks)
+  // inside TaskContext.jsx
   const markTaskCompleted = (taskId) => {
     setTasks((prevTasks) =>
       prevTasks.map((t) =>
@@ -82,15 +82,13 @@ export const TaskContextProvider = ({ children }) => {
   };
 
   // Employee updates task status
-  const updateTaskStatus = async (taskId, status) => {
+  const updateTaskStatus = async (taskId) => {
     setLoading(true);
     setError(null);
 
     try {
-      const updatedTask = await updateTaskStatusService(taskId, status);
-      setTasks((prev) =>
-        prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
-      );
+      const updatedTask = await updateTaskStatusService(taskId);
+      fetchTasks();
       return updatedTask;
     } catch (err) {
       setError(err.message);

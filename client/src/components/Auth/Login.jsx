@@ -102,10 +102,7 @@ export default function Login() {
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-400 mt-6">
-          Don’t have an account?{" "}
-          <span className="text-amber-400 hover:underline cursor-pointer">
-            Sign up
-          </span>
+          TaskPilot EMS - Internal Use Only
         </p>
       </div>
     </div>

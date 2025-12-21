@@ -8,7 +8,7 @@ export default function SingleTask({
   title,
   status,
 }) {
-  const { markTaskCompleted } = useTaskContext();
+  const { updateTaskStatus } = useTaskContext();
   const completed = status === "completed";
 
   return (
@@ -36,7 +36,7 @@ export default function SingleTask({
           </span>
         ) : (
           <button
-            onClick={() => markTaskCompleted(id)}
+            onClick={() => updateTaskStatus(id)}
             className="mt-3 px-3 py-1 rounded-md bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition"
           >
             Mark as Completed

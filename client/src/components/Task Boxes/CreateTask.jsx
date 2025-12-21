@@ -9,7 +9,8 @@ export default function CreateTask() {
   const [dueDate, setDueDate] = useState("");
   const [description, setDescription] = useState("");
 
-  const { fetchOnlyEmployees, allEmployees, createTask } = useTaskContext();
+  const { fetchOnlyEmployees, allEmployees, createTask, fetchTasks } =
+    useTaskContext();
 
   useEffect(() => {
     fetchOnlyEmployees();
@@ -28,6 +29,13 @@ export default function CreateTask() {
     };
 
     await createTask(taskData);
+    await fetchTasks();
+    setCategory("General");
+    setPriority("General");
+    setAssignedTo("");
+    setTitle("");
+    setDueDate("");
+    setDescription("");
   };
 
   return (

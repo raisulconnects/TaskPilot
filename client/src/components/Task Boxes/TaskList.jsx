@@ -35,6 +35,7 @@ export default function TaskList() {
           priority={t.priority}
           dueDate={t.dueDate}
           status={t.status}
+          id={t._id}
         />
       ))}
     </div>
