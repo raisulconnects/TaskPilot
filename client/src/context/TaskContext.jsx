@@ -100,7 +100,7 @@ export const TaskContextProvider = ({ children }) => {
     const myTasks =
       user.role === "admin"
         ? tasks
-        : tasks.filter((t) => t.assignedTo === user.id);
+        : tasks.filter((t) => t.assignedTo._id === user.id);
 
     const stats = { assigned: 0, in_progress: 0, completed: 0, failed: 0 };
 
