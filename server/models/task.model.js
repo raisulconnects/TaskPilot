@@ -24,7 +24,7 @@ const taskSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["assigned", "in-progress", "completed"],
+      enum: ["assigned", "completed"],
       default: "assigned",
     },
 
@@ -41,7 +41,7 @@ const taskSchema = new mongoose.Schema(
 
     assignedBy: {
       type: String,
-      default: "admin",
+      default: 1,
     },
   },
   {
