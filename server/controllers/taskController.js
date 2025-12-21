@@ -45,11 +45,12 @@ const getEmployeeTasks = async (req, res) => {
 // Mark task as completed
 const markTaskCompleted = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.taskId);
+    const task = await Task.findByIdAndUpdate(
+      req.params.taskId,
+      { status: "completed" },
+      { new: true }
+    );
     if (!task) return res.status(404).json({ message: "Task not found" });
-
-    task.completed = true;
-    await task.save();
 
     res.status(200).json({ message: "Task marked as completed", task });
   } catch (error) {

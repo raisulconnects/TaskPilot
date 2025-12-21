@@ -13,10 +13,10 @@ router.post("/", postATask);
 // Admin: get all tasks
 router.get("/", getAllTasks);
 
+// // Employee: mark a task completed
+router.patch("/:taskId/complete", markTaskCompleted);
+
 // // Employee: get tasks assigned to them
 // router.get("/:employeeId", getEmployeeTasks);
-
-// // Employee: mark a task completed
-// router.patch("/:taskId/complete", markTaskCompleted);
 
 module.exports = router;
