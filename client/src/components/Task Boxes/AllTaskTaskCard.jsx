@@ -1,16 +1,35 @@
-export default function AllTaskTaskCard({ id, description, status }) {
-  let taskColor = "red";
+export default function AllTaskTaskCard({ name, description, status }) {
+  // Map status to Tailwind classes
+  const colorClasses = {
+    completed: {
+      bg: "bg-green-500/15",
+      border: "border-green-500/30",
+      text: "text-green-400",
+      hover: "hover:bg-green-500/25",
+    },
+    assigned: {
+      bg: "bg-blue-500/15",
+      border: "border-blue-500/30",
+      text: "text-blue-400",
+      hover: "hover:bg-blue-500/25",
+    },
+    pending: {
+      bg: "bg-red-500/15",
+      border: "border-red-500/30",
+      text: "text-red-400",
+      hover: "hover:bg-red-500/25",
+    },
+  };
 
-  taskColor =
-    status === "completed" ? "green" : status === "assigned" ? "blue" : "red";
+  const taskColor = colorClasses[status] || colorClasses.pending;
 
   return (
     <div
-      className={`grid grid-cols-3 items-center bg-${taskColor}-500/15 border border-${taskColor}-500/30 px-4 py-4 rounded-xl text-white hover:bg-${taskColor}-500/25 transition`}
+      className={`grid grid-cols-3 items-center ${taskColor.bg} ${taskColor.border} px-4 py-4 rounded-xl text-white ${taskColor.hover} transition`}
     >
-      <span className="font-medium">{id}</span>
+      <span className="font-medium">{name}</span>
       <span className="text-gray-200">{description}</span>
-      <span className={`text-right text-${taskColor}-400 font-semibold`}>
+      <span className={`text-right ${taskColor.text} font-semibold`}>
         {status}
       </span>
     </div>

@@ -7,7 +7,7 @@ export default function AllTask() {
 
   useEffect(() => {
     fetchTasks();
-  });
+  }, []);
 
   return (
     <div className="bg-gray-900/70 p-6 rounded-2xl space-y-4">
@@ -21,9 +21,10 @@ export default function AllTask() {
       {/* Task Card */}
       {tasks.map((t) => (
         <AllTaskTaskCard
-          id={t.id}
+          name={t.assignedTo.name}
           description={t.description}
           status={t.status}
+          key={t._id}
         />
       ))}
 

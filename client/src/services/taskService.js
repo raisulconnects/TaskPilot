@@ -1,19 +1,26 @@
+import { API_BASE_URL } from "../api";
 import tasksData from "../Data/tasks.json";
 
 /**
  * Simulate fetching all tasks (admin)
  */
+// export const fetchAllTasks = async () => {
+//   await new Promise((res) => setTimeout(res, 500));
+//   return tasksData;
+// };
 export const fetchAllTasks = async () => {
-  await new Promise((res) => setTimeout(res, 500));
-  return tasksData;
+  const response = await fetch(`${API_BASE_URL}/tasks`);
+  const data = await response.json();
+  return data;
 };
 
 /**
  * Fetch tasks assigned to a specific employee
  */
 export const fetchTasksByEmployee = async (employeeId) => {
-  await new Promise((res) => setTimeout(res, 400));
-  return tasksData.filter((task) => task.assignedTo === employeeId);
+  const response = await fetch(`${API_BASE_URL}/tasks`);
+  const tasksData = await response.json();
+  return tasksData.filter((task) => task.assignedTo._id === employeeId);
 };
 
 /**

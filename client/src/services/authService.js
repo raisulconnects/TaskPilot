@@ -1,25 +1,39 @@
-import admins from "../Data/admins.json";
-import employees from "../Data/employees.json";
+import { API_BASE_URL } from "../api";
 
 export const handleLogin = async (email, password) => {
-  // simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-  const users = [...admins, ...employees];
+    const { user } = await response.json();
 
-  const user = users.find((u) => u.email === email && u.password === password);
+    if (!response.ok) {
+      throw new Error(user.message || "Login failed");
+    }
 
-  if (!user) {
-    throw new Error("Invalid email or password!");
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+  } catch (e) {
+    console.log("Error in Authorization.", e.message);
   }
 
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    token: `mock-${user.role}-token`,
-  };
+  // // simulate API delay
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  // const users = [...admins, ...employees];
+
+  // const user = users.find((u) => u.email === email && u.password === password);
+
+  // if (!user) {
+  //   throw new Error("Invalid email or password!");
+  // }
 };
 
 export const logoutUser = async () => {
