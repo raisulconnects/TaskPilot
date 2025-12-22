@@ -9,8 +9,14 @@ export default function CreateTask() {
   const [dueDate, setDueDate] = useState("");
   const [description, setDescription] = useState("");
 
-  const { fetchOnlyEmployees, allEmployees, createTask, fetchTasks } =
-    useTaskContext();
+  const {
+    fetchOnlyEmployees,
+    allEmployees,
+    createTask,
+    fetchTasks,
+    error,
+    loading,
+  } = useTaskContext();
 
   useEffect(() => {
     fetchOnlyEmployees();
@@ -28,14 +34,18 @@ export default function CreateTask() {
       description,
     };
 
-    await createTask(taskData);
-    await fetchTasks();
-    setCategory("");
-    setPriority("");
-    setAssignedTo("");
-    setTitle("");
-    setDueDate("");
-    setDescription("");
+    const success = await createTask(taskData);
+
+    if (success) {
+      await fetchTasks();
+
+      setCategory("");
+      setPriority("");
+      setAssignedTo("");
+      setTitle("");
+      setDueDate("");
+      setDescription("");
+    }
   };
 
   return (
@@ -147,14 +157,29 @@ export default function CreateTask() {
             />
           </div>
         </div>
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400 text-center font-bold">
+            <span className="animate-pulse">
+              {error}. Please Fill the whole form and try again.
+            </span>
+          </div>
+        )}
 
         {/* Submit Button */}
         <button
           type="submit"
           onClick={handleSubmit}
-          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 transition rounded-lg py-3 font-medium"
+          disabled={loading}
+          className={`mt-6 w-full rounded-lg py-3 font-medium transition
+    ${
+      loading
+        ? "bg-blue-600/50 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-700"
+    }
+  `}
         >
-          Create Task
+          {loading ? "Creating Task..." : "Create Task"}
         </button>
       </form>
     </div>
