@@ -41,6 +41,26 @@ export const updateTaskStatus = async (taskId) => {
   }
 };
 
+/**
+ * Admin Delete A Particular Task
+ */
+export const deleteTaskStatus = async (taskId) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/tasks/${taskId}/delete`, {
+      method: "delete",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to Delete Task");
+    }
+
+    return await res.json();
+  } catch (e) {
+    console.log("Error Occurred While Deleting Task.", e.message);
+    throw e;
+  }
+};
+
 // Admin Task Create korle AdminDashboard theke eita trigger korbo
 export const createTask = async (taskData) => {
   const response = await fetch(`${API_BASE_URL}/tasks`, {

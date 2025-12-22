@@ -12,10 +12,11 @@ export default function AllTask() {
   return (
     <div className="bg-gray-900/70 p-6 rounded-2xl space-y-4">
       {/* Header */}
-      <div className="grid grid-cols-3 text-gray-400 text-sm font-semibold px-4">
+      <div className="grid grid-cols-4 items-center text-gray-400 text-sm font-semibold px-4 py-3">
         <span>Assigned To</span>
         <span>Task</span>
         <span className="text-right">Status</span>
+        <span className="text-right">Delete</span>
       </div>
 
       {/* Task Card */}
@@ -25,6 +26,7 @@ export default function AllTask() {
           description={t?.description}
           status={t?.status}
           key={t?._id}
+          id={t?._id}
         />
       ))}
     </div>

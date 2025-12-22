@@ -1,4 +1,5 @@
 import { useTaskContext } from "../../context/TaskContext";
+import Swal from "sweetalert2";
 
 export default function SingleTask({
   id,
@@ -36,7 +37,22 @@ export default function SingleTask({
           </span>
         ) : (
           <button
-            onClick={() => updateTaskStatus(id)}
+            onClick={() => {
+              Swal.fire({
+                title: "Mark task as completed?",
+                text: "You won’t be able to change this.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Mark as Complete✅",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#22c55e",
+                cancelButtonColor: "#374151",
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  updateTaskStatus(id);
+                }
+              });
+            }}
             className="mt-3 px-3 py-1 rounded-md bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition"
           >
             Mark as Completed

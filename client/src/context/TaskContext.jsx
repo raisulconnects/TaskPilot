@@ -4,6 +4,7 @@ import {
   fetchTasksByEmployee,
   createTask as createTaskService,
   updateTaskStatus as updateTaskStatusService,
+  deleteTaskStatus as deleteTaskStatusService,
   fetchAllEmployeeInfo,
 } from "../services/taskService";
 import { useAuthContext } from "./AuthContext";
@@ -98,6 +99,23 @@ export const TaskContextProvider = ({ children }) => {
     }
   };
 
+  // Admin Can Delete A Particular Task From the Admin Dashboard
+  const deleteATask = async (taskId) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const updatedTask = await deleteTaskStatusService(taskId);
+      fetchTasks();
+      return updatedTask;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Optional: Get dashboard stats for employee
   const getDashboardStats = () => {
     if (!user) return {};
@@ -129,6 +147,7 @@ export const TaskContextProvider = ({ children }) => {
         getDashboardStats,
         fetchOnlyEmployees,
         allEmployees,
+        deleteATask,
       }}
     >
       {children}
