@@ -4,7 +4,7 @@ const taskSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, "Task Tilte is missing"],
     },
 
     description: {
@@ -13,13 +13,14 @@ const taskSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      required: true,
+      required: [true, "Please Select Category"],
     },
 
     priority: {
       type: String,
       enum: ["Low", "Medium", "High", "Average", "General"],
       default: "Medium",
+      required: [true, "Please add the task Priority"],
     },
 
     status: {
@@ -36,7 +37,7 @@ const taskSchema = new mongoose.Schema(
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
-      required: true,
+      required: [true, "Please Select who this task is assigned to"],
     },
 
     assignedBy: {
