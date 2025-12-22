@@ -58,9 +58,22 @@ const markTaskCompleted = async (req, res) => {
   }
 };
 
+// Delete A Particular Task
+const deleteATask = async (req, res) => {
+  try {
+    const task = await Task.findByIdAndDelete(req.params.taskId);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    res.status(200).json({ message: "Task Was Deleted", task });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getAllTasks,
   getEmployeeTasks,
   markTaskCompleted,
   postATask,
+  deleteATask,
 };
