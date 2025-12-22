@@ -1,3 +1,4 @@
+import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import NewTask from "../Task Boxes/NewTask";
 import TaskList from "../Task Boxes/TaskList";
@@ -8,6 +9,7 @@ export default function EmployeeDashboard() {
       <Header />
       <NewTask />
       <TaskList />
+      <Footer />
     </div>
   );
 }

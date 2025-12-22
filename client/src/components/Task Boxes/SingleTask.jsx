@@ -22,7 +22,9 @@ export default function SingleTask({
         <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gray-700">
           {priority}
         </span>
-        <span className="text-sm opacity-90 font-medium">{dueDate}</span>
+        <span className="text-sm opacity-90 font-medium">
+          {new Date(dueDate).toLocaleDateString()}
+        </span>
       </div>
 
       <div className="mt-5 space-y-2">

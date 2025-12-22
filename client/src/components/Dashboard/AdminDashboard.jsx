@@ -1,3 +1,4 @@
+import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import AllTask from "../Task Boxes/AllTask";
 import CreateTask from "../Task Boxes/CreateTask";
@@ -8,6 +9,7 @@ export default function AdminDashboard() {
       <Header />
       <CreateTask />
       <AllTask />
+      {/* <Footer /> */}
     </div>
   );
 }
