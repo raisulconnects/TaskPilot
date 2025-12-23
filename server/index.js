@@ -12,7 +12,6 @@ app.use(cors());
 app.use(express.json()); // for parsing JSON requests
 
 // Routes
-// app.use("/api/admins", require("./routes/adminRoutes"));
 app.use("/api/allemployees", require("./routes/employeeRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/tasks", require("./routes/taskRoutes"));
