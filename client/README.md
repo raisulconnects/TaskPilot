@@ -1,16 +1,127 @@
-# React + Vite
+![TaskPilot](../screenshots/taskpilotLogo.png)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 📌 TaskPilot
 
-Currently, two official plugins are available:
+TaskPilot is a full-stack task management application built with the MERN stack.
+It allows admins and employees to manage tasks efficiently with a clean, modern UI and a scalable backend connected to MongoDB Atlas.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project started as a frontend-only idea and was later extended with a custom Express backend to support real database persistence and future authentication.
 
-## React Compiler
+## 🚀 Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- ✅ Implemented
 
-## Expanding the ESLint configuration
+- 📋 Task creation and management
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🗂 Task status handling (assigned / completed)
+
+- 🧑‍💼 Admin & employee workflow logic (single API design)
+
+- 🌐 RESTful API built with Express
+
+- 🗄 MongoDB Atlas integration using Mongoose
+
+- 🎨 Modern responsive UI using Tailwind CSS
+
+- ⚡ Fast frontend setup with Vite
+
+- 🔔 Interactive alerts using SweetAlert2
+
+## 🛠 Planned / In Progress
+
+- 🔐 Authentication & authorization using JWT
+- ⚡ Integrate AI With IT
+
+# 🛠 Tech Stack
+
+### Frontend (Client)
+
+- React 19
+
+- Vite
+
+- Tailwind CSS
+
+- React Icons
+
+- SweetAlert2
+
+### Backend (Server)
+
+- Node.js
+
+- Express.js
+
+- MongoDB Atlas
+
+- Mongoose
+
+- bcryptjs
+
+## 📂 Project Structure
+
+```text
+taskpilot/
+│
+├── client/            # React + Vite frontend
+│   ├── src/
+│   ├── package.json
+│
+├── server/            # Express backend
+│   ├── index.js
+│   ├── models/
+│   ├── routes/
+│   ├── package.json
+│
+└── README.md
+```
+
+## ⚙️ Environment Variables
+
+```text
+PORT=5000
+MONGODB_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_secret_key   # (for future use)
+```
+
+## 🧪 Installation & Setup
+
+Follow the steps below to run the project locally.
+
+---
+
+### 1 Clone the Repository
+
+```bash
+git clone https://github.com/your-username/taskpilot.git
+cd taskpilot
+```
+
+### 2 Backend Setup
+
+```bash
+cd server
+npm install
+npm run dev
+```
+
+### 3 Frontend Setup
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+## 🔗 Database
+
+- The app uses MongoDB Atlas
+- Connected via Mongoose
+- You can view and manage data using MongoDB Compass
+
+## 🧠 Design Decisions
+
+- Single backend API for both admin and employee logic
+- Backend introduced early to avoid reliance on localStorage
+- Clean separation between frontend and backend
+- Scalable structure to easily add authentication later
