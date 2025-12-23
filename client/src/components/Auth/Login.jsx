@@ -78,13 +78,19 @@ export default function Login() {
 
           {/* Actions */}
           <div className="flex flex-col gap-3 pt-2">
-            {error && <p className="text-white text-center">{error}</p>}
+            {error && (
+              <p className="text-white text-center">
+                <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400 text-center font-bold">
+                  <span className="animate-pulse">{error}.</span>
+                </div>
+              </p>
+            )}
             <button
               type="submit"
               className="w-full rounded-xl bg-amber-400 text-gray-900 font-semibold py-2.5 hover:bg-amber-300 active:scale-[0.98] transition"
               disabled={loading}
             >
-              Login
+              {loading ? "Logging In" : "Login"}
             </button>
 
             <button
