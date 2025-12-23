@@ -1,5 +1,3 @@
-![TaskPilot](../screenshots/taskpilotLogo.png)
-
 # 📌 TaskPilot
 
 TaskPilot is a full-stack task management application built with the MERN stack.
