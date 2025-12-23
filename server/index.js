@@ -8,7 +8,17 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000", // local React (CRA)
+      "http://localhost:5173", // local React (Vite)
+      "https://taskkpilot.netlify.app", // ✅ Netlify frontend
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json()); // for parsing JSON requests
 
 // Routes
