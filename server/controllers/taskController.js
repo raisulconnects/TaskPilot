@@ -21,8 +21,27 @@ const postATask = async (req, res) => {
 };
 
 // Get all tasks (for admin)
+// const getAllTasks = async (req, res) => {
+//   try {
+//     const tasks = await Task.find()
+//       .populate("assignedTo", "name email")
+//       .sort({ createdAt: -1 });
+//     res.status(200).json(tasks);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+
 const getAllTasks = async (req, res) => {
   try {
+    const now = new Date();
+
+    // Only tasks NOT completed and with past dueDate ( age dekhbe status then check kore it does the work )
+    await Task.updateMany(
+      { status: { $ne: "completed" }, dueDate: { $lt: now } },
+      { $set: { status: "failed" } }
+    );
+
     const tasks = await Task.find()
       .populate("assignedTo", "name email")
       .sort({ createdAt: -1 });
