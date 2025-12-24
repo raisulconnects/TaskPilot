@@ -2,9 +2,8 @@ import { useTaskContext } from "../../context/TaskContext";
 import Swal from "sweetalert2";
 
 export default function AllTaskTaskCard({ name, description, status, id }) {
-  const { deleteATask } = useTaskContext();
+  const { deleteATask, updateTask, taskEdit } = useTaskContext();
 
-  // Map status to Tailwind classes
   const colorClasses = {
     completed: {
       bg: "bg-green-500/15",
@@ -28,6 +27,37 @@ export default function AllTaskTaskCard({ name, description, status, id }) {
 
   const taskColor = colorClasses[status] || colorClasses.pending;
 
+  const handleEdit = () => {
+    Swal.fire({
+      title: "Edit Task",
+      html: `
+        <input id="swal-name" class="swal2-input" placeholder="Task Name" value="${name}" disabled>
+        <textarea id="swal-desc" class="swal2-textarea" placeholder="Description">${description}</textarea>
+        <select id="swal-status" class="swal2-select">
+          <option value="assigned" ${
+            status === "assigned" ? "selected" : ""
+          }>Assigned</option>
+          <option value="completed" ${
+            status === "completed" ? "selected" : ""
+          }>Completed</option>
+        </select>
+      `,
+      showCancelButton: true,
+      confirmButtonText: "Update",
+      preConfirm: () => {
+        return {
+          description: document.getElementById("swal-desc").value,
+          status: document.getElementById("swal-status").value,
+        };
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        taskEdit(id, result.value);
+        // console.log(result.value);
+      }
+    });
+  };
+
   return (
     <div
       className={`grid grid-cols-4 items-center ${taskColor.bg} ${taskColor.border} px-4 py-4 rounded-xl text-white ${taskColor.hover} transition`}
@@ -37,20 +67,39 @@ export default function AllTaskTaskCard({ name, description, status, id }) {
       <span className={`text-right ${taskColor.text} font-semibold`}>
         {status}
       </span>
-      <span className="text-right">
+
+      <span className="flex justify-end gap-2">
+        {/* EDIT */}
         <button
+          onClick={handleEdit}
+          title="Edit Task"
           className="
-      inline-flex items-center justify-center
-      h-9 w-9
-      rounded-lg
-      border border-red-500/40
-      text-red-400
-      hover:bg-red-500/15
-      hover:text-red-300
-      transition
-      font-semibold
-    "
+            h-9 w-9
+            rounded-lg
+            border border-yellow-500/40
+            text-yellow-400
+            hover:bg-yellow-500/15
+            hover:text-yellow-300
+            transition
+            font-semibold
+          "
+        >
+          ✎
+        </button>
+
+        {/* DELETE */}
+        <button
           title="Delete Task"
+          className="
+            h-9 w-9
+            rounded-lg
+            border border-red-500/40
+            text-red-400
+            hover:bg-red-500/15
+            hover:text-red-300
+            transition
+            font-semibold
+          "
           onClick={() => {
             Swal.fire({
               title: "Delete this task?",

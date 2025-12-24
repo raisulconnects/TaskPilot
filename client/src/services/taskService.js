@@ -61,6 +61,28 @@ export const deleteTaskStatus = async (taskId) => {
   }
 };
 
+// Edit a Particular Assigned Task ---- WORKING HERE
+export const updateTaskEdit = async (taskId, taskData) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/tasks/${taskId}/edit`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(taskData),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to Edit Task");
+    }
+
+    return await res.json();
+  } catch (e) {
+    console.log("Error Occurred While Editing Task.", e.message);
+    throw e;
+  }
+};
+
 // Admin Task Create korle AdminDashboard theke eita trigger korbo
 export const createTask = async (taskData) => {
   const response = await fetch(`${API_BASE_URL}/tasks`, {

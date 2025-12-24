@@ -5,6 +5,7 @@ import {
   createTask as createTaskService,
   updateTaskStatus as updateTaskStatusService,
   deleteTaskStatus as deleteTaskStatusService,
+  updateTaskEdit as updateTaskEditService,
   fetchAllEmployeeInfo,
 } from "../services/taskService";
 import { useAuthContext } from "./AuthContext";
@@ -116,6 +117,23 @@ export const TaskContextProvider = ({ children }) => {
     }
   };
 
+  // Admin Edits a Particular Assigned Task From Admindashboard  ----------- WORKING HERE
+  const taskEdit = async (taskId, taskData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const updatedTask = await updateTaskEditService(taskId, taskData);
+      fetchTasks();
+      return updatedTask;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Optional: Get dashboard stats for employee
   const getDashboardStats = () => {
     if (!user) return {};
@@ -148,6 +166,7 @@ export const TaskContextProvider = ({ children }) => {
         fetchOnlyEmployees,
         allEmployees,
         deleteATask,
+        taskEdit,
       }}
     >
       {children}

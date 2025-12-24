@@ -47,7 +47,7 @@ export default function AllTask() {
         <span>Assigned To</span>
         <span>Task</span>
         <span className="text-right">Status</span>
-        <span className="text-right">Delete</span>
+        <span className="text-right">Options</span>
       </div>
 
       {/* Task Cards */}

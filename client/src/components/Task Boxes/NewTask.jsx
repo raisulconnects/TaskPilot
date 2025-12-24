@@ -11,7 +11,15 @@ export default function NewTask() {
   // Recompute stats after tasks are loaded
   const { assigned, in_progress, completed, failed } = getDashboardStats();
 
-  if (loading) return <p>Loading tasks...</p>;
+  if (loading) {
+    return (
+      <div className="h-80 flex items-center justify-center">
+        <p className="text-gray-400 text-lg font-medium animate-pulse">
+          Loading tasks…
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-10 flex gap-5">

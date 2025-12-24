@@ -27,17 +27,25 @@ export default function TaskList() {
         select-none
       "
     >
-      {tasks.map((t) => (
-        <SingleTask
-          key={t._id}
-          title={t.title}
-          description={t.description}
-          priority={t.priority}
-          dueDate={t.dueDate}
-          status={t.status}
-          id={t._id}
-        />
-      ))}
+      {tasks.length > 0 ? (
+        tasks.map((t) => (
+          <SingleTask
+            key={t._id}
+            title={t.title}
+            description={t.description}
+            priority={t.priority}
+            dueDate={t.dueDate}
+            status={t.status}
+            id={t._id}
+          />
+        ))
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <p className="text-gray-400 text-lg font-medium italic animate-pulse">
+            You’re all caught up ✨
+          </p>
+        </div>
+      )}
     </div>
   );
 }
