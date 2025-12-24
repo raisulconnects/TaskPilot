@@ -1,3 +1,4 @@
+import DashboardCharts from "../Analytics/DashboardCharts";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import AllTask from "../Task Boxes/AllTask";
@@ -9,6 +10,7 @@ export default function AdminDashboard() {
       <Header />
       <CreateTask />
       <AllTask />
+      {/* <DashboardCharts /> */}
       {/* <Footer /> */}
     </div>
   );

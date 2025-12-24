@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTaskContext } from "../../context/TaskContext";
+import DashboardCharts from "../Analytics/DashboardCharts"; // import the chart component
 
 export default function CreateTask() {
   const [category, setCategory] = useState("");
@@ -49,9 +50,10 @@ export default function CreateTask() {
   };
 
   return (
-    <div className="flex justify-center px-6 py-16">
-      <form className="w-full max-w-4xl bg-gray-900/70 backdrop-blur-md border border-gray-700 rounded-2xl p-8 shadow-xl">
-        <h2 className="text-2xl font-semibold text-center mb-6">
+    <div className="flex flex-col lg:flex-row gap-8 px-6 py-16">
+      {/* Form Section */}
+      <form className="flex-1 bg-gray-900/70 backdrop-blur-md border border-gray-700 rounded-2xl p-8 shadow-2xl max-w-2xl">
+        <h2 className="text-2xl font-semibold text-center mb-6 text-white">
           Create New Task
         </h2>
 
@@ -63,28 +65,25 @@ export default function CreateTask() {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              required={true}
+              required
               type="text"
               placeholder="Make a Button Design"
-              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 text-white"
             />
           </div>
 
           {/* Assign To */}
           <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-300">Assign To</label>
-
             <select
-              required // ✅ prevents empty submission
+              required
               value={assignedTo}
               onChange={(e) => setAssignedTo(e.target.value)}
-              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 text-white"
             >
-              {/* Placeholder option */}
               <option value="" disabled>
                 Select an employee
               </option>
-
               {allEmployees
                 ?.filter((emp) => emp.role !== "admin")
                 .map((emp) => (
@@ -99,11 +98,11 @@ export default function CreateTask() {
           <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-300">Due Date</label>
             <input
-              required={true}
+              required
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               type="date"
-              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 text-white"
             />
           </div>
 
@@ -111,10 +110,10 @@ export default function CreateTask() {
           <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-300">Category</label>
             <select
-              required={true}
+              required
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 text-white"
             >
               <option value="" disabled>
                 Select Category
@@ -130,10 +129,10 @@ export default function CreateTask() {
           <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-300">Priority</label>
             <select
-              required={true}
+              required
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400 text-white"
             >
               <option value="" disabled>
                 Select Priority
@@ -144,24 +143,25 @@ export default function CreateTask() {
             </select>
           </div>
 
-          {/* Description (full width) */}
+          {/* Description */}
           <div className="flex flex-col gap-2 md:col-span-2">
             <label className="text-sm text-gray-300">Description</label>
             <textarea
-              required={true}
+              required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows="5"
               placeholder="Describe the task..."
-              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-amber-400 text-white"
             />
           </div>
         </div>
+
         {/* Error Message */}
         {error && (
           <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400 text-center font-bold">
             <span className="animate-pulse">
-              {error}. Please Fill the whole form and try again.
+              {error}. Please fill the whole form and try again.
             </span>
           </div>
         )}
@@ -174,14 +174,18 @@ export default function CreateTask() {
           className={`mt-6 w-full rounded-lg py-3 font-medium transition
     ${
       loading
-        ? "bg-blue-600/50 cursor-not-allowed"
-        : "bg-blue-600 hover:bg-blue-700"
-    }
-  `}
+        ? "bg-amber-400/50 cursor-not-allowed text-gray-800"
+        : "bg-amber-400 hover:bg-amber-300 text-gray-900"
+    }`}
         >
           {loading ? "Creating Task..." : "Create Task"}
         </button>
       </form>
+
+      {/* Dashboard Charts Section */}
+      <div className="flex-1">
+        <DashboardCharts />
+      </div>
     </div>
   );
 }
