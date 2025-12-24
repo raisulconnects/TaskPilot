@@ -1,8 +1,16 @@
+import { useState } from "react";
 import { useTaskContext } from "../../context/TaskContext";
 import Swal from "sweetalert2";
 
-export default function AllTaskTaskCard({ name, description, status, id }) {
+export default function AllTaskTaskCard({
+  name,
+  description,
+  status,
+  id,
+  duedate,
+}) {
   const { deleteATask, updateTask, taskEdit } = useTaskContext();
+  const [expanded, setExpanded] = useState(false);
 
   const colorClasses = {
     completed: {
@@ -63,7 +71,21 @@ export default function AllTaskTaskCard({ name, description, status, id }) {
       className={`grid grid-cols-4 items-center ${taskColor.bg} ${taskColor.border} px-4 py-4 rounded-xl text-white ${taskColor.hover} transition`}
     >
       <span className="font-medium">{name}</span>
-      <span className="text-gray-200 truncate">{description}</span>
+      <span
+        className="flex flex-col gap-1"
+        onClick={() => setExpanded((prev) => !prev)}
+      >
+        <span
+          className={`text-gray-200 ${
+            expanded ? "" : "truncate"
+          } cursor-pointer`}
+        >
+          {description}
+        </span>
+        <span className="text-xs text-gray-400">
+          Due: {new Date(duedate).toLocaleDateString()}
+        </span>
+      </span>
       <span className={`text-right ${taskColor.text} font-semibold`}>
         {status}
       </span>

@@ -35,6 +35,12 @@ export default function AllTask() {
           />
 
           <FilterButton
+            label="Failed"
+            active={filter === "failed"}
+            onClick={() => setFilter("failed")}
+          />
+
+          <FilterButton
             label="Completed"
             active={filter === "completed"}
             onClick={() => setFilter("completed")}
@@ -59,6 +65,7 @@ export default function AllTask() {
             name={t?.assignedTo?.name}
             description={t?.description}
             status={t?.status}
+            duedate={t?.dueDate}
           />
         ))
       ) : (
