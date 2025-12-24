@@ -6,7 +6,7 @@ const postATask = async (req, res) => {
     const task = await Task.create(req.body);
 
     console.log("--------> Task Was Added Successfully!");
-    console.log("ParticularTask:", task);
+    // console.log("ParticularTask:", task);
 
     return res.status(201).json({
       task,
@@ -70,10 +70,24 @@ const deleteATask = async (req, res) => {
   }
 };
 
+// Edit a Particular Task
+const editATask = async (req, res) => {
+  const newTaskData = req.body;
+  try {
+    const task = await Task.findByIdAndUpdate(req.params.taskId, newTaskData);
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    res.status(200).json({ message: "Task Was Deleted", task });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getAllTasks,
   getEmployeeTasks,
   markTaskCompleted,
   postATask,
   deleteATask,
+  editATask,
 };
