@@ -25,7 +25,8 @@ export const TaskContextProvider = ({ children }) => {
       const info = await fetchAllEmployeeInfo();
       setAllEmployees(info);
     } catch (e) {
-      console.log("Error from TaskContext fetchOnlyEmployees.", e.message);
+      setError(e.message);
+      // console.log("Error from TaskContext fetchOnlyEmployees.", e.message);
     }
   };
 
@@ -63,7 +64,7 @@ export const TaskContextProvider = ({ children }) => {
       )
     );
 
-    console.log("From MarkTaskCompleted = TaskContext");
+    // console.log("From MarkTaskCompleted = TaskContext");
   };
 
   // Admin creates new task

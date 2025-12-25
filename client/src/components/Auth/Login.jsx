@@ -9,8 +9,8 @@ export default function Login() {
 
   const submitHander = async (e) => {
     e.preventDefault();
-    console.log("Login Button Pressed!");
-    console.log(email, password);
+    // console.log("Login Button Pressed!");
+    // console.log(email, password);
 
     await login(email, password);
 
