@@ -52,7 +52,7 @@ This project started as a frontend-only idea and was later extended with a custo
 
 - MongoDB Atlas
 
-- Mongoose
+- Mongoose ODM
 
 - bcryptjs
 
