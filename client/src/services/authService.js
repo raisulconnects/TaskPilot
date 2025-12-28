@@ -4,6 +4,7 @@ export const handleLogin = async (email, password) => {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
@@ -29,6 +30,15 @@ export const handleLogin = async (email, password) => {
 };
 
 export const logoutUser = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 400));
+  try {
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("Auth error:", e.message);
+    throw e; // important
+  }
   return true;
 };

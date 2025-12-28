@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react"; // ✅ added useEffect
 import { handleLogin, logoutUser } from "../services/authService";
+import { API_BASE_URL } from "../api";
 
 const AuthContext = createContext(null);
 
@@ -10,12 +11,26 @@ export const AuthContextProvider = ({ children }) => {
 
   const isAuthenticated = !!user;
 
-  // ✅ Restore user from localStorage on app load
+  // Restore user from Auth/Me API on app load
   useEffect(() => {
-    const storedUser = localStorage.getItem("taskpilotUser"); // key for storage
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    async function fetchUser() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/auth/me`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        } else {
+          setUser(null);
+        }
+      } catch (e) {
+        console.log("Login Please!", e.message);
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchUser();
   }, []);
 
   // LOGIN
@@ -28,7 +43,7 @@ export const AuthContextProvider = ({ children }) => {
       setUser(loggedInUser);
 
       // ✅ Persist login in localStorage
-      localStorage.setItem("taskpilotUser", JSON.stringify(loggedInUser));
+      // localStorage.setItem("taskpilotUser", JSON.stringify(loggedInUser));
 
       return true; // useful for navigation
     } catch (err) {
@@ -46,7 +61,7 @@ export const AuthContextProvider = ({ children }) => {
     setUser(null);
 
     // ✅ Remove persisted user from localStorage
-    localStorage.removeItem("taskpilotUser");
+    // localStorage.removeItem("taskpilotUser");
 
     setLoading(false);
   };
