@@ -4,12 +4,14 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/errorHandler.middleware");
 const logger = require("./middleware/logger.middleware");
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 
 connectDB();
 
 const app = express();
+app.use(cookieParser());
 app.use(
   cors({
     origin: [
