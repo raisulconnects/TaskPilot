@@ -22,6 +22,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        id: user._id,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
@@ -78,6 +79,7 @@ const authCheck = (req, res) => {
       name: decoded.name,
       email: decoded.email,
       role: decoded.role,
+      id: decoded.id,
     });
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
