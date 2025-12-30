@@ -4,7 +4,9 @@ import { API_BASE_URL } from "../api";
  * Simulate fetching all tasks (admin)
  */
 export const fetchAllTasks = async () => {
-  const response = await fetch(`${API_BASE_URL}/tasks`);
+  const response = await fetch(`${API_BASE_URL}/tasks`, {
+    credentials: "include",
+  });
   const data = await response.json();
   return data;
 };
@@ -47,6 +49,7 @@ export const updateTaskStatus = async (taskId) => {
 export const deleteTaskStatus = async (taskId) => {
   try {
     const res = await fetch(`${API_BASE_URL}/tasks/${taskId}/delete`, {
+      credentials: "include",
       method: "delete",
     });
 
@@ -65,6 +68,7 @@ export const deleteTaskStatus = async (taskId) => {
 export const updateTaskEdit = async (taskId, taskData) => {
   try {
     const res = await fetch(`${API_BASE_URL}/tasks/${taskId}/edit`, {
+      credentials: "include",
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -86,6 +90,7 @@ export const updateTaskEdit = async (taskId, taskData) => {
 // Admin Task Create korle AdminDashboard theke eita trigger korbo
 export const createTask = async (taskData) => {
   const response = await fetch(`${API_BASE_URL}/tasks`, {
+    credentials: "include",
     method: "POST",
     headers: {
       "Content-Type": "application/json",
