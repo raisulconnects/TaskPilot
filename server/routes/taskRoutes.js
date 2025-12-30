@@ -7,20 +7,32 @@ const {
   deleteATask,
   editATask,
 } = require("../controllers/taskController");
+const roleCheckMiddleware = require("../middleware/roleCheck.middleware");
+const authCheckMiddleware = require("../middleware/authCheck.middleware");
 
 // Admin Posting a Task Through Admin Dashboard
-router.post("/", postATask);
+router.post("/", authCheckMiddleware, roleCheckMiddleware("admin"), postATask);
 
 // Admin: get all tasks
-router.get("/", getAllTasks);
+router.get("/", authCheckMiddleware, roleCheckMiddleware("admin"), getAllTasks);
 
 // // Employee: mark a task completed
 router.patch("/:taskId/complete", markTaskCompleted);
 
 // Admin Can Delete Any Particular Task
-router.delete("/:taskId/delete", deleteATask);
+router.delete(
+  "/:taskId/delete",
+  authCheckMiddleware,
+  roleCheckMiddleware("admin"),
+  deleteATask
+);
 
 // Admin Can Edit Any Particular Task
-router.patch("/:taskId/edit", editATask);
+router.patch(
+  "/:taskId/edit",
+  authCheckMiddleware,
+  roleCheckMiddleware("admin"),
+  editATask
+);
 
 module.exports = router;
