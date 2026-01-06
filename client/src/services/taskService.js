@@ -15,7 +15,9 @@ export const fetchAllTasks = async () => {
  * Fetch tasks assigned to a specific employee
  */
 export const fetchTasksByEmployee = async (employeeId) => {
-  const response = await fetch(`${API_BASE_URL}/tasks`);
+  const response = await fetch(`${API_BASE_URL}/tasks`, {
+    credentials: "include",
+  });
   const tasksData = await response.json();
   return tasksData.filter((task) => task.assignedTo._id === employeeId);
 };
@@ -27,6 +29,7 @@ export const updateTaskStatus = async (taskId) => {
   try {
     const res = await fetch(`${API_BASE_URL}/tasks/${taskId}/complete`, {
       method: "PATCH",
+      credentials: "include",
     });
 
     if (!res.ok) {

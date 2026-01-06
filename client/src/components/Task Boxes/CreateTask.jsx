@@ -82,7 +82,10 @@ export default function CreateTask() {
       // We only auto-fill description (safe & expected)
       setDescription(data.description || "");
     } catch (error) {
-      setAiError("AI generation failed. Please try again.", error.message);
+      setAiError(
+        "AI model is overloaded. Please try again in a few seconds.",
+        error.message
+      );
     } finally {
       setAiLoading(false);
     }
