@@ -18,8 +18,6 @@ Title: "${title}"
 
 Respond ONLY in valid JSON with:
 - description (string)
-- objectives (array of strings)
-- acceptanceCriteria (array of strings)
 
 Do not include explanations.
 Do not use markdown.

@@ -14,10 +14,20 @@ const authCheckMiddleware = require("../middleware/authCheck.middleware");
 router.post("/", authCheckMiddleware, roleCheckMiddleware("admin"), postATask);
 
 // Admin: get all tasks
-router.get("/", authCheckMiddleware, roleCheckMiddleware("admin"), getAllTasks);
+router.get(
+  "/",
+  authCheckMiddleware,
+  roleCheckMiddleware("admin", "employee"),
+  getAllTasks
+);
 
 // // Employee: mark a task completed
-router.patch("/:taskId/complete", markTaskCompleted);
+router.patch(
+  "/:taskId/complete",
+  authCheckMiddleware,
+  roleCheckMiddleware("employee"),
+  markTaskCompleted
+);
 
 // Admin Can Delete Any Particular Task
 router.delete(
