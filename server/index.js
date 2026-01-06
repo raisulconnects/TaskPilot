@@ -30,6 +30,9 @@ app.use("/api/allemployees", require("./routes/employeeRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/tasks", require("./routes/taskRoutes"));
 
+// AI Route (Special)
+app.use("/api/ai/", require("./routes/geminiRoutes"));
+
 app.get("/healthcheck", (req, res) => {
   res.send("Healthy API!");
 });
