@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTaskContext } from "../../context/TaskContext";
-import DashboardCharts from "../Analytics/DashboardCharts"; // import the chart component
+import DashboardCharts from "../Analytics/DashboardCharts";
 
 export default function CreateTask() {
   const [category, setCategory] = useState("");
@@ -9,6 +9,8 @@ export default function CreateTask() {
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [description, setDescription] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   const {
     fetchOnlyEmployees,
@@ -46,6 +48,43 @@ export default function CreateTask() {
       setTitle("");
       setDueDate("");
       setDescription("");
+    }
+  };
+
+  const handleGenerateDescriptionAI = async () => {
+    if (!title.trim()) {
+      setAiError("Please enter a task title first.");
+      return;
+    }
+
+    try {
+      setAiLoading(true);
+      setAiError("");
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/ai/gendesc`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ title }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("AI failed to generate description");
+      }
+
+      const data = await res.json();
+
+      // We only auto-fill description (safe & expected)
+      setDescription(data.description || "");
+    } catch (error) {
+      setAiError("AI generation failed. Please try again.", error.message);
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -165,6 +204,27 @@ export default function CreateTask() {
             </span>
           </div>
         )}
+
+        {aiError && (
+          <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400 text-center font-bold">
+            <span className="animate-pulse">{aiError}</span>
+          </div>
+        )}
+
+        {/* AI Button */}
+        <button
+          type="button"
+          onClick={handleGenerateDescriptionAI}
+          disabled={aiLoading}
+          className={`mt-6 w-full rounded-lg py-3 font-medium transition
+      ${
+        aiLoading
+          ? "bg-amber-400/50 cursor-not-allowed text-gray-800"
+          : "bg-amber-400 hover:bg-amber-300 text-gray-900"
+      }`}
+        >
+          {aiLoading ? "Generating with AI..." : "Generate Description with AI"}
+        </button>
 
         {/* Submit Button */}
         <button
