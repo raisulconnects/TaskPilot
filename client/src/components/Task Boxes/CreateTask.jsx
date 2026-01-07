@@ -11,6 +11,8 @@ export default function CreateTask() {
   const [description, setDescription] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [catPriLoading, setCatPriLoading] = useState(false);
+  const [catPriError, setCatPriError] = useState("");
 
   const {
     fetchOnlyEmployees,
@@ -88,6 +90,51 @@ export default function CreateTask() {
       );
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  const handleGenerateCategoryAndPriorityAI = async () => {
+    if (!title.trim()) {
+      setCatPriError("Please enter a task title first.");
+      return;
+    }
+
+    try {
+      setCatPriLoading(true);
+      setCatPriError("");
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/ai/gencatpri`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ title }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("AI failed to generate category and priority");
+      }
+
+      const data = await res.json();
+
+      // Auto-fill category and priority
+      if (data.category) {
+        setCategory(data.category);
+      }
+      if (data.priority) {
+        setPriority(data.priority);
+      }
+    } catch (err) {
+      setCatPriError(
+        "AI model is overloaded. Please try again in a few seconds."
+      );
+      console.error("Category/Priority AI Error:", err.message);
+    } finally {
+      setCatPriLoading(false);
     }
   };
 
@@ -214,20 +261,42 @@ export default function CreateTask() {
           </div>
         )}
 
-        {/* AI Button */}
-        <button
-          type="button"
-          onClick={handleGenerateDescriptionAI}
-          disabled={aiLoading}
-          className={`mt-6 w-full rounded-lg py-3 font-medium transition
+        {catPriError && (
+          <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400 text-center font-bold">
+            <span className="animate-pulse">{catPriError}</span>
+          </div>
+        )}
+
+        {/* AI Buttons */}
+        <div className="flex gap-4 mt-6">
+          <button
+            type="button"
+            onClick={handleGenerateCategoryAndPriorityAI}
+            disabled={catPriLoading}
+            className={`flex-1 rounded-lg py-3 font-medium transition
+      ${
+        catPriLoading
+          ? "bg-amber-400/50 cursor-not-allowed text-gray-800"
+          : "bg-amber-400 hover:bg-amber-300 text-gray-900"
+      }`}
+          >
+            {catPriLoading ? "Generating..." : "Autofill Category and Priority"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGenerateDescriptionAI}
+            disabled={aiLoading}
+            className={`flex-1 rounded-lg py-3 font-medium transition
       ${
         aiLoading
           ? "bg-amber-400/50 cursor-not-allowed text-gray-800"
           : "bg-amber-400 hover:bg-amber-300 text-gray-900"
       }`}
-        >
-          {aiLoading ? "Generating with AI..." : "Generate Description with AI"}
-        </button>
+          >
+            {aiLoading ? "Generating..." : "Generate Description with AI"}
+          </button>
+        </div>
 
         {/* Submit Button */}
         <button
