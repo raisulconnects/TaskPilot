@@ -19,10 +19,10 @@ export default function TaskList() {
       {...events}
       id="TaskList"
       className="
-        mt-5 h-80
-        flex gap-5 items-center
+        mt-4 sm:mt-5 h-72 sm:h-80
+        flex gap-3 sm:gap-4 md:gap-5 items-center
         overflow-auto
-        px-4 py-2
+        px-2 sm:px-4 py-2
         cursor-grab
         select-none
       "

@@ -18,7 +18,7 @@ export default function SingleTask({
   return (
     <div
       className={`
-        h-full shrink-0 w-120 rounded-2xl p-5 text-white shadow-lg
+        h-full shrink-0 w-72 sm:w-80 md:w-96 lg:w-120 rounded-2xl p-4 sm:p-5 text-white shadow-lg
         hover:shadow-xl transition-all duration-300 hover:-translate-y-1
         ${
           completed
@@ -40,9 +40,9 @@ export default function SingleTask({
       </div>
 
       {/* Task Content */}
-      <div className="mt-5 space-y-2">
-        <h2 className="font-bold text-2xl leading-tight">{title}</h2>
-        <p className="text-[15px] font-medium opacity-95 line-clamp-3">
+      <div className="mt-4 sm:mt-5 space-y-2">
+        <h2 className="font-bold text-xl sm:text-2xl leading-tight">{title}</h2>
+        <p className="text-sm sm:text-[15px] font-medium opacity-95 line-clamp-3">
           {description}
         </p>
 

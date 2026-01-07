@@ -22,23 +22,23 @@ export default function NewTask() {
   }
 
   return (
-    <div className="mt-10 flex gap-5">
-      <div className="bg-red-400 w-80 px-10 py-10 rounded-2xl text-black">
+    <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row gap-4 sm:gap-5">
+      <div className="bg-red-400 w-full sm:w-80 px-6 sm:px-10 py-8 sm:py-10 rounded-2xl text-black">
         <div className="flex flex-col gap-2">
-          <div className="text-3xl font-bold">{completed}</div>
-          <div className="text-2xl font-semibold">Completed Task</div>
+          <div className="text-2xl sm:text-3xl font-bold">{completed}</div>
+          <div className="text-xl sm:text-2xl font-semibold">Completed Task</div>
         </div>
       </div>
-      <div className="bg-blue-400 w-80 px-10 py-10 rounded-2xl text-black">
+      <div className="bg-blue-400 w-full sm:w-80 px-6 sm:px-10 py-8 sm:py-10 rounded-2xl text-black">
         <div className="flex flex-col gap-2">
-          <div className="text-3xl font-bold">{assigned}</div>
-          <div className="text-2xl font-semibold">Assigned Task</div>
+          <div className="text-2xl sm:text-3xl font-bold">{assigned}</div>
+          <div className="text-xl sm:text-2xl font-semibold">Assigned Task</div>
         </div>
       </div>
-      <div className="bg-yellow-400 w-80 px-10 py-10 rounded-2xl text-black">
+      <div className="bg-yellow-400 w-full sm:w-80 px-6 sm:px-10 py-8 sm:py-10 rounded-2xl text-black">
         <div className="flex flex-col gap-2">
-          <div className="text-3xl font-bold">{failed}</div>
-          <div className="text-2xl font-semibold">Failed Task</div>
+          <div className="text-2xl sm:text-3xl font-bold">{failed}</div>
+          <div className="text-xl sm:text-2xl font-semibold">Failed Task</div>
         </div>
       </div>
     </div>

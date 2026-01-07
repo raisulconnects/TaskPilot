@@ -16,13 +16,13 @@ export default function AllTask() {
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
 
   return (
-    <div className="bg-gray-900/70 p-6 rounded-2xl space-y-4">
+    <div className="bg-gray-900/70 p-4 sm:p-6 rounded-2xl space-y-4">
       {/* Header + Filters */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-lg font-semibold text-white">All Tasks</h2>
 
         {/* Filter buttons */}
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <FilterButton
             label="All"
             active={filter === "all"}
@@ -48,8 +48,8 @@ export default function AllTask() {
         </div>
       </div>
 
-      {/* Table Header */}
-      <div className="grid grid-cols-4 items-center text-gray-400 text-sm font-semibold px-4 py-3">
+      {/* Table Header - Hidden on mobile, shown on larger screens */}
+      <div className="hidden md:grid grid-cols-4 items-center text-gray-400 text-sm font-semibold px-4 py-3">
         <span>Assigned To</span>
         <span>Task</span>
         <span className="text-right">Status</span>

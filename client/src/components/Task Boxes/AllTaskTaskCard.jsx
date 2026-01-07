@@ -68,29 +68,40 @@ export default function AllTaskTaskCard({
 
   return (
     <div
-      className={`grid grid-cols-4 items-center ${taskColor.bg} ${taskColor.border} px-4 py-4 rounded-xl text-white ${taskColor.hover} transition`}
+      className={`grid grid-cols-1 md:grid-cols-4 items-start md:items-center gap-3 md:gap-0 ${taskColor.bg} ${taskColor.border} px-4 py-4 rounded-xl text-white ${taskColor.hover} transition border`}
     >
-      <span className="font-medium">{name}</span>
-      <span
-        className="flex flex-col gap-1"
-        onClick={() => setExpanded((prev) => !prev)}
-      >
+      <div className="md:col-span-1">
+        <span className="text-xs text-gray-400 md:hidden">Assigned To:</span>
+        <span className="font-medium block">{name}</span>
+      </div>
+      <div className="md:col-span-1">
+        <span className="text-xs text-gray-400 md:hidden">Task:</span>
         <span
-          className={`text-gray-200 ${
-            expanded ? "" : "truncate"
-          } cursor-pointer`}
+          className="flex flex-col gap-1"
+          onClick={() => setExpanded((prev) => !prev)}
         >
-          {description}
+          <span
+            className={`text-gray-200 ${
+              expanded ? "" : "truncate"
+            } cursor-pointer`}
+          >
+            {description}
+          </span>
+          <span className="text-xs text-gray-400">
+            Due: {new Date(duedate).toLocaleDateString()}
+          </span>
         </span>
-        <span className="text-xs text-gray-400">
-          Due: {new Date(duedate).toLocaleDateString()}
+      </div>
+      <div className="md:col-span-1">
+        <span className="text-xs text-gray-400 md:hidden">Status:</span>
+        <span className={`md:text-right ${taskColor.text} font-semibold block`}>
+          {status}
         </span>
-      </span>
-      <span className={`text-right ${taskColor.text} font-semibold`}>
-        {status}
-      </span>
+      </div>
 
-      <span className="flex justify-end gap-2">
+      <div className="md:col-span-1">
+        <span className="text-xs text-gray-400 md:hidden mb-2 block">Options:</span>
+        <span className="flex justify-start md:justify-end gap-2">
         {/* EDIT */}
         <button
           onClick={handleEdit}
@@ -141,7 +152,8 @@ export default function AllTaskTaskCard({
         >
           ✕
         </button>
-      </span>
+        </span>
+      </div>
     </div>
   );
 }

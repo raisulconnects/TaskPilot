@@ -25,6 +25,7 @@ export default function CreateTask() {
 
   useEffect(() => {
     fetchOnlyEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (e) => {
@@ -139,9 +140,9 @@ export default function CreateTask() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 px-6 py-16">
+    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 px-0 sm:px-4 lg:px-6 py-8 sm:py-12 lg:py-16">
       {/* Form Section */}
-      <form className="flex-1 bg-gray-900/70 backdrop-blur-md border border-gray-700 rounded-2xl p-8 shadow-2xl max-w-2xl">
+      <form className="flex-1 bg-gray-900/70 backdrop-blur-md border border-gray-700 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-2xl max-w-2xl w-full">
         <h2 className="text-2xl font-semibold text-center mb-6 text-white">
           Create New Task
         </h2>
@@ -268,12 +269,12 @@ export default function CreateTask() {
         )}
 
         {/* AI Buttons */}
-        <div className="flex gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
           <button
             type="button"
             onClick={handleGenerateCategoryAndPriorityAI}
             disabled={catPriLoading}
-            className={`flex-1 rounded-lg py-3 font-medium transition
+            className={`flex-1 rounded-lg py-2.5 sm:py-3 px-4 text-sm sm:text-base font-medium transition
       ${
         catPriLoading
           ? "bg-amber-400/50 cursor-not-allowed text-gray-800"
@@ -287,7 +288,7 @@ export default function CreateTask() {
             type="button"
             onClick={handleGenerateDescriptionAI}
             disabled={aiLoading}
-            className={`flex-1 rounded-lg py-3 font-medium transition
+            className={`flex-1 rounded-lg py-2.5 sm:py-3 px-4 text-sm sm:text-base font-medium transition
       ${
         aiLoading
           ? "bg-amber-400/50 cursor-not-allowed text-gray-800"
