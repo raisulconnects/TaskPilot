@@ -2,13 +2,13 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
-});
+const MODEL_PRIORITY = [
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-1.5-flash",
+];
 
 export const generateTaskDescription = async (title) => {
-  //   console.log("My Gemini API KEY: ", process.env.GEMINI_API_KEY);
-
   const prompt = `
 You are a task management assistant.
 
@@ -23,23 +23,21 @@ Do not include explanations.
 Do not use markdown.
 `;
 
-  const result = await model.generateContent(prompt);
-  const responseText = result.response.text();
+  for (const modelName of MODEL_PRIORITY) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
 
-  // Gemini sometimes wraps JSON in extra text → we must be careful
-  try {
-    console.log("Gemini Generator Worked Successfully!");
-    return JSON.parse(responseText);
-  } catch (error) {
-    throw new Error("Failed to parse AI response");
-  }
-};
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
 
-const modelList = async (req, res) => {
-  try {
-    const models = await genAI.listModels();
-    res.json(models);
-  } catch (e) {
-    res.status(500).json({ message: "Failed to list models" });
+      console.log(`✅ Gemini worked with model: ${modelName}`);
+
+      return JSON.parse(responseText);
+    } catch (error) {
+      console.warn(`⚠️ Model failed: ${modelName}`);
+      console.warn(error.message);
+    }
   }
+
+  throw new Error("All AI models are currently unavailable");
 };
