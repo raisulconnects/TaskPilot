@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react"; // ✅ added useEffect
 import { handleLogin, logoutUser } from "../services/authService";
 import { API_BASE_URL } from "../api";
+import { io } from "socket.io-client";
 
 const AuthContext = createContext(null);
 
@@ -19,7 +20,14 @@ export const AuthContextProvider = ({ children }) => {
           credentials: "include",
         });
         if (res.ok) {
+          // Eita Socket IO Connection Stablish Kortese
+          const socket = io("http://localhost:5000");
+
           const data = await res.json();
+
+          // Stablish er pore Ekahen basically room er nam hoilo "join-room", shekhane room e dhuktese and payload e data.id dicchi jate uniquely chine
+          socket.emit("join-room", data.id);
+
           setUser(data);
         } else {
           setUser(null);
@@ -39,8 +47,17 @@ export const AuthContextProvider = ({ children }) => {
     setError(null);
 
     try {
+      // --------------------------------------------------
+      // This is Experimental For SocketIO
+      const socket = io("http://localhost:5000");
+      // --------------------------------------------------
+
       const loggedInUser = await handleLogin(email, password);
       setUser(loggedInUser);
+
+      // --------------------------------------------------
+      socket.emit(`user_${loggedInUser.id}`);
+      // --------------------------------------------------
 
       // ✅ Persist login in localStorage
       // localStorage.setItem("taskpilotUser", JSON.stringify(loggedInUser));
