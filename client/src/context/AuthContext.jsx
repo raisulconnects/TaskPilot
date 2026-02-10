@@ -41,10 +41,6 @@ export const AuthContextProvider = ({ children }) => {
       }
     }
     fetchUser();
-
-    return () => {
-      socketRef.current?.disconnect();
-    };
   }, []);
 
   // LOGIN
