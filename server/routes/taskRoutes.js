@@ -18,7 +18,7 @@ router.get(
   "/",
   authCheckMiddleware,
   roleCheckMiddleware("admin", "employee"),
-  getAllTasks
+  getAllTasks,
 );
 
 // // Employee: mark a task completed
@@ -26,7 +26,7 @@ router.patch(
   "/:taskId/complete",
   authCheckMiddleware,
   roleCheckMiddleware("employee"),
-  markTaskCompleted
+  markTaskCompleted,
 );
 
 // Admin Can Delete Any Particular Task
@@ -34,7 +34,7 @@ router.delete(
   "/:taskId/delete",
   authCheckMiddleware,
   roleCheckMiddleware("admin"),
-  deleteATask
+  deleteATask,
 );
 
 // Admin Can Edit Any Particular Task
@@ -42,7 +42,7 @@ router.patch(
   "/:taskId/edit",
   authCheckMiddleware,
   roleCheckMiddleware("admin"),
-  editATask
+  editATask,
 );
 
 module.exports = router;

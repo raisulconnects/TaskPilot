@@ -1,12 +1,22 @@
 const Task = require("../models/task.model");
+const { getIO } = require("../config/socket");
 
 // Admin Posting a Task From The Admin Dashboard
 const postATask = async (req, res) => {
   try {
     const task = await Task.create(req.body);
+    const io = getIO();
 
     console.log("--------> Task Was Added Successfully!");
     // console.log("ParticularTask:", task);
+
+    // 🔥 REAL-TIME PART (SERVER SIDE) SOCKET ER KAJ
+    const assignedUserId = task.assignedTo.toString();
+    console.log(assignedUserId);
+    if (assignedUserId) {
+      io.to(`user_${assignedUserId}`).emit("task-assigned", task);
+      console.log(`📡 Emitted task to user_${assignedUserId}`);
+    }
 
     return res.status(201).json({
       task,
@@ -39,7 +49,7 @@ const getAllTasks = async (req, res) => {
     // Only tasks NOT completed and with past dueDate ( age dekhbe status then check kore it does the work )
     await Task.updateMany(
       { status: { $ne: "completed" }, dueDate: { $lt: now } },
-      { $set: { status: "failed" } }
+      { $set: { status: "failed" } },
     );
 
     const tasks = await Task.find()
@@ -67,7 +77,7 @@ const markTaskCompleted = async (req, res) => {
     const task = await Task.findByIdAndUpdate(
       req.params.taskId,
       { status: "completed" },
-      { new: true }
+      { new: true },
     );
     if (!task) return res.status(404).json({ message: "Task not found" });
 
