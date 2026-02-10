@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   fetchAllTasks,
   fetchTasksByEmployee,
@@ -13,12 +13,34 @@ import { useAuthContext } from "./AuthContext";
 const TaskContext = createContext(null);
 
 export const TaskContextProvider = ({ children }) => {
-  const { user } = useAuthContext();
+  const { user, socket } = useAuthContext();
 
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [allEmployees, setAllEmployees] = useState(null);
+
+  // THIS IS FOR SOCKET IO WORKING
+  useEffect(() => {
+    if (!socket || !user) return;
+
+    const handleTaskAssigned = (task) => {
+      console.log("🆕 Task received via socket:", task);
+
+      setTasks((prev) => {
+        // prevent duplicates
+        const exists = prev.some((t) => t._id === task._id);
+        if (exists) return prev;
+        return [task, ...prev];
+      });
+    };
+
+    socket.on("task-assigned", handleTaskAssigned);
+
+    return () => {
+      socket.off("task-assigned", handleTaskAssigned);
+    };
+  }, [socket, user]);
 
   const fetchOnlyEmployees = async () => {
     try {
