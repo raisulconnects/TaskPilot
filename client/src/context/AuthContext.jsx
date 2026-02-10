@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react"; // ✅ a
 import { handleLogin, logoutUser } from "../services/authService";
 import { API_BASE_URL } from "../api";
 import { io } from "socket.io-client";
+import { useRef } from "react";
 
 const AuthContext = createContext(null);
 
@@ -9,6 +10,7 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const socketRef = useRef(null);
 
   const isAuthenticated = !!user;
 
@@ -20,13 +22,13 @@ export const AuthContextProvider = ({ children }) => {
           credentials: "include",
         });
         if (res.ok) {
-          // Eita Socket IO Connection Stablish Kortese
-          const socket = io("http://localhost:5000");
-
           const data = await res.json();
 
+          // Eita Socket IO Connection Stablish Kortese
+          socketRef.current = io("http://localhost:5000");
+
           // Stablish er pore Ekahen basically room er nam hoilo "join-room", shekhane room e dhuktese and payload e data.id dicchi jate uniquely chine
-          socket.emit("join-room", data.id);
+          socketRef.current.emit("join-room", data.id);
 
           setUser(data);
         } else {
@@ -39,6 +41,10 @@ export const AuthContextProvider = ({ children }) => {
       }
     }
     fetchUser();
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
   }, []);
 
   // LOGIN
@@ -49,14 +55,17 @@ export const AuthContextProvider = ({ children }) => {
     try {
       // --------------------------------------------------
       // This is Experimental For SocketIO
-      const socket = io("http://localhost:5000");
+      // const socket = io("http://localhost:5000");
       // --------------------------------------------------
 
       const loggedInUser = await handleLogin(email, password);
       setUser(loggedInUser);
 
+      if (!socketRef.current) {
+        socketRef.current = io("http://localhost:5000");
+      }
       // --------------------------------------------------
-      socket.emit(`user_${loggedInUser.id}`);
+      socketRef.current.emit("join-room", loggedInUser.id);
       // --------------------------------------------------
 
       // ✅ Persist login in localStorage
@@ -75,6 +84,10 @@ export const AuthContextProvider = ({ children }) => {
   const logout = async () => {
     setLoading(true);
     await logoutUser();
+
+    socketRef.current?.disconnect();
+    socketRef.current = null;
+
     setUser(null);
 
     // ✅ Remove persisted user from localStorage
@@ -87,6 +100,7 @@ export const AuthContextProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        socket: socketRef.current,
         isAuthenticated,
         loading,
         error,

@@ -73,7 +73,7 @@ export default function CreateTask() {
           },
           credentials: "include",
           body: JSON.stringify({ title }),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -87,7 +87,7 @@ export default function CreateTask() {
     } catch (error) {
       setAiError(
         "AI model is overloaded. Please try again in a few seconds.",
-        error.message
+        error.message,
       );
     } finally {
       setAiLoading(false);
@@ -113,7 +113,7 @@ export default function CreateTask() {
           },
           credentials: "include",
           body: JSON.stringify({ title }),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -131,7 +131,7 @@ export default function CreateTask() {
       }
     } catch (err) {
       setCatPriError(
-        "AI model is overloaded. Please try again in a few seconds."
+        "AI model is overloaded. Please try again in a few seconds.",
       );
       console.error("Category/Priority AI Error:", err.message);
     } finally {

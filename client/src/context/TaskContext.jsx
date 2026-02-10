@@ -60,8 +60,8 @@ export const TaskContextProvider = ({ children }) => {
   const markTaskCompleted = (taskId) => {
     setTasks((prevTasks) =>
       prevTasks.map((t) =>
-        t.id === taskId ? { ...t, status: "completed" } : t
-      )
+        t.id === taskId ? { ...t, status: "completed" } : t,
+      ),
     );
 
     // console.log("From MarkTaskCompleted = TaskContext");
