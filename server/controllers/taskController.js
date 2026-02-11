@@ -78,8 +78,13 @@ const markTaskCompleted = async (req, res) => {
       req.params.taskId,
       { status: "completed" },
       { new: true },
-    );
+    ).populate("assignedTo", "name -_id");
     if (!task) return res.status(404).json({ message: "Task not found" });
+
+    // Here After a Employee marks a task as completed, we emit that to all the admins so they can see it in realtime!
+    console.log("DEBUGGING -> markTaskCompleted: ", task);
+    const io = getIO();
+    io.to("admin-room").emit("task:updated", task);
 
     res.status(200).json({ message: "Task marked as completed", task });
   } catch (error) {
