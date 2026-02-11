@@ -30,42 +30,7 @@ app.use(
 app.use(express.json());
 
 // Initializing WebSocket For LIVE Interaction
-// const io = new Server(server, {
-//   cors: {
-//     origin: [
-//       "http://localhost:3000",
-//       "http://localhost:5173",
-//       "https://taskkpilot.netlify.app",
-//     ],
-//     credentials: true,
-//   },
-// });
 initSocket(server);
-
-// Making Rooms So WebSocket can Work
-// io.on("connection", (socket) => {
-//   console.log("🔌 Socket connected:", socket.id);
-
-//   // Checking Socket
-//   socket.on("check", (str) => {
-//     console.log(str);
-//   });
-
-//   // Employee/Admin joins their personal room
-//   socket.on("join-room", (userId) => {
-//     if (!userId) {
-//       console.log("No User Id!");
-//       return;
-//     }
-
-//     socket.join(`user_${userId}`);
-//     console.log(`👤 User ${userId} joined room user_${userId}`);
-//   });
-
-//   socket.on("disconnect", () => {
-//     console.log("❌ Socket disconnected:", socket.id);
-//   });
-// });
 
 // Routes
 app.use("/api/allemployees", require("./routes/employeeRoutes"));
