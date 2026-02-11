@@ -24,11 +24,20 @@ export const AuthContextProvider = ({ children }) => {
         if (res.ok) {
           const data = await res.json();
 
-          // Eita Socket IO Connection Stablish Kortese
-          socketRef.current = io("http://localhost:5000");
+          // Todo
+          // Ensure that we are sending the role correctly from this AuthContext everytime someone makes a socket connection
+          // console.log("User Data: ", data);
 
-          // Stablish er pore Ekahen basically room er nam hoilo "join-room", shekhane room e dhuktese and payload e data.id dicchi jate uniquely chine
-          socketRef.current.emit("join-room", data.id);
+          // Eita Socket IO Connection Stablish Kortese
+          socketRef.current = io("http://localhost:5000", {
+            auth: {
+              userId: data.id,
+              role: data.role,
+            },
+          });
+
+          // Stablish er pore Ekahen basically event er nam hoilo "join-room", shekhane emit kore e dhuktese and payload e data.id dicchi jate uniquely chine
+          // socketRef.current.emit("join-room", data.id);
 
           setUser(data);
         } else {
@@ -58,7 +67,12 @@ export const AuthContextProvider = ({ children }) => {
       setUser(loggedInUser);
 
       if (!socketRef.current) {
-        socketRef.current = io("http://localhost:5000");
+        socketRef.current = io("http://localhost:5000", {
+          auth: {
+            userId: loggedInUser.id,
+            role: loggedInUser.role,
+          },
+        });
       }
       // --------------------------------------------------
       socketRef.current.emit("join-room", loggedInUser.id);
