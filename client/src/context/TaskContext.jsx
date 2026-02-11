@@ -37,8 +37,17 @@ export const TaskContextProvider = ({ children }) => {
 
     socket.on("task-assigned", handleTaskAssigned);
 
+    const adminRealtimeTaskFetcher = (updatedTask) => {
+      setTasks((prev) =>
+        prev.map((task) => (task._id === updatedTask._id ? updatedTask : task)),
+      );
+    };
+
+    socket.on("task:updated", adminRealtimeTaskFetcher);
+
     return () => {
       socket.off("task-assigned", handleTaskAssigned);
+      socket.off("task:updated", adminRealtimeTaskFetcher);
     };
   }, [socket, user]);
 
