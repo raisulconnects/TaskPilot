@@ -28,7 +28,7 @@ A modern, full-stack task management application built with the MERN stack. Task
 
 - **Modern UI/UX** - Beautiful, responsive design built with Tailwind CSS
 - **Interactive Alerts** - User-friendly notifications using SweetAlert2
-- **Real-time Updates** - Dynamic task status updates and real-time data synchronization
+- **Real-time Updates with Socket.IO** - Live task status updates and instant notifications without page refresh. Admins can push tasks in real-time, and employees receive instant updates. When employees mark tasks as complete, admins see the changes immediately in their dashboard
 
 ## 🛠 Tech Stack
 
@@ -52,6 +52,7 @@ A modern, full-stack task management application built with the MERN stack. Task
 - **Google Generative AI** - AI integration for task enhancement
 - **CORS** - Cross-origin resource sharing support
 - **Cookie Parser** - HTTP cookie parsing middleware
+- **Socket.IO** - Real-time bidirectional communication for live task updates
 
 ### Development Tools
 
@@ -236,6 +237,15 @@ The admin dashboard includes:
 - **Task Status Distribution**: Visual representation of task completion rates
 - **Employee Performance**: Track tasks completed by each employee
 - Real-time data updates as tasks are created and completed
+
+### Real-Time Communication with Socket.IO
+
+TaskPilot leverages Socket.IO for seamless real-time collaboration:
+
+- **Admin Task Push**: Admins can create and push tasks, which are instantly delivered to assigned employees without page refresh
+- **Live Employee Dashboard Updates**: Employees receive instant notifications when new tasks are assigned and their dashboard updates in real-time
+- **Instant Task Completion Feedback**: When an employee marks a task as complete, the admin dashboard updates immediately, allowing admins to monitor progress without refreshing
+- **Bidirectional Communication**: Enables seamless communication between admin and employee interfaces, ensuring all users are always viewing the latest data
 
 ## 🚀 Deployment
 
