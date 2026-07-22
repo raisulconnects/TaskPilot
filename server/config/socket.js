@@ -4,10 +4,9 @@ let io;
 const initSocket = (server) => {
   io = require("socket.io")(server, {
     cors: {
-      origin: [
+      origin: process.env.CORS_ORIGINS?.split(",") || [
         "http://localhost:3000",
         "http://localhost:5173",
-        "https://taskkpilot.netlify.app",
       ],
       credentials: true,
     },

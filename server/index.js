@@ -18,10 +18,9 @@ const server = http.createServer(app);
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [
+    origin: process.env.CORS_ORIGINS?.split(",") || [
       "http://localhost:3000",
       "http://localhost:5173",
-      "https://taskkpilot.netlify.app", // Netlify frontend
     ],
     credentials: true,
   }),

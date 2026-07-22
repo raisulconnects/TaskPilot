@@ -1,18 +1,27 @@
-import { createContext, useContext, useState, useEffect } from "react"; // ✅ added useEffect
+import { createContext, useContext, useState, useEffect } from "react";
 import { handleLogin, logoutUser } from "../services/authService";
 import { API_BASE_URL } from "../api";
 import { io } from "socket.io-client";
-import { useRef } from "react";
+
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
 const AuthContext = createContext(null);
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const socketRef = useRef(null);
 
   const isAuthenticated = !!user;
+
+  const connectSocket = (userData) => {
+    const s = io(SOCKET_URL, {
+      auth: { userId: userData.id, role: userData.role },
+    });
+    setSocket(s);
+    return s;
+  };
 
   // Restore user from Auth/Me API on app load
   useEffect(() => {
@@ -23,22 +32,7 @@ export const AuthContextProvider = ({ children }) => {
         });
         if (res.ok) {
           const data = await res.json();
-
-          // Todo
-          // Ensure that we are sending the role correctly from this AuthContext everytime someone makes a socket connection
-          // console.log("User Data: ", data);
-
-          // Eita Socket IO Connection Stablish Kortese
-          socketRef.current = io("http://localhost:5000", {
-            auth: {
-              userId: data.id,
-              role: data.role,
-            },
-          });
-
-          // Stablish er pore Ekahen basically event er nam hoilo "join-room", shekhane emit kore e dhuktese and payload e data.id dicchi jate uniquely chine
-          // socketRef.current.emit("join-room", data.id);
-
+          connectSocket(data);
           setUser(data);
         } else {
           setUser(null);
@@ -52,36 +46,26 @@ export const AuthContextProvider = ({ children }) => {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      socket?.disconnect();
+    };
+  }, [socket]);
+
   // LOGIN
   const login = async (email, password) => {
     setLoading(true);
     setError(null);
 
     try {
-      // --------------------------------------------------
-      // This is Experimental For SocketIO
-      // const socket = io("http://localhost:5000");
-      // --------------------------------------------------
-
       const loggedInUser = await handleLogin(email, password);
       setUser(loggedInUser);
 
-      if (!socketRef.current) {
-        socketRef.current = io("http://localhost:5000", {
-          auth: {
-            userId: loggedInUser.id,
-            role: loggedInUser.role,
-          },
-        });
+      if (!socket) {
+        connectSocket(loggedInUser);
       }
-      // --------------------------------------------------
-      socketRef.current.emit("join-room", loggedInUser.id);
-      // --------------------------------------------------
 
-      // ✅ Persist login in localStorage
-      // localStorage.setItem("taskpilotUser", JSON.stringify(loggedInUser));
-
-      return true; // useful for navigation
+      return true;
     } catch (err) {
       setError(err.message);
       return false;
@@ -95,13 +79,9 @@ export const AuthContextProvider = ({ children }) => {
     setLoading(true);
     await logoutUser();
 
-    socketRef.current?.disconnect();
-    socketRef.current = null;
-
+    socket?.disconnect();
+    setSocket(null);
     setUser(null);
-
-    // ✅ Remove persisted user from localStorage
-    // localStorage.removeItem("taskpilotUser");
 
     setLoading(false);
   };
@@ -110,7 +90,7 @@ export const AuthContextProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
-        socket: socketRef.current,
+        socket,
         isAuthenticated,
         loading,
         error,

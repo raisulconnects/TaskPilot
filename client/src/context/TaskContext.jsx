@@ -25,29 +25,31 @@ export const TaskContextProvider = ({ children }) => {
     if (!socket || !user) return;
 
     const handleTaskAssigned = (task) => {
-      console.log("🆕 Task received via socket:", task);
-
       setTasks((prev) => {
-        // prevent duplicates
         const exists = prev.some((t) => t._id === task._id);
         if (exists) return prev;
         return [task, ...prev];
       });
     };
 
-    socket.on("task-assigned", handleTaskAssigned);
-
-    const adminRealtimeTaskFetcher = (updatedTask) => {
+    const handleTaskUpdated = (updatedTask) => {
       setTasks((prev) =>
         prev.map((task) => (task._id === updatedTask._id ? updatedTask : task)),
       );
     };
 
-    socket.on("task:updated", adminRealtimeTaskFetcher);
+    const handleTaskDeleted = (deletedTask) => {
+      setTasks((prev) => prev.filter((task) => task._id !== deletedTask._id));
+    };
+
+    socket.on("task-assigned", handleTaskAssigned);
+    socket.on("task:updated", handleTaskUpdated);
+    socket.on("task:deleted", handleTaskDeleted);
 
     return () => {
       socket.off("task-assigned", handleTaskAssigned);
-      socket.off("task:updated", adminRealtimeTaskFetcher);
+      socket.off("task:updated", handleTaskUpdated);
+      socket.off("task:deleted", handleTaskDeleted);
     };
   }, [socket, user]);
 
