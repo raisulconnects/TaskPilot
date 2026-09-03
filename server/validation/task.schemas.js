@@ -14,7 +14,11 @@ const dueDate = z.coerce.date({ invalid_type_error: "Invalid due date" });
 const createTaskSchema = z
   .object({
     title: z.string().trim().min(3).max(200),
-    description: z.string().trim().max(2000).optional().default(""),
+    description: z
+      .string({ required_error: "Description is required" })
+      .trim()
+      .min(1, "Description is required")
+      .max(2000),
     category,
     priority,
     dueDate,
