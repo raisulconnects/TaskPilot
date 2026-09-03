@@ -6,7 +6,7 @@ require("dotenv").config({ config: "../.env", quiet: true });
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  console.log("Auth Route Being HIT!", email, password);
+  // Phase 1 cleanup: removed console.log(email, password) — credential leak.
 
   try {
     const user = await User.findOne({ email });

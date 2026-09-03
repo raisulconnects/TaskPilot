@@ -13,8 +13,7 @@ const initSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    // Here We can Easily Extract the Role Now { userId: '6946aeead571b00dddd4d794', role: 'admin' }
-    // console.log(socket.handshake.auth);
+    // Phase 1 cleanup: handshake.auth debug log removed (was commented out).
     const { userId, role } = socket.handshake.auth;
     console.log("🔌 Socket connected:", socket.id);
 
@@ -29,6 +28,8 @@ const initSocket = (server) => {
       console.log("--> An Employee just joined the room. ID:", userId);
     }
 
+    // @deprecated Phase 1 cleanup: legacy manual join-room handler, unused.
+    // Room join is handled automatically via handshake.auth above. Kept for reference.
     // socket.on("join-room", (userId) => {
     //   socket.join(`user_${userId}`);
     // });

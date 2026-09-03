@@ -111,9 +111,12 @@ export const createTask = async (taskData) => {
 };
 
 // Amra Task er Pashapashi Employee er info gulao ekhane fetch kore anbo
+// Phase 1 cleanup: added credentials:include (required now that GET /allemployees needs auth cookie).
 export const fetchAllEmployeeInfo = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/allemployees`);
+    const response = await fetch(`${API_BASE_URL}/allemployees`, {
+      credentials: "include",
+    });
     const data = await response.json();
     return data;
   } catch (e) {

@@ -1,7 +1,13 @@
+/**
+ * @deprecated Phase 1 cleanup (chore/phase-1-cleanup) — NOT IN USE.
+ * Unified login lives in controllers/authController.js (Employee collection).
+ * This file is unreferenced except by deprecated routes/adminRoutes.js.
+ * Kept for reference; do not use in new code.
+ */
 const Admin = require("../models/admin.model");
 const bcrypt = require("bcryptjs");
 
-// POST /api/admins/login
+// POST /api/admins/login — DEPRECATED, unmounted route.
 const adminLogin = async (req, res) => {
   const { email, password } = req.body;
 

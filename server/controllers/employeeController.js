@@ -1,6 +1,11 @@
 const Employee = require("../models/employee.model");
 const bcrypt = require("bcryptjs");
 
+/**
+ * @deprecated Phase 1 cleanup (chore/phase-1-cleanup) — NOT IN USE.
+ * Unified login lives in controllers/authController.js.
+ * Kept for reference; do not use in new code.
+ */
 const employeeLogin = async (req, res) => {
   const { email, password } = req.body;
 

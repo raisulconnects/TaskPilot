@@ -21,6 +21,8 @@ const postATask = async (req, res) => {
 };
 
 // Get all tasks (for admin)
+// @deprecated Phase 1 cleanup: stale commented version kept for reference only.
+// Active implementation is getAllTasks below.
 // const getAllTasks = async (req, res) => {
 //   try {
 //     const tasks = await Task.find()
@@ -52,6 +54,12 @@ const getAllTasks = async (req, res) => {
 };
 
 // Get tasks assigned to a specific employee
+/**
+ * @deprecated Phase 1 cleanup (chore/phase-1-cleanup) — NOT ROUTED.
+ * No route in routes/taskRoutes.js references this. Employee filtering is
+ * currently done client-side (services/taskService.js). Kept for reference;
+ * scheduled for removal/replacement after multi-tenant decision.
+ */
 const getEmployeeTasks = async (req, res) => {
   try {
     const tasks = await Task.find({ assignedTo: req.params.employeeId });
@@ -103,11 +111,9 @@ const deleteATask = async (req, res) => {
 const editATask = async (req, res) => {
   const newTaskData = req.body;
   try {
-    const task = await Task.findByIdAndUpdate(
-      req.params.taskId,
-      newTaskData,
-      { new: true },
-    ).populate("assignedTo", "name email");
+    const task = await Task.findByIdAndUpdate(req.params.taskId, newTaskData, {
+      new: true,
+    }).populate("assignedTo", "name email");
     if (!task) return res.status(404).json({ message: "Task not found" });
 
     const io = getIO();

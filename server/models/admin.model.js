@@ -1,7 +1,11 @@
+/**
+ * @deprecated Phase 1 cleanup (chore/phase-1-cleanup) — NOT IN USE.
+ * Auth is unified in Employee model with role field (see authController.js).
+ * Kept for reference only; scheduled for removal after multi-tenant decision.
+ * Do not import this model in new code.
+ */
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-
-// This is not being used right now, Might Put functinality related to this later.
 
 const adminSchema = new mongoose.Schema({
   name: { type: String, required: true },
