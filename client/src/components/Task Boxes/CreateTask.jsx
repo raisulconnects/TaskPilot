@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTaskContext } from "../../context/TaskContext";
+import { validateTaskForm } from "../../services/validateTaskForm";
 import DashboardCharts from "../Analytics/DashboardCharts";
 
 export default function CreateTask() {
@@ -31,21 +32,17 @@ export default function CreateTask() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError("");
 
-    if (
-      !title.trim() ||
-      !assignedTo ||
-      !dueDate ||
-      !category ||
-      !priority ||
-      !description.trim()
-    ) {
-      setFormError(
-        "Please fill in all fields, including the description, before creating the task."
-      );
-      return;
-    }
+    const validationError = validateTaskForm({
+      title,
+      assignedTo,
+      dueDate,
+      category,
+      priority,
+      description,
+    });
+    setFormError(validationError || "");
+    if (validationError) return;
 
     const taskData = {
       title: title.trim(),

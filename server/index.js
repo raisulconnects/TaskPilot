@@ -1,50 +1,19 @@
-const express = require("express");
 const dotenv = require("dotenv");
-const cors = require("cors");
 const connectDB = require("./config/db");
-const errorHandler = require("./middleware/errorHandler.middleware");
-const logger = require("./middleware/logger.middleware");
-const cookieParser = require("cookie-parser");
 const http = require("http");
 const { Server } = require("socket.io");
 const { initSocket } = require("./config/socket");
+const createApp = require("./app");
 
 dotenv.config({ quiet: true });
 
 connectDB();
 
-const app = express();
+const app = createApp();
 const server = http.createServer(app);
-app.use(cookieParser());
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGINS?.split(",") || [
-      "http://localhost:3000",
-      "http://localhost:5173",
-    ],
-    credentials: true,
-  }),
-);
-
-app.use(express.json());
 
 // Initializing WebSocket For LIVE Interaction
 initSocket(server);
-
-// Routes
-app.use("/api/allemployees", require("./routes/employeeRoutes"));
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/tasks", require("./routes/taskRoutes"));
-
-// AI Route (Special)
-app.use("/api/ai/", require("./routes/geminiRoutes"));
-
-app.get("/healthcheck", (req, res) => {
-  res.send("Healthy API!");
-});
-
-app.use(logger);
-app.use(errorHandler); // ErrorHandler
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () =>
