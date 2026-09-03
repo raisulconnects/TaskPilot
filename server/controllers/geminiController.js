@@ -6,13 +6,8 @@ const {
 const geminiGenerator = async (req, res) => {
   console.log("Gemini Generator Started....");
   try {
+    // Title validated by aiTitleSchema (routes/geminiRoutes.js).
     const { title } = req.body;
-
-    if (!title || title.trim().length < 3) {
-      return res.status(400).json({
-        message: "Task title must be at least 3 characters long",
-      });
-    }
 
     const aiResult = await generateTaskDescription(title);
 
@@ -29,13 +24,8 @@ const geminiGenerator = async (req, res) => {
 const geminiCategoryPriorityGenerator = async (req, res) => {
   console.log("Gemini Category & Priority Generator Started....");
   try {
+    // Title validated by aiTitleSchema (routes/geminiRoutes.js).
     const { title } = req.body;
-
-    if (!title || title.trim().length < 3) {
-      return res.status(400).json({
-        message: "Task title must be at least 3 characters long",
-      });
-    }
 
     const aiResult = await generateTaskCategoryAndPriority(title);
 

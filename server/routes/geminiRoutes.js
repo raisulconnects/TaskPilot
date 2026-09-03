@@ -5,6 +5,8 @@ const {
 } = require("../controllers/geminiController");
 const roleCheckMiddleware = require("../middleware/roleCheck.middleware");
 const authCheckMiddleware = require("../middleware/authCheck.middleware");
+const { validateBody } = require("../middleware/validate.middleware");
+const { aiTitleSchema } = require("../validation/ai.schemas");
 const router = express.Router();
 
 // For Generating Task Description based on Title
@@ -14,6 +16,7 @@ router.post(
   "/gendesc",
   authCheckMiddleware,
   roleCheckMiddleware("admin"),
+  validateBody(aiTitleSchema),
   geminiGenerator
 );
 
@@ -22,6 +25,7 @@ router.post(
   "/gencatpri",
   authCheckMiddleware,
   roleCheckMiddleware("admin"),
+  validateBody(aiTitleSchema),
   geminiCategoryPriorityGenerator
 );
 

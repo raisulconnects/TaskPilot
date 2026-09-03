@@ -13,19 +13,20 @@ const taskSchema = new mongoose.Schema(
 
     category: {
       type: String,
+      enum: ["General", "Design", "Development", "Debugging"],
       required: [true, "Please Select Category"],
     },
 
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High", "Average", "General"],
+      enum: ["General", "Average", "High", "Low", "Medium"],
       default: "Medium",
       required: [true, "Please add the task Priority"],
     },
 
     status: {
       type: String,
-      enum: ["assigned", "completed"],
+      enum: ["assigned", "completed", "failed"],
       default: "assigned",
     },
 
