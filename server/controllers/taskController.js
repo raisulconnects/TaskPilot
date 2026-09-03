@@ -2,9 +2,11 @@ const Task = require("../models/task.model");
 const { getIO } = require("../config/socket");
 
 // Admin Posting a Task From The Admin Dashboard
+// Body validated by createTaskSchema (routes/taskRoutes.js): unknown keys
+// (status, assignedBy, _id) are rejected before reaching here.
 const postATask = async (req, res) => {
   try {
-    const raw = await Task.create(req.body);
+    const raw = await Task.create({ ...req.body, assignedBy: req.user.id });
     const task = await raw.populate("assignedTo", "name email");
 
     const io = getIO();
@@ -78,11 +80,14 @@ const deleteATask = async (req, res) => {
 };
 
 // Edit a Particular Task
+// Body + params validated (updateTaskSchema + taskIdParamSchema): at least one
+// known field, unknown keys rejected.
 const editATask = async (req, res) => {
   const newTaskData = req.body;
   try {
     const task = await Task.findByIdAndUpdate(req.params.taskId, newTaskData, {
       new: true,
+      runValidators: true,
     }).populate("assignedTo", "name email");
     if (!task) return res.status(404).json({ message: "Task not found" });
 

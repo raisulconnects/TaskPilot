@@ -9,9 +9,24 @@ const {
 } = require("../controllers/taskController");
 const roleCheckMiddleware = require("../middleware/roleCheck.middleware");
 const authCheckMiddleware = require("../middleware/authCheck.middleware");
+const {
+  validateBody,
+  validateParams,
+} = require("../middleware/validate.middleware");
+const {
+  createTaskSchema,
+  updateTaskSchema,
+  taskIdParamSchema,
+} = require("../validation/task.schemas");
 
 // Admin Posting a Task Through Admin Dashboard
-router.post("/", authCheckMiddleware, roleCheckMiddleware("admin"), postATask);
+router.post(
+  "/",
+  authCheckMiddleware,
+  roleCheckMiddleware("admin"),
+  validateBody(createTaskSchema),
+  postATask
+);
 
 // Admin: get all tasks
 router.get(
@@ -26,6 +41,7 @@ router.patch(
   "/:taskId/complete",
   authCheckMiddleware,
   roleCheckMiddleware("employee"),
+  validateParams(taskIdParamSchema),
   markTaskCompleted,
 );
 
@@ -34,6 +50,7 @@ router.delete(
   "/:taskId/delete",
   authCheckMiddleware,
   roleCheckMiddleware("admin"),
+  validateParams(taskIdParamSchema),
   deleteATask,
 );
 
@@ -42,6 +59,8 @@ router.patch(
   "/:taskId/edit",
   authCheckMiddleware,
   roleCheckMiddleware("admin"),
+  validateParams(taskIdParamSchema),
+  validateBody(updateTaskSchema),
   editATask,
 );
 
