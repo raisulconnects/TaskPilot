@@ -9,7 +9,7 @@ export default function AllTaskTaskCard({
   id,
   duedate,
 }) {
-  const { deleteATask, updateTask, taskEdit } = useTaskContext();
+  const { deleteATask, taskEdit } = useTaskContext();
   const [expanded, setExpanded] = useState(false);
 
   const colorClasses = {

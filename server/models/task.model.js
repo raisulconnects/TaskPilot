@@ -52,4 +52,6 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Task", taskSchema);
+// Reuse the compiled model when this module is loaded twice (e.g. ESM import
+// in tests + CJS require in controllers resolving as separate instances).
+module.exports = mongoose.models.Task || mongoose.model("Task", taskSchema);

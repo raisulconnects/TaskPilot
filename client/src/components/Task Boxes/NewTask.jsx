@@ -9,7 +9,7 @@ export default function NewTask() {
   }, []);
 
   // Recompute stats after tasks are loaded
-  const { assigned, in_progress, completed, failed } = getDashboardStats();
+  const { assigned, completed, failed } = getDashboardStats();
 
   if (loading) {
     return (
