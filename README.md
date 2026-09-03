@@ -144,9 +144,9 @@ taskpilot/
 ├── server/                    # Express backend application
 │   ├── config/               # Configuration files
 │   │   ├── db.js            # MongoDB connection
+│   │   ├── socket.js        # Socket.IO setup
 │   │   └── gemini.service.js # AI service integration
 │   ├── controllers/          # Route controllers
-│   │   ├── adminController.js
 │   │   ├── authController.js
 │   │   ├── employeeController.js
 │   │   ├── geminiController.js
@@ -157,11 +157,9 @@ taskpilot/
 │   │   ├── logger.middleware.js
 │   │   └── roleCheck.middleware.js
 │   ├── models/              # Mongoose data models
-│   │   ├── admin.model.js
 │   │   ├── employee.model.js
 │   │   └── task.model.js
 │   ├── routes/               # API routes
-│   │   ├── adminRoutes.js
 │   │   ├── authRoutes.js
 │   │   ├── employeeRoutes.js
 │   │   ├── geminiRoutes.js

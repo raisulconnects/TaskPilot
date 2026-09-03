@@ -28,12 +28,6 @@ const initSocket = (server) => {
       console.log("--> An Employee just joined the room. ID:", userId);
     }
 
-    // @deprecated Phase 1 cleanup: legacy manual join-room handler, unused.
-    // Room join is handled automatically via handshake.auth above. Kept for reference.
-    // socket.on("join-room", (userId) => {
-    //   socket.join(`user_${userId}`);
-    // });
-
     socket.on("disconnect", () => {
       console.log("❌ Socket disconnected:", socket.id);
     });

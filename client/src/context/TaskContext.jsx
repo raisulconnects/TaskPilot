@@ -59,7 +59,6 @@ export const TaskContextProvider = ({ children }) => {
       setAllEmployees(info);
     } catch (e) {
       setError(e.message);
-      // console.log("Error from TaskContext fetchOnlyEmployees.", e.message);
     }
   };
 
@@ -87,21 +86,6 @@ export const TaskContextProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  /**
-   * @deprecated Phase 1 cleanup (chore/phase-1-cleanup) — NOT IN USE.
-   * Buggy (matches `t.id` but tasks use `_id`) and superseded by
-   * `updateTaskStatus` (server PATCH /tasks/:id/complete + refetch/socket).
-   * Kept for reference; do not use in new code.
-   */
-  // inside TaskContext.jsx
-  const markTaskCompleted = (taskId) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((t) =>
-        t.id === taskId ? { ...t, status: "completed" } : t,
-      ),
-    );
   };
 
   // Admin creates new task
@@ -194,7 +178,6 @@ export const TaskContextProvider = ({ children }) => {
     <TaskContext.Provider
       value={{
         tasks,
-        markTaskCompleted,
         loading,
         error,
         fetchTasks,

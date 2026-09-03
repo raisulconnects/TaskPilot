@@ -1,9 +1,8 @@
-# @deprecated — Phase 1 cleanup (chore/phase-1-cleanup)
+# Legacy mock data — REMOVED (Phase 2, chore/phase-2-execute-cleanup)
 
-The JSON files in this folder (`tasks.json`, `employees.json`, `admins.json`)
-are legacy seed/mock data and are NOT imported anywhere at runtime.
+The JSON seed files (`tasks.json`, `employees.json`, `admins.json`) were
+deprecated in Phase 1 and deleted in Phase 2. They had zero runtime imports;
+live data comes from the API via `services/taskService.js` + `TaskContext.jsx`.
 
-- Live data comes from the API via `services/taskService.js` + `TaskContext.jsx`.
-- Kept for reference only (deprecate-first policy).
-- Scheduled for removal after the multi-tenant decision.
-- Do not import these files in new code.
+This folder/README is kept so the deletion stays tracked. Remove the folder
+entirely once the team confirms no external tooling references it.

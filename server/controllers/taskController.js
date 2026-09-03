@@ -20,20 +20,6 @@ const postATask = async (req, res) => {
   }
 };
 
-// Get all tasks (for admin)
-// @deprecated Phase 1 cleanup: stale commented version kept for reference only.
-// Active implementation is getAllTasks below.
-// const getAllTasks = async (req, res) => {
-//   try {
-//     const tasks = await Task.find()
-//       .populate("assignedTo", "name email")
-//       .sort({ createdAt: -1 });
-//     res.status(200).json(tasks);
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
-
 const getAllTasks = async (req, res) => {
   try {
     const now = new Date();
@@ -47,22 +33,6 @@ const getAllTasks = async (req, res) => {
     const tasks = await Task.find()
       .populate("assignedTo", "name email")
       .sort({ createdAt: -1 });
-    res.status(200).json(tasks);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// Get tasks assigned to a specific employee
-/**
- * @deprecated Phase 1 cleanup (chore/phase-1-cleanup) — NOT ROUTED.
- * No route in routes/taskRoutes.js references this. Employee filtering is
- * currently done client-side (services/taskService.js). Kept for reference;
- * scheduled for removal/replacement after multi-tenant decision.
- */
-const getEmployeeTasks = async (req, res) => {
-  try {
-    const tasks = await Task.find({ assignedTo: req.params.employeeId });
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -131,7 +101,6 @@ const editATask = async (req, res) => {
 
 module.exports = {
   getAllTasks,
-  getEmployeeTasks,
   markTaskCompleted,
   postATask,
   deleteATask,
