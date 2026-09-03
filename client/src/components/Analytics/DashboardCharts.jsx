@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -15,8 +15,6 @@ import { useTaskContext } from "../../context/TaskContext";
 
 const DashboardCharts = () => {
   const { tasks, fetchTasks, loading } = useTaskContext();
-  const [taskStatusData, setTaskStatusData] = useState([]);
-  const [employeeData, setEmployeeData] = useState([]);
   const [chartWidth, setChartWidth] = useState(300);
   const COLORS = ["#4ade80", "#facc15", "#f87171"]; // green, yellow, red
 
@@ -41,10 +39,13 @@ const DashboardCharts = () => {
 
   useEffect(() => {
     fetchTasks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (!tasks || tasks.length === 0) return;
+  // Derived synchronously during render (no setState-in-effect): recomputed
+  // only when `tasks` changes.
+  const taskStatusData = useMemo(() => {
+    if (!tasks || tasks.length === 0) return [];
 
     // 1️⃣ Task Status Distribution
     const statusCounts = { completed: 0, assigned: 0, failed: 0 };
@@ -53,13 +54,17 @@ const DashboardCharts = () => {
       statusCounts[status] = (statusCounts[status] || 0) + 1;
     });
 
-    setTaskStatusData([
+    return [
       { name: "Completed", value: statusCounts.completed },
       { name: "Assigned", value: statusCounts.assigned },
       { name: "Failed", value: statusCounts.failed },
-    ]);
+    ];
+  }, [tasks]);
 
-    // 2️⃣ Tasks Completed per Employee
+  // 2️⃣ Tasks Completed per Employee
+  const employeeData = useMemo(() => {
+    if (!tasks || tasks.length === 0) return [];
+
     const employeeMap = {};
     tasks.forEach((task) => {
       const name = task.assignedTo?.name || "Unknown";
@@ -67,12 +72,10 @@ const DashboardCharts = () => {
       if (task.status === "completed") employeeMap[name] += 1;
     });
 
-    setEmployeeData(
-      Object.keys(employeeMap).map((name) => ({
-        name,
-        completed: employeeMap[name],
-      }))
-    );
+    return Object.keys(employeeMap).map((name) => ({
+      name,
+      completed: employeeMap[name],
+    }));
   }, [tasks]);
 
   if (loading)

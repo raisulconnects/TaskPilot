@@ -27,4 +27,7 @@ const employeeSchema = new mongoose.Schema({
 // with bcrypt; login verifies via bcrypt.compare in controllers/authController.js.
 // Re-introduce pre("save") hashing only when user registration lands
 // (post multi-tenant decision).
-module.exports = mongoose.model("Employee", employeeSchema);
+// Reuse the compiled model when this module is loaded twice (e.g. ESM import
+// in tests + CJS require in controllers resolving as separate instances).
+module.exports =
+  mongoose.models.Employee || mongoose.model("Employee", employeeSchema);
