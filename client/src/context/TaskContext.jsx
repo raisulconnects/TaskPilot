@@ -89,6 +89,12 @@ export const TaskContextProvider = ({ children }) => {
     }
   };
 
+  /**
+   * @deprecated Phase 1 cleanup (chore/phase-1-cleanup) — NOT IN USE.
+   * Buggy (matches `t.id` but tasks use `_id`) and superseded by
+   * `updateTaskStatus` (server PATCH /tasks/:id/complete + refetch/socket).
+   * Kept for reference; do not use in new code.
+   */
   // inside TaskContext.jsx
   const markTaskCompleted = (taskId) => {
     setTasks((prevTasks) =>
@@ -96,8 +102,6 @@ export const TaskContextProvider = ({ children }) => {
         t.id === taskId ? { ...t, status: "completed" } : t,
       ),
     );
-
-    // console.log("From MarkTaskCompleted = TaskContext");
   };
 
   // Admin creates new task

@@ -8,9 +8,21 @@ const authCheckMiddleware = require("../middleware/authCheck.middleware");
 const router = express.Router();
 
 // For Generating Task Description based on Title
-router.post("/gendesc", geminiGenerator);
+// Phase 1 cleanup: require auth + admin role (was public, exposed Gemini quota).
+// Only used by admin CreateTask AI autofill. Imports were already present but unused.
+router.post(
+  "/gendesc",
+  authCheckMiddleware,
+  roleCheckMiddleware("admin"),
+  geminiGenerator
+);
 
 // For Generating Category and Priority based on Title
-router.post("/gencatpri", geminiCategoryPriorityGenerator);
+router.post(
+  "/gencatpri",
+  authCheckMiddleware,
+  roleCheckMiddleware("admin"),
+  geminiCategoryPriorityGenerator
+);
 
 module.exports = router;

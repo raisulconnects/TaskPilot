@@ -24,7 +24,11 @@ const employeeSchema = new mongoose.Schema({
   },
 });
 
-// Password hashing
+// NOTE (Phase 1 cleanup): password hashing hooks are intentionally disabled.
+// Seeds are expected pre-hashed with bcrypt; login verifies via bcrypt.compare
+// in controllers/authController.js. Re-enable pre("save") hashing only when
+// introducing user registration (post multi-tenant decision).
+// Password hashing (DISABLED — see NOTE above)
 // employeeSchema.pre("save", async function (next) {
 //   if (!this.isModified("password")) return next();
 //   const salt = await bcrypt.genSalt(10);
