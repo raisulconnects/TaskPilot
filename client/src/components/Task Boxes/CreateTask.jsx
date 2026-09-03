@@ -13,6 +13,7 @@ export default function CreateTask() {
   const [aiError, setAiError] = useState("");
   const [catPriLoading, setCatPriLoading] = useState(false);
   const [catPriError, setCatPriError] = useState("");
+  const [formError, setFormError] = useState("");
 
   const {
     fetchOnlyEmployees,
@@ -30,14 +31,29 @@ export default function CreateTask() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError("");
+
+    if (
+      !title.trim() ||
+      !assignedTo ||
+      !dueDate ||
+      !category ||
+      !priority ||
+      !description.trim()
+    ) {
+      setFormError(
+        "Please fill in all fields, including the description, before creating the task."
+      );
+      return;
+    }
 
     const taskData = {
-      title,
+      title: title.trim(),
       assignedTo,
       dueDate,
       category,
       priority,
-      description,
+      description: description.trim(),
     };
 
     const success = await createTask(taskData);
@@ -51,6 +67,7 @@ export default function CreateTask() {
       setTitle("");
       setDueDate("");
       setDescription("");
+      setFormError("");
     }
   };
 
@@ -142,7 +159,10 @@ export default function CreateTask() {
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 px-0 sm:px-4 lg:px-6 py-8 sm:py-12 lg:py-16">
       {/* Form Section */}
-      <form className="flex-1 bg-gray-900/70 backdrop-blur-md border border-gray-700 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-2xl max-w-2xl w-full">
+      <form
+        onSubmit={handleSubmit}
+        className="flex-1 bg-gray-900/70 backdrop-blur-md border border-gray-700 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-2xl max-w-2xl w-full"
+      >
         <h2 className="text-2xl font-semibold text-center mb-6 text-white">
           Create New Task
         </h2>
@@ -248,10 +268,10 @@ export default function CreateTask() {
         </div>
 
         {/* Error Message */}
-        {error && (
+        {(formError || error) && (
           <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400 text-center font-bold">
             <span className="animate-pulse">
-              {error}. Please fill the whole form and try again.
+              {formError || `${error}. Please fill the whole form and try again.`}
             </span>
           </div>
         )}
@@ -302,7 +322,6 @@ export default function CreateTask() {
         {/* Submit Button */}
         <button
           type="submit"
-          onClick={handleSubmit}
           disabled={loading}
           className={`mt-6 w-full rounded-lg py-3 font-medium transition
     ${

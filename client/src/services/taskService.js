@@ -101,10 +101,17 @@ export const createTask = async (taskData) => {
     body: JSON.stringify(taskData),
   });
 
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error("Failed to create task");
+    const details = Array.isArray(data.issues)
+      ? data.issues.map((i) => `${i.path}: ${i.message}`).join("; ")
+      : "";
+    throw new Error(
+      [data.message || "Failed to create task", details]
+        .filter(Boolean)
+        .join(" — ")
+    );
   }
 
   return data.task;
