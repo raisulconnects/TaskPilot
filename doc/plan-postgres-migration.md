@@ -8,9 +8,20 @@
 
 ## Phase 0 — Version spike (30-minute gate, nothing proceeds until it passes)
 
-The Prisma toolchain is mid-transition (newest versions assume TypeScript-first
-setup with `prisma.config.ts` + driver adapters). Our server is plain-JS CJS,
-so compatibility must be proven, not assumed:
+> **OUTCOME (2026-09-07, branch `chore/postgres-migration`): PASSED on Prisma
+> v7 stable (`prisma@7.10.0`, `@prisma/client@7.10.0`). Findings:
+> - The default `prisma-client` generator emits TypeScript sources only —
+>   unusable from plain CJS. Use the classic `provider = "prisma-client-js"`.
+> - Prisma 7 requires a driver adapter: `new PrismaClient({ adapter })` with
+>   `@prisma/adapter-pg` + `pg` — both CJS-compatible via `require()`.
+> - `prisma7.config.ts` (TS) is Prisma's own file, loaded by its CLI; the app
+>   stays plain JS. `datasource` URL comes from `DATABASE_URL` in that config.
+> - Local dev DB: Docker `postgres:16` on host port **5433** (5432 was taken by
+>   another project's container); volume `taskpilot-pgdata`.
+> - First `npm install` attempt hit a transient Windows esbuild postinstall
+>   crash — retry succeeded; no action needed.
+> - Gate proof: CJS `require('@prisma/client')` + adapter → create/read/count/
+>   delete round-trip against local Postgres, all green.
 
 1. `npm i -D prisma && npm i @prisma/client` in `server/` (plus `pg` if the
    chosen version needs a driver adapter).
