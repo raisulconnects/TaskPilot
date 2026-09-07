@@ -1,0 +1,15 @@
+// SPIKE (Phase 0 gate): single model to prove Prisma 7 works with this
+// plain-JS CJS server. Full domain schema lands in Phase 1.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+}
