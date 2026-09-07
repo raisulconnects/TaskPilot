@@ -60,8 +60,8 @@ export default function AllTask() {
       {filteredTasks.length > 0 ? (
         filteredTasks.map((t) => (
           <AllTaskTaskCard
-            key={t._id}
-            id={t._id}
+            key={t.id}
+            id={t.id}
             name={t?.assignedTo?.name}
             description={t?.description}
             status={t?.status}

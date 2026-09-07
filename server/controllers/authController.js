@@ -1,4 +1,4 @@
-const User = require("../models/employee.model");
+const prisma = require("../config/prisma");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config({ config: "../.env", quiet: true });
@@ -6,10 +6,9 @@ require("dotenv").config({ config: "../.env", quiet: true });
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  // Phase 1 cleanup: removed console.log(email, password) — credential leak.
-
   try {
-    const user = await User.findOne({ email });
+    // Email is globally unique (single-identity model), so findUnique applies.
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user)
       return res.status(401).json({ message: "Invalid email or password" });
 
@@ -22,7 +21,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        id: user._id,
+        id: user.id,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
@@ -38,7 +37,7 @@ const login = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,

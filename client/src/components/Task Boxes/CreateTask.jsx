@@ -194,7 +194,7 @@ export default function CreateTask() {
               {allEmployees
                 ?.filter((emp) => emp.role !== "admin")
                 .map((emp) => (
-                  <option key={emp._id} value={emp._id}>
+                  <option key={emp.id} value={emp.id}>
                     {emp.name}
                   </option>
                 ))}

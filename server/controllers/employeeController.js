@@ -1,8 +1,11 @@
-const Employee = require("../models/employee.model");
+const prisma = require("../config/prisma");
 
 const allEmployees = async (req, res) => {
   try {
-    const employees = await Employee.find().select("_id name email role");
+    // Field names follow Prisma (`id`); the client was renamed accordingly.
+    const employees = await prisma.user.findMany({
+      select: { id: true, name: true, email: true, role: true },
+    });
 
     return res.status(200).json(employees);
   } catch (error) {

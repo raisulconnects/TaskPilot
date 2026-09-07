@@ -30,13 +30,13 @@ export default function TaskList() {
       {tasks.length > 0 ? (
         tasks.map((t) => (
           <SingleTask
-            key={t._id}
+            key={t.id}
             title={t.title}
             description={t.description}
             priority={t.priority}
             dueDate={t.dueDate}
             status={t.status}
-            id={t._id}
+            id={t.id}
           />
         ))
       ) : (

@@ -16,7 +16,7 @@ beforeEach(() => {
 
 describe("createTask", () => {
   it("returns the created task on success", async () => {
-    const task = { _id: "task1", ...taskData };
+    const task = { id: "task1", ...taskData };
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({

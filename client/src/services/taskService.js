@@ -19,7 +19,7 @@ export const fetchTasksByEmployee = async (employeeId) => {
     credentials: "include",
   });
   const tasksData = await response.json();
-  return tasksData.filter((task) => task.assignedTo._id === employeeId);
+  return tasksData.filter((task) => task.assignedTo.id === employeeId);
 };
 
 /**
