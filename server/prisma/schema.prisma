@@ -1,5 +1,8 @@
-// SPIKE (Phase 0 gate): single model to prove Prisma 7 works with this
-// plain-JS CJS server. Full domain schema lands in Phase 1.
+// TaskPilot domain schema (Phase 1). Multi-tenancy is baked in from day one:
+// every tenant-scoped row carries orgId, so RLS policies (Phase 3) need no
+// re-migration. Enum values intentionally mirror the legacy Mongo strings
+// ("admin"/"assigned"/...) so auth code, JWTs, and Zod enums keep working.
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,4 +15,71 @@ model Organization {
   id        String   @id @default(uuid())
   name      String
   createdAt DateTime @default(now())
+  users     User[]
+  tasks     Task[]
+}
+
+enum Role {
+  admin
+  employee
+}
+
+model User {
+  id        String   @id @default(uuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  password  String
+  role      Role     @default(employee)
+  createdAt DateTime @default(now())
+
+  assignedTasks Task[] @relation("AssignedTo")
+  createdTasks  Task[] @relation("AssignedBy")
+
+  // Same address may exist in two orgs, never twice in one.
+  @@unique([orgId, email])
+  @@index([orgId])
+}
+
+enum TaskCategory {
+  General
+  Design
+  Development
+  Debugging
+}
+
+enum TaskPriority {
+  General
+  Average
+  High
+  Low
+  Medium
+}
+
+enum TaskStatus {
+  assigned
+  completed
+  failed
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  orgId       String
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  category    TaskCategory
+  priority    TaskPriority @default(Medium)
+  status      TaskStatus   @default(assigned)
+  dueDate     DateTime
+  assignedToId String
+  assignedTo   User         @relation("AssignedTo", fields: [assignedToId], references: [id], onDelete: Restrict)
+  assignedById String
+  assignedBy   User         @relation("AssignedBy", fields: [assignedById], references: [id], onDelete: Restrict)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([orgId, status])
+  @@index([orgId, assignedToId])
 }
