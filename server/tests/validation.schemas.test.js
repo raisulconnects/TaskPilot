@@ -42,6 +42,19 @@ describe("createTaskSchema", () => {
     expect(r.success).toBe(false);
   });
 
+  it("rejects the retired Low/Medium priorities (client allows only 3)", () => {
+    for (const priority of ["Low", "Medium"]) {
+      expect(
+        createTaskSchema.safeParse({ ...validTask, priority }).success
+      ).toBe(false);
+    }
+    for (const priority of ["General", "Average", "High"]) {
+      expect(
+        createTaskSchema.safeParse({ ...validTask, priority }).success
+      ).toBe(true);
+    }
+  });
+
   it("rejects short titles, bad enums, bad dates, bad ids", () => {
     const r = createTaskSchema.safeParse({
       ...validTask,
