@@ -3,30 +3,35 @@ import request from "supertest";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import createApp from "../app.js";
-import Task from "../models/task.model.js";
-import Employee from "../models/employee.model.js";
+import prismaHelper from "./helpers/prisma-test-helper.js";
 import socketHelper from "./helpers/socket-test-helper.js";
 
-// Models: vi.spyOn works because every model file reuses the compiled model
-// off Mongoose's shared singleton (see the `mongoose.models.X ||` guard),
-// so the spied object is the exact one the controllers query.
-const findSpy = vi.spyOn(Task, "find");
-const createSpy = vi.spyOn(Task, "create");
-const updateManySpy = vi.spyOn(Task, "updateMany");
-const findByIdAndUpdateSpy = vi.spyOn(Task, "findByIdAndUpdate");
-const findByIdAndDeleteSpy = vi.spyOn(Task, "findByIdAndDelete");
-const empFindSpy = vi.spyOn(Employee, "find");
-const empFindOneSpy = vi.spyOn(Employee, "findOne");
+// Prisma stubs are installed on the controllers' instance via the CJS helper
+// (see helpers/prisma-test-helper.js for why vi.mock/vi.spyOn can't reach it).
+// No database is touched; bcrypt.compare stays real.
+const task = {
+  create: vi.fn(),
+  findMany: vi.fn(),
+  updateMany: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+};
+const user = {
+  findUnique: vi.fn(),
+  findMany: vi.fn(),
+};
 
-// Socket: the helper initializes the REAL Socket.IO server through the same
-// CJS pipeline the controllers use (vi.mock/vi.spyOn from ESM tests cannot
-// reach it). Spying `to()` captures room-targeted emissions.
+// Socket: the helper boots the REAL server through the controllers' CJS
+// pipeline (see helpers/socket-test-helper.js); spying `to()` captures
+// room-targeted emissions without any client connections.
 const mockEmit = vi.fn();
 vi.spyOn(socketHelper.io, "to").mockReturnValue({ emit: mockEmit });
 
-const OID = "507f1f77bcf86cd799439011";
-const ADMIN = { id: "admin1", role: "admin", name: "Admin", email: "a@x.com" };
-const EMP = { id: "emp1", role: "employee", name: "Emp", email: "e@x.com" };
+const OID = "123e4567-e89b-12d3-a456-426614174000";
+const ADMIN_ID = "123e4567-e89b-12d3-a456-426614174001";
+const ORG_ID = "123e4567-e89b-12d3-a456-426614174002";
+const ADMIN = { id: ADMIN_ID, role: "admin", name: "Admin", email: "a@x.com" };
+const EMP = { id: OID, role: "employee", name: "Emp", email: "e@x.com" };
 
 const app = createApp();
 const cookieFor = (user) =>
@@ -35,14 +40,17 @@ const cookieFor = (user) =>
 const PASSWORD_HASH = bcrypt.hashSync("correct-pw", 4);
 
 const taskDoc = (overrides = {}) => ({
-  _id: "task1",
+  id: "task1",
+  orgId: ORG_ID,
   title: "Fix login bug",
   description: "Fix the OAuth refresh flow",
   category: "Development",
   priority: "High",
   status: "assigned",
   dueDate: "2026-10-01",
-  assignedTo: { _id: OID, name: "Emp", email: "e@x.com" },
+  assignedToId: OID,
+  assignedById: ADMIN_ID,
+  assignedTo: { id: OID, name: "Emp", email: "e@x.com" },
   ...overrides,
 });
 
@@ -56,7 +64,8 @@ const validBody = {
 };
 
 const dbUser = {
-  _id: "user1",
+  id: "user1",
+  orgId: ORG_ID,
   name: "Admin",
   email: "admin@x.com",
   password: PASSWORD_HASH,
@@ -66,13 +75,10 @@ const dbUser = {
 beforeEach(() => {
   process.env.JWT_SECRET = process.env.JWT_SECRET || "test-secret";
   vi.clearAllMocks();
-  updateManySpy.mockResolvedValue({ modifiedCount: 0 });
-  findSpy.mockReturnValue({
-    populate: vi.fn().mockReturnValue({
-      sort: vi.fn().mockResolvedValue([taskDoc()]),
-    }),
-  });
-  empFindOneSpy.mockResolvedValue(null);
+  prismaHelper.stubPrisma({ task, user });
+  task.updateMany.mockResolvedValue({ count: 0 });
+  task.findMany.mockResolvedValue([taskDoc()]);
+  user.findUnique.mockResolvedValue(null);
 });
 
 describe("GET /api/tasks", () => {
@@ -86,7 +92,7 @@ describe("GET /api/tasks", () => {
       .get("/api/tasks")
       .set("Cookie", cookieFor(EMP));
     expect(res.status).toBe(200);
-    expect(updateManySpy).toHaveBeenCalledOnce();
+    expect(task.updateMany).toHaveBeenCalledOnce();
     expect(Array.isArray(res.body)).toBe(true);
   });
 });
@@ -98,7 +104,7 @@ describe("POST /api/tasks", () => {
       .set("Cookie", cookieFor(EMP))
       .send(validBody);
     expect(res.status).toBe(403);
-    expect(createSpy).not.toHaveBeenCalled();
+    expect(task.create).not.toHaveBeenCalled();
   });
 
   it("returns 400 when description is missing (controller never hit)", async () => {
@@ -108,7 +114,7 @@ describe("POST /api/tasks", () => {
       .set("Cookie", cookieFor(ADMIN))
       .send(rest);
     expect(res.status).toBe(400);
-    expect(createSpy).not.toHaveBeenCalled();
+    expect(task.create).not.toHaveBeenCalled();
   });
 
   it("returns 400 for smuggled status/assignedBy keys", async () => {
@@ -117,25 +123,42 @@ describe("POST /api/tasks", () => {
       .set("Cookie", cookieFor(ADMIN))
       .send({ ...validBody, status: "completed", assignedBy: "hacker" });
     expect(res.status).toBe(400);
-    expect(createSpy).not.toHaveBeenCalled();
+    expect(task.create).not.toHaveBeenCalled();
   });
 
-  it("creates the task, stamps assignedBy from the token, notifies the assignee", async () => {
+  it("creates the task, stamps org + author from the server side, notifies the assignee", async () => {
     const populated = taskDoc();
-    createSpy.mockResolvedValue({
-      populate: vi.fn().mockResolvedValue(populated),
-    });
+    user.findUnique.mockResolvedValue({ orgId: ORG_ID });
+    task.create.mockResolvedValue(populated);
     const res = await request(app)
       .post("/api/tasks")
       .set("Cookie", cookieFor(ADMIN))
       .send(validBody);
     expect(res.status).toBe(201);
-    expect(createSpy).toHaveBeenCalledWith({
-      ...validBody,
-      dueDate: expect.any(Date),
-      assignedBy: ADMIN.id,
+    const { assignedTo, ...restBody } = validBody;
+    expect(task.create).toHaveBeenCalledWith({
+      data: {
+        ...restBody,
+        dueDate: expect.any(Date),
+        orgId: ORG_ID,
+        assignedToId: OID,
+        assignedById: ADMIN.id,
+      },
+      include: { assignedTo: { select: { id: true, name: true, email: true } } },
     });
     expect(mockEmit).toHaveBeenCalledWith("task-assigned", populated);
+    expect(res.body.task.assignedTo).toMatchObject({ id: OID });
+  });
+
+  it("returns 400 when the assignee does not exist (FK backstop)", async () => {
+    user.findUnique.mockResolvedValue({ orgId: ORG_ID });
+    task.create.mockRejectedValue({ code: "P2003", message: "FK violation" });
+    const res = await request(app)
+      .post("/api/tasks")
+      .set("Cookie", cookieFor(ADMIN))
+      .send(validBody);
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Assignee does not exist");
   });
 });
 
@@ -145,14 +168,12 @@ describe("PATCH /api/tasks/:taskId/complete", () => {
       .patch("/api/tasks/nope/complete")
       .set("Cookie", cookieFor(EMP));
     expect(res.status).toBe(400);
-    expect(findByIdAndUpdateSpy).not.toHaveBeenCalled();
+    expect(task.update).not.toHaveBeenCalled();
   });
 
   it("marks the task completed and emits to the admin room", async () => {
     const completed = taskDoc({ status: "completed" });
-    findByIdAndUpdateSpy.mockReturnValue({
-      populate: vi.fn().mockResolvedValue(completed),
-    });
+    task.update.mockResolvedValue(completed);
     const res = await request(app)
       .patch(`/api/tasks/${OID}/complete`)
       .set("Cookie", cookieFor(EMP));
@@ -161,9 +182,7 @@ describe("PATCH /api/tasks/:taskId/complete", () => {
   });
 
   it("returns 404 when the task does not exist", async () => {
-    findByIdAndUpdateSpy.mockReturnValue({
-      populate: vi.fn().mockResolvedValue(null),
-    });
+    task.update.mockRejectedValue({ code: "P2025", message: "Not found" });
     const res = await request(app)
       .patch(`/api/tasks/${OID}/complete`)
       .set("Cookie", cookieFor(EMP));
@@ -178,7 +197,7 @@ describe("PATCH /api/tasks/:taskId/edit", () => {
       .set("Cookie", cookieFor(ADMIN))
       .send({});
     expect(res.status).toBe(400);
-    expect(findByIdAndUpdateSpy).not.toHaveBeenCalled();
+    expect(task.update).not.toHaveBeenCalled();
   });
 
   it("returns 400 for unknown keys", async () => {
@@ -189,16 +208,20 @@ describe("PATCH /api/tasks/:taskId/edit", () => {
     expect(res.status).toBe(400);
   });
 
-  it("applies a partial update and emits to both rooms", async () => {
+  it("applies a partial update", async () => {
     const updated = taskDoc({ description: "new desc" });
-    findByIdAndUpdateSpy.mockReturnValue({
-      populate: vi.fn().mockResolvedValue(updated),
-    });
+    task.update.mockResolvedValue(updated);
     const res = await request(app)
       .patch(`/api/tasks/${OID}/edit`)
       .set("Cookie", cookieFor(ADMIN))
       .send({ description: "new desc" });
     expect(res.status).toBe(200);
+    expect(task.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: OID },
+        data: { description: "new desc" },
+      })
+    );
     expect(mockEmit).toHaveBeenCalledWith("task:updated", updated);
   });
 });
@@ -209,18 +232,19 @@ describe("DELETE /api/tasks/:taskId/delete", () => {
       .delete("/api/tasks/nope/delete")
       .set("Cookie", cookieFor(ADMIN));
     expect(res.status).toBe(400);
-    expect(findByIdAndDeleteSpy).not.toHaveBeenCalled();
+    expect(task.delete).not.toHaveBeenCalled();
   });
 
-  it("deletes and emits to the admin room", async () => {
-    findByIdAndDeleteSpy.mockResolvedValue(taskDoc({ assignedTo: OID }));
+  it("deletes the task", async () => {
+    task.delete.mockResolvedValue(taskDoc({ assignedToId: OID }));
     const res = await request(app)
       .delete(`/api/tasks/${OID}/delete`)
       .set("Cookie", cookieFor(ADMIN));
     expect(res.status).toBe(200);
+    expect(res.body.task).toMatchObject({ id: "task1" });
     expect(mockEmit).toHaveBeenCalledWith(
       "task:deleted",
-      expect.objectContaining({ _id: "task1" })
+      expect.objectContaining({ id: "task1" })
     );
   });
 });
@@ -239,11 +263,9 @@ describe("GET /api/allemployees", () => {
   });
 
   it("returns the employee list for admins", async () => {
-    empFindSpy.mockReturnValue({
-      select: vi.fn().mockResolvedValue([
-        { _id: OID, name: "Emp", email: "e@x.com", role: "employee" },
-      ]),
-    });
+    user.findMany.mockResolvedValue([
+      { id: OID, name: "Emp", email: "e@x.com", role: "employee" },
+    ]);
     const res = await request(app)
       .get("/api/allemployees")
       .set("Cookie", cookieFor(ADMIN));

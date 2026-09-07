@@ -37,8 +37,10 @@ model User {
   assignedTasks Task[] @relation("AssignedTo")
   createdTasks  Task[] @relation("AssignedBy")
 
-  // Same address may exist in two orgs, never twice in one.
-  @@unique([orgId, email])
+  // Single-identity model: one account per email globally (matches the legacy
+  // Mongo unique index). Inviting an existing email to another org attaches
+  // the identity instead of duplicating it.
+  @@unique([email])
   @@index([orgId])
 }
 

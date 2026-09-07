@@ -4,13 +4,10 @@
 // bcrypt.compare). NOTE: demo passwords below are local-dev only — real users
 // will come through the invite/registration flow (tenancy phase), never
 // hardcoded credentials. Uses plain CJS require() like the rest of the server.
-const { PrismaClient } = require("@prisma/client");
-const { PrismaPg } = require("@prisma/adapter-pg");
+// Load .env for direct `node prisma/seed.js` runs (prisma CLI loads it too).
+require("dotenv").config();
+const prisma = require("../config/prisma");
 const bcrypt = require("bcryptjs");
-
-const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-});
 
 const daysFromNow = (n) => {
   const d = new Date();
@@ -29,8 +26,8 @@ async function main() {
 
   const upsertUser = (name, email, password, role) =>
     prisma.user.upsert({
-      where: { orgId_email: { orgId: org.id, email } },
-      update: { name, password: bcrypt.hashSync(password, 10), role },
+      where: { email },
+      update: { name, password: bcrypt.hashSync(password, 10), role, orgId: org.id },
       create: {
         orgId: org.id,
         name,

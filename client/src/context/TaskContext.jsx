@@ -26,7 +26,7 @@ export const TaskContextProvider = ({ children }) => {
 
     const handleTaskAssigned = (task) => {
       setTasks((prev) => {
-        const exists = prev.some((t) => t._id === task._id);
+        const exists = prev.some((t) => t.id === task.id);
         if (exists) return prev;
         return [task, ...prev];
       });
@@ -34,12 +34,12 @@ export const TaskContextProvider = ({ children }) => {
 
     const handleTaskUpdated = (updatedTask) => {
       setTasks((prev) =>
-        prev.map((task) => (task._id === updatedTask._id ? updatedTask : task)),
+        prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
       );
     };
 
     const handleTaskDeleted = (deletedTask) => {
-      setTasks((prev) => prev.filter((task) => task._id !== deletedTask._id));
+      setTasks((prev) => prev.filter((task) => task.id !== deletedTask.id));
     };
 
     socket.on("task-assigned", handleTaskAssigned);
@@ -163,7 +163,7 @@ export const TaskContextProvider = ({ children }) => {
     const myTasks =
       user.role === "admin"
         ? tasks
-        : tasks.filter((t) => t.assignedTo._id === user.id);
+        : tasks.filter((t) => t.assignedTo.id === user.id);
 
     const stats = { assigned: 0, in_progress: 0, completed: 0, failed: 0 };
 

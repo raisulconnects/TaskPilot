@@ -7,7 +7,7 @@ import {
 import { loginSchema } from "../validation/auth.schemas.js";
 import { aiTitleSchema } from "../validation/ai.schemas.js";
 
-const OID = "507f1f77bcf86cd799439011";
+const OID = "123e4567-e89b-12d3-a456-426614174000";
 
 const validTask = {
   title: "Fix login bug",
@@ -95,14 +95,18 @@ describe("updateTaskSchema", () => {
 });
 
 describe("taskIdParamSchema", () => {
-  it("accepts a valid ObjectId", () => {
+  it("accepts a valid UUID", () => {
     expect(taskIdParamSchema.safeParse({ taskId: OID }).success).toBe(true);
   });
 
-  it("rejects a malformed id", () => {
+  it("rejects a malformed id (including legacy 24-hex ObjectIds)", () => {
     expect(taskIdParamSchema.safeParse({ taskId: "nope" }).success).toBe(
       false
     );
+    expect(
+      taskIdParamSchema.safeParse({ taskId: "507f1f77bcf86cd799439011" })
+        .success
+    ).toBe(false);
   });
 });
 
