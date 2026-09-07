@@ -53,8 +53,6 @@ enum TaskPriority {
   General
   Average
   High
-  Low
-  Medium
 }
 
 enum TaskStatus {
@@ -70,7 +68,7 @@ model Task {
   title       String
   description String
   category    TaskCategory
-  priority    TaskPriority @default(Medium)
+  priority    TaskPriority @default(General)
   status      TaskStatus   @default(assigned)
   dueDate     DateTime
   assignedToId String

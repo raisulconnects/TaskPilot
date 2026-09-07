@@ -4,7 +4,7 @@ const objectId = z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid id");
 
 const category = z.enum(["General", "Design", "Development", "Debugging"]);
 
-const priority = z.enum(["General", "Average", "High", "Low", "Medium"]);
+const priority = z.enum(["General", "Average", "High"]);
 
 const status = z.enum(["assigned", "completed", "failed"]);
 
