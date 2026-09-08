@@ -91,4 +91,16 @@ describe("GET /api/auth/me", () => {
     const res = await request(app).get("/api/auth/me");
     expect(res.status).toBe(401);
   });
+
+  it("returns the orgId so clients survive reloads (socket rooms)", async () => {
+    const token = jwt.sign(
+      { id: "user1", role: "admin", orgId: "org1" },
+      process.env.JWT_SECRET
+    );
+    const res = await request(app)
+      .get("/api/auth/me")
+      .set("Cookie", `token=${token}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ id: "user1", orgId: "org1" });
+  });
 });

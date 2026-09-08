@@ -1,5 +1,6 @@
 const prisma = require("../config/prisma");
 const { getIO } = require("../config/socket");
+const { adminRoom, userRoom } = require("../config/rooms");
 
 const ASSIGNEE_SELECT = { id: true, name: true, email: true };
 
@@ -28,6 +29,18 @@ const isForeignKeyViolation = (e) => e?.code === "P2003";
 // Tenancy: orgId comes from req.orgId (orgScope middleware), never the client.
 const postATask = async (req, res) => {
   try {
+    // Tenancy: assignee must belong to the caller's org — otherwise tasks
+    // could be pushed into (and leak titles/descriptions to) another tenant.
+    const assignee = await prisma.user.findUnique({
+      where: { id: req.body.assignedTo },
+      select: { orgId: true },
+    });
+    if (!assignee || assignee.orgId !== req.orgId) {
+      return res
+        .status(400)
+        .json({ message: "Assignee does not exist" });
+    }
+
     const { assignedTo, ...rest } = req.body;
     const task = await prisma.task.create({
       data: {
@@ -42,7 +55,7 @@ const postATask = async (req, res) => {
     const io = getIO();
     const assignedUserId = task.assignedTo.id;
     if (assignedUserId) {
-      io.to(`user_${assignedUserId}`).emit("task-assigned", task);
+      io.to(userRoom(req.orgId, assignedUserId)).emit("task-assigned", task);
     }
 
     return res.status(201).json({ task });
@@ -94,7 +107,7 @@ const markTaskCompleted = async (req, res) => {
     if (rejectForeignTask(res, task, req.orgId)) return;
 
     const io = getIO();
-    io.to("admin-room").emit("task:updated", task);
+    io.to(adminRoom(task.orgId)).emit("task:updated", task);
 
     res.status(200).json({ message: "Task marked as completed", task });
   } catch (error) {
@@ -113,9 +126,9 @@ const deleteATask = async (req, res) => {
 
     const io = getIO();
     const assignedUserId = task.assignedToId;
-    io.to("admin-room").emit("task:deleted", task);
+    io.to(adminRoom(task.orgId)).emit("task:deleted", task);
     if (assignedUserId) {
-      io.to(`user_${assignedUserId}`).emit("task:deleted", task);
+      io.to(userRoom(req.orgId, assignedUserId)).emit("task:deleted", task);
     }
 
     res.status(200).json({ message: "Task Was Deleted", task });
@@ -133,6 +146,18 @@ const editATask = async (req, res) => {
   const newTaskData =
     assignedTo === undefined ? rest : { ...rest, assignedToId: assignedTo };
   try {
+    // Tenancy: reassignment targets the caller's org only (see postATask).
+    if (assignedTo !== undefined) {
+      const assignee = await prisma.user.findUnique({
+        where: { id: assignedTo },
+        select: { orgId: true },
+      });
+      if (!assignee || assignee.orgId !== req.orgId) {
+        return res
+          .status(400)
+          .json({ message: "Assignee does not exist" });
+      }
+    }
     const task = await prisma.task.update({
       where: { id: req.params.taskId },
       data: newTaskData,
@@ -142,9 +167,9 @@ const editATask = async (req, res) => {
 
     const io = getIO();
     const assignedUserId = task.assignedTo.id;
-    io.to("admin-room").emit("task:updated", task);
+    io.to(adminRoom(task.orgId)).emit("task:updated", task);
     if (assignedUserId) {
-      io.to(`user_${assignedUserId}`).emit("task:updated", task);
+      io.to(userRoom(req.orgId, assignedUserId)).emit("task:updated", task);
     }
 
     res.status(200).json({ message: "Task Was Updated", task });
