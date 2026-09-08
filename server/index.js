@@ -1,13 +1,10 @@
 const dotenv = require("dotenv");
-const connectDB = require("./config/db");
 const http = require("http");
 const { Server } = require("socket.io");
 const { initSocket } = require("./config/socket");
 const createApp = require("./app");
 
 dotenv.config({ quiet: true });
-
-connectDB();
 
 const app = createApp();
 const server = http.createServer(app);
