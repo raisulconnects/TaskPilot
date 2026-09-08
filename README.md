@@ -1,5 +1,7 @@
 # TaskPilot
 
+[![CI](https://github.com/raisulconnects/TaskPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/raisulconnects/TaskPilot/actions/workflows/ci.yml)
+
 A modern, full-stack task management application built with the PERN stack (PostgreSQL, Express, React, Node.js) with multi-tenant organizations. TaskPilot enables seamless collaboration between administrators and employees, featuring AI-powered task generation, real-time analytics, and an intuitive user interface.
 
 ## 🚀 Features
