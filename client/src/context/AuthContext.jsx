@@ -3,7 +3,17 @@ import { handleLogin, logoutUser } from "../services/authService";
 import { API_BASE_URL } from "../api";
 import { io } from "socket.io-client";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL || API_BASE_URL.replace(/\/api$/, "");
+
+if (!import.meta.env.VITE_SOCKET_URL) {
+  // Degraded to the API origin — set VITE_SOCKET_URL explicitly if the
+  // Socket.IO server lives elsewhere (see client/.env.example).
+  console.warn(
+    "[socket] VITE_SOCKET_URL is not set; falling back to",
+    SOCKET_URL
+  );
+}
 
 const AuthContext = createContext(null);
 
@@ -17,7 +27,9 @@ export const AuthContextProvider = ({ children }) => {
 
   const connectSocket = (userData) => {
     const s = io(SOCKET_URL, {
-      auth: { userId: userData.id, role: userData.role },
+      // Tenancy: orgId namespaces all socket rooms server-side (see
+      // server/config/rooms.js). Present on login response and /me alike.
+      auth: { userId: userData.id, role: userData.role, orgId: userData.orgId },
     });
     setSocket(s);
     return s;

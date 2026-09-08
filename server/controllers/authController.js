@@ -81,6 +81,7 @@ const authCheck = (req, res) => {
       email: decoded.email,
       role: decoded.role,
       id: decoded.id,
+      orgId: decoded.orgId,
     });
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });

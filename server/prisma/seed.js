@@ -24,12 +24,14 @@ async function main() {
   }
   console.log(`org: ${org.name} (${org.id})`);
 
-  const upsertUser = (name, email, password, role) =>
+  const upsertUser = (name, email, password, role, homeOrg) =>
     prisma.user.upsert({
       where: { email },
-      update: { name, password: bcrypt.hashSync(password, 10), role, orgId: org.id },
+      // NOTE: orgId is create-only on purpose. Email is globally unique, so a
+      // re-run must never "steal" an existing user into another org.
+      update: { name, password: bcrypt.hashSync(password, 10), role },
       create: {
-        orgId: org.id,
+        orgId: homeOrg.id,
         name,
         email,
         password: bcrypt.hashSync(password, 10),
@@ -37,10 +39,10 @@ async function main() {
       },
     });
 
-  const admin = await upsertUser("Sumo Admin", "admin@sumo.com", "11223344", "admin");
-  const emp1 = await upsertUser("Rahim Uddin", "rahim@sumo.com", "employee1", "employee");
-  const emp2 = await upsertUser("Karim Sheikh", "karim@sumo.com", "employee1", "employee");
-  const emp3 = await upsertUser("Nusrat Jahan", "nusrat@sumo.com", "employee1", "employee");
+  const admin = await upsertUser("Sumo Admin", "admin@sumo.com", "11223344", "admin", org);
+  const emp1 = await upsertUser("Rahim Uddin", "rahim@sumo.com", "employee1", "employee", org);
+  const emp2 = await upsertUser("Karim Sheikh", "karim@sumo.com", "employee1", "employee", org);
+  const emp3 = await upsertUser("Nusrat Jahan", "nusrat@sumo.com", "employee1", "employee", org);
   console.log(`users: 1 admin + 3 employees`);
 
   // Rebuild demo tasks so re-runs stay clean.
@@ -117,6 +119,44 @@ async function main() {
     _count: { _all: true },
   });
   console.log("by status:", JSON.stringify(counts));
+
+  // RivalOrg: second tenant powering leakage tests + manual cross-org checks.
+  // Distinct emails (global uniqueness); re-runs never move users across orgs.
+  let rival = await prisma.organization.findFirst({
+    where: { name: "RivalOrg" },
+  });
+  if (!rival) {
+    rival = await prisma.organization.create({ data: { name: "RivalOrg" } });
+  }
+  const rivalAdmin = await upsertUser(
+    "Rival Admin",
+    "admin@rival.com",
+    "rivalpass1",
+    "admin",
+    rival
+  );
+  const rivalEmp = await upsertUser(
+    "Rival Employee",
+    "employee@rival.com",
+    "employee1",
+    "employee",
+    rival
+  );
+  await prisma.task.deleteMany({ where: { orgId: rival.id } });
+  await prisma.task.create({
+    data: {
+      orgId: rival.id,
+      title: "Rival secret roadmap",
+      description: "Must never be visible to SumoOrg users.",
+      category: "General",
+      priority: "High",
+      status: "assigned",
+      dueDate: daysFromNow(5),
+      assignedToId: rivalEmp.id,
+      assignedById: rivalAdmin.id,
+    },
+  });
+  console.log(`rival: RivalOrg (1 admin + 1 employee + 1 task)`);
 }
 
 main()

@@ -9,11 +9,24 @@ on:
 jobs:
   server:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: taskpilot
+          POSTGRES_PASSWORD: taskpilot
+          POSTGRES_DB: taskpilot
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U taskpilot"
+          --interval 10s --timeout 5s --retries 5
     defaults:
       run:
         working-directory: server
     env:
       JWT_SECRET: ci-test-secret
+      DATABASE_URL: postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public
+      TEST_DATABASE_URL: postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,6 +35,8 @@ jobs:
           cache: npm
           cache-dependency-path: server/package-lock.json
       - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npx prisma generate
       - run: npm test
 
   client:

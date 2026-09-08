@@ -25,7 +25,7 @@ const user = {
 // pipeline (see helpers/socket-test-helper.js); spying `to()` captures
 // room-targeted emissions without any client connections.
 const mockEmit = vi.fn();
-vi.spyOn(socketHelper.io, "to").mockReturnValue({ emit: mockEmit });
+const toSpy = vi.spyOn(socketHelper.io, "to").mockReturnValue({ emit: mockEmit });
 
 const OID = "123e4567-e89b-12d3-a456-426614174000";
 const ADMIN_ID = "123e4567-e89b-12d3-a456-426614174001";
@@ -170,7 +170,32 @@ describe("POST /api/tasks", () => {
       include: { assignedTo: { select: { id: true, name: true, email: true } } },
     });
     expect(mockEmit).toHaveBeenCalledWith("task-assigned", populated);
+    expect(toSpy).toHaveBeenCalledWith(`org_${ORG_ID}:user_${OID}`);
     expect(res.body.task.assignedTo).toMatchObject({ id: OID });
+  });
+
+  it("verifies the assignee belongs to the caller's org", async () => {
+    user.findUnique.mockResolvedValue({ orgId: ORG_ID });
+    task.create.mockResolvedValue(taskDoc());
+    await request(app)
+      .post("/api/tasks")
+      .set("Cookie", cookieFor(ADMIN))
+      .send(validBody);
+    expect(user.findUnique).toHaveBeenCalledWith({
+      where: { id: OID },
+      select: { orgId: true },
+    });
+  });
+
+  it("returns 400 when assigning to another org's user", async () => {
+    user.findUnique.mockResolvedValue({ orgId: OTHER_ORG_ID });
+    const res = await request(app)
+      .post("/api/tasks")
+      .set("Cookie", cookieFor(ADMIN))
+      .send(validBody);
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Assignee does not exist");
+    expect(task.create).not.toHaveBeenCalled();
   });
 
   it("returns 400 when the assignee does not exist (FK backstop)", async () => {
@@ -202,6 +227,7 @@ describe("PATCH /api/tasks/:taskId/complete", () => {
       .set("Cookie", cookieFor(EMP));
     expect(res.status).toBe(200);
     expect(mockEmit).toHaveBeenCalledWith("task:updated", completed);
+    expect(toSpy).toHaveBeenCalledWith(`org_${ORG_ID}:admin-room`);
   });
 
   it("returns 404 when the task does not exist", async () => {
@@ -265,6 +291,17 @@ describe("PATCH /api/tasks/:taskId/edit", () => {
       .send({ description: "new desc" });
     expect(res.status).toBe(404);
     expect(mockEmit).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when reassigning to another org's user", async () => {
+    user.findUnique.mockResolvedValue({ orgId: OTHER_ORG_ID });
+    const res = await request(app)
+      .patch(`/api/tasks/${OID}/edit`)
+      .set("Cookie", cookieFor(ADMIN))
+      .send({ description: "new desc", assignedTo: OID });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Assignee does not exist");
+    expect(task.update).not.toHaveBeenCalled();
   });
 });
 
