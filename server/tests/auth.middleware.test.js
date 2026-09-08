@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import jwt from "jsonwebtoken";
 import authCheck from "../middleware/authCheck.middleware.js";
 import roleCheck from "../middleware/roleCheck.middleware.js";
+import orgScope from "../middleware/orgScope.middleware.js";
 
 beforeAll(() => {
   process.env.JWT_SECRET = process.env.JWT_SECRET || "test-secret";
@@ -72,6 +73,33 @@ describe("roleCheck middleware", () => {
     const res = mockRes();
     const next = vi.fn();
     roleCheck("admin")({}, res, next);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+});
+
+describe("orgScope middleware", () => {
+  it("stamps req.orgId and calls next() for org-carrying tokens", () => {
+    const req = { user: { id: "u1", role: "admin", orgId: "org1" } };
+    const next = vi.fn();
+    orgScope(req, mockRes(), next);
+    expect(req.orgId).toBe("org1");
+    expect(next).toHaveBeenCalledOnce();
+  });
+
+  it("returns 401 asking for re-login when the org claim is missing", () => {
+    const res = mockRes();
+    const next = vi.fn();
+    orgScope({ user: { id: "u1", role: "admin" } }, res, next);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json.mock.calls[0][0].message).toMatch(/log in again/i);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("returns 401 when req.user is missing", () => {
+    const res = mockRes();
+    const next = vi.fn();
+    orgScope({}, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });

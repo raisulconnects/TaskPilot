@@ -9,6 +9,7 @@ const {
 } = require("../controllers/taskController");
 const roleCheckMiddleware = require("../middleware/roleCheck.middleware");
 const authCheckMiddleware = require("../middleware/authCheck.middleware");
+const orgScopeMiddleware = require("../middleware/orgScope.middleware");
 const {
   validateBody,
   validateParams,
@@ -23,6 +24,7 @@ const {
 router.post(
   "/",
   authCheckMiddleware,
+  orgScopeMiddleware,
   roleCheckMiddleware("admin"),
   validateBody(createTaskSchema),
   postATask
@@ -32,6 +34,7 @@ router.post(
 router.get(
   "/",
   authCheckMiddleware,
+  orgScopeMiddleware,
   roleCheckMiddleware("admin", "employee"),
   getAllTasks,
 );
@@ -40,6 +43,7 @@ router.get(
 router.patch(
   "/:taskId/complete",
   authCheckMiddleware,
+  orgScopeMiddleware,
   roleCheckMiddleware("employee"),
   validateParams(taskIdParamSchema),
   markTaskCompleted,
@@ -49,6 +53,7 @@ router.patch(
 router.delete(
   "/:taskId/delete",
   authCheckMiddleware,
+  orgScopeMiddleware,
   roleCheckMiddleware("admin"),
   validateParams(taskIdParamSchema),
   deleteATask,
@@ -58,6 +63,7 @@ router.delete(
 router.patch(
   "/:taskId/edit",
   authCheckMiddleware,
+  orgScopeMiddleware,
   roleCheckMiddleware("admin"),
   validateParams(taskIdParamSchema),
   validateBody(updateTaskSchema),
