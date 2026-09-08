@@ -8,6 +8,16 @@ const isNotFound = (e) => e?.code === "P2025";
 const sendNotFound = (res) =>
   res.status(404).json({ message: "Task not found" });
 
+// Tenancy: a task from another org is indistinguishable from a missing one.
+// Deliberately 404 (not 403) so ids cannot be enumerated across tenants.
+const rejectForeignTask = (res, task, orgId) => {
+  if (!task || task.orgId !== orgId) {
+    sendNotFound(res);
+    return true;
+  }
+  return false;
+};
+
 // Prisma FK violation (e.g. assignee does not exist) → friendly 400 instead
 // of a 500. The database constraint is the backstop behind Zod validation.
 const isForeignKeyViolation = (e) => e?.code === "P2003";
@@ -15,21 +25,14 @@ const isForeignKeyViolation = (e) => e?.code === "P2003";
 // Admin Posting a Task From The Admin Dashboard
 // Body validated by createTaskSchema (routes/taskRoutes.js): unknown keys
 // (status, assignedBy, _id) are rejected before reaching here.
+// Tenancy: orgId comes from req.orgId (orgScope middleware), never the client.
 const postATask = async (req, res) => {
   try {
-    // Single-org phase: the creator's org scopes the task. The tenancy phase
-    // replaces this lookup with req.orgId stamped by middleware.
-    const creator = await prisma.user.findUnique({
-      where: { id: req.user.id },
-      select: { orgId: true },
-    });
-    if (!creator) return res.status(401).json({ message: "Not authenticated" });
-
     const { assignedTo, ...rest } = req.body;
     const task = await prisma.task.create({
       data: {
         ...rest,
-        orgId: creator.orgId,
+        orgId: req.orgId,
         assignedToId: assignedTo,
         assignedById: req.user.id,
       },
@@ -59,12 +62,18 @@ const getAllTasks = async (req, res) => {
     const now = new Date();
 
     // Only tasks NOT completed and with past dueDate ( age dekhbe status then check kore it does the work )
+    // Tenancy: expiry touches this org's rows only.
     await prisma.task.updateMany({
-      where: { status: { not: "completed" }, dueDate: { lt: now } },
+      where: {
+        orgId: req.orgId,
+        status: { not: "completed" },
+        dueDate: { lt: now },
+      },
       data: { status: "failed" },
     });
 
     const tasks = await prisma.task.findMany({
+      where: { orgId: req.orgId },
       include: { assignedTo: { select: ASSIGNEE_SELECT } },
       orderBy: { createdAt: "desc" },
     });
@@ -82,6 +91,7 @@ const markTaskCompleted = async (req, res) => {
       data: { status: "completed" },
       include: { assignedTo: { select: ASSIGNEE_SELECT } },
     });
+    if (rejectForeignTask(res, task, req.orgId)) return;
 
     const io = getIO();
     io.to("admin-room").emit("task:updated", task);
@@ -99,6 +109,7 @@ const deleteATask = async (req, res) => {
     const task = await prisma.task.delete({
       where: { id: req.params.taskId },
     });
+    if (rejectForeignTask(res, task, req.orgId)) return;
 
     const io = getIO();
     const assignedUserId = task.assignedToId;
@@ -127,6 +138,7 @@ const editATask = async (req, res) => {
       data: newTaskData,
       include: { assignedTo: { select: ASSIGNEE_SELECT } },
     });
+    if (rejectForeignTask(res, task, req.orgId)) return;
 
     const io = getIO();
     const assignedUserId = task.assignedTo.id;

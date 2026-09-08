@@ -30,8 +30,9 @@ vi.spyOn(socketHelper.io, "to").mockReturnValue({ emit: mockEmit });
 const OID = "123e4567-e89b-12d3-a456-426614174000";
 const ADMIN_ID = "123e4567-e89b-12d3-a456-426614174001";
 const ORG_ID = "123e4567-e89b-12d3-a456-426614174002";
-const ADMIN = { id: ADMIN_ID, role: "admin", name: "Admin", email: "a@x.com" };
-const EMP = { id: OID, role: "employee", name: "Emp", email: "e@x.com" };
+const ADMIN = { id: ADMIN_ID, role: "admin", name: "Admin", email: "a@x.com", orgId: ORG_ID };
+const EMP = { id: OID, role: "employee", name: "Emp", email: "e@x.com", orgId: ORG_ID };
+const OTHER_ORG_ID = "123e4567-e89b-12d3-a456-426614174003";
 
 const app = createApp();
 const cookieFor = (user) =>
@@ -94,6 +95,28 @@ describe("GET /api/tasks", () => {
     expect(res.status).toBe(200);
     expect(task.updateMany).toHaveBeenCalledOnce();
     expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  it("scopes expiry and listing to the caller's org", async () => {
+    await request(app).get("/api/tasks").set("Cookie", cookieFor(EMP));
+    expect(task.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ orgId: ORG_ID }),
+      })
+    );
+    expect(task.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { orgId: ORG_ID } })
+    );
+  });
+
+  it("returns 401 for a legacy token without an org claim", async () => {
+    const legacy = `token=${jwt.sign(
+      { id: EMP.id, role: "employee" },
+      process.env.JWT_SECRET
+    )}`;
+    const res = await request(app).get("/api/tasks").set("Cookie", legacy);
+    expect(res.status).toBe(401);
+    expect(task.findMany).not.toHaveBeenCalled();
   });
 });
 
@@ -188,6 +211,15 @@ describe("PATCH /api/tasks/:taskId/complete", () => {
       .set("Cookie", cookieFor(EMP));
     expect(res.status).toBe(404);
   });
+
+  it("returns 404 (not 403) for another org's task — no cross-tenant enumeration", async () => {
+    task.update.mockResolvedValue(taskDoc({ orgId: OTHER_ORG_ID }));
+    const res = await request(app)
+      .patch(`/api/tasks/${OID}/complete`)
+      .set("Cookie", cookieFor(EMP));
+    expect(res.status).toBe(404);
+    expect(mockEmit).not.toHaveBeenCalled();
+  });
 });
 
 describe("PATCH /api/tasks/:taskId/edit", () => {
@@ -224,6 +256,16 @@ describe("PATCH /api/tasks/:taskId/edit", () => {
     );
     expect(mockEmit).toHaveBeenCalledWith("task:updated", updated);
   });
+
+  it("returns 404 for another org's task without emitting", async () => {
+    task.update.mockResolvedValue(taskDoc({ orgId: OTHER_ORG_ID }));
+    const res = await request(app)
+      .patch(`/api/tasks/${OID}/edit`)
+      .set("Cookie", cookieFor(ADMIN))
+      .send({ description: "new desc" });
+    expect(res.status).toBe(404);
+    expect(mockEmit).not.toHaveBeenCalled();
+  });
 });
 
 describe("DELETE /api/tasks/:taskId/delete", () => {
@@ -246,6 +288,17 @@ describe("DELETE /api/tasks/:taskId/delete", () => {
       "task:deleted",
       expect.objectContaining({ id: "task1" })
     );
+  });
+
+  it("returns 404 for another org's task without emitting", async () => {
+    task.delete.mockResolvedValue(
+      taskDoc({ orgId: OTHER_ORG_ID, assignedToId: OID })
+    );
+    const res = await request(app)
+      .delete(`/api/tasks/${OID}/delete`)
+      .set("Cookie", cookieFor(ADMIN));
+    expect(res.status).toBe(404);
+    expect(mockEmit).not.toHaveBeenCalled();
   });
 });
 

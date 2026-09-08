@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { allEmployees } = require("../controllers/employeeController");
 const authCheckMiddleware = require("../middleware/authCheck.middleware");
+const orgScopeMiddleware = require("../middleware/orgScope.middleware");
 const roleCheckMiddleware = require("../middleware/roleCheck.middleware");
 
 // Phase 1 cleanup: require auth + admin role (was public, leaked user PII).
@@ -9,6 +10,7 @@ const roleCheckMiddleware = require("../middleware/roleCheck.middleware");
 router.get(
   "/",
   authCheckMiddleware,
+  orgScopeMiddleware,
   roleCheckMiddleware("admin"),
   allEmployees
 );

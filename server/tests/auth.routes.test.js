@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import createApp from "../app.js";
 import prismaHelper from "./helpers/prisma-test-helper.js";
 
@@ -75,8 +76,13 @@ describe("POST /api/auth/login", () => {
       name: "Admin",
       email: "admin@x.com",
       role: "admin",
+      orgId: "org1",
     });
     expect(res.headers["set-cookie"].join(";")).toContain("token=");
+    const token = res.headers["set-cookie"]
+      .join(";")
+      .match(/token=([^;]+)/)[1];
+    expect(jwt.decode(token)).toMatchObject({ id: "user1", orgId: "org1" });
   });
 });
 
