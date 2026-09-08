@@ -25,7 +25,7 @@ const isForeignKeyViolation = (e) => e?.code === "P2003";
 
 // Admin Posting a Task From The Admin Dashboard
 // Body validated by createTaskSchema (routes/taskRoutes.js): unknown keys
-// (status, assignedBy, _id) are rejected before reaching here.
+// (status, assignedBy, id) are rejected before reaching here.
 // Tenancy: orgId comes from req.orgId (orgScope middleware), never the client.
 const postATask = async (req, res) => {
   try {
