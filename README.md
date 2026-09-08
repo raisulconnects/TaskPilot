@@ -1,6 +1,6 @@
 # TaskPilot
 
-A modern, full-stack task management application built with the MERN stack. TaskPilot enables seamless collaboration between administrators and employees, featuring AI-powered task generation, real-time analytics, and an intuitive user interface.
+A modern, full-stack task management application built with the PERN stack (PostgreSQL, Express, React, Node.js) with multi-tenant organizations. TaskPilot enables seamless collaboration between administrators and employees, featuring AI-powered task generation, real-time analytics, and an intuitive user interface.
 
 ## 🚀 Features
 
@@ -45,14 +45,14 @@ A modern, full-stack task management application built with the MERN stack. Task
 
 - **Node.js** - JavaScript runtime environment
 - **Express.js** - Fast, unopinionated web framework
-- **MongoDB Atlas** - Cloud-hosted MongoDB database
-- **Mongoose** - MongoDB object modeling for Node.js
-- **JWT (jsonwebtoken)** - Secure token-based authentication
+- **PostgreSQL** - Relational database (Supabase hosted, Docker locally)
+- **Prisma** - Type-safe ORM, versioned migrations, PostgreSQL adapter
+- **JWT (jsonwebtoken)** - Secure token-based authentication (carries org claim for multi-tenancy)
 - **bcryptjs** - Password hashing for secure authentication
 - **Google Generative AI** - AI integration for task enhancement
 - **CORS** - Cross-origin resource sharing support
 - **Cookie Parser** - HTTP cookie parsing middleware
-- **Socket.IO** - Real-time bidirectional communication for live task updates
+- **Socket.IO** - Real-time bidirectional communication for live task updates (org-namespaced rooms)
 
 ### Development Tools
 
@@ -64,9 +64,10 @@ A modern, full-stack task management application built with the MERN stack. Task
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v16 or higher)
+- **Node.js** (v20 or higher — Prisma 7 requires it)
 - **npm** (v8 or higher) or **yarn**
-- **MongoDB Atlas** account (or local MongoDB instance)
+- **Docker** - For local PostgreSQL (`docker run` one-liner below; no Dockerfile needed)
+- **Supabase** account (hosted Postgres for demo/production) — or any PostgreSQL
 - **Google Gemini API Key** (for AI features)
 
 ## ⚙️ Installation & Setup
@@ -83,15 +84,38 @@ cd taskpilot
 ```bash
 cd server
 npm install
+npx prisma generate
 ```
 
-Create a `.env` file in the `server` directory:
+Start a local Postgres (host port 5433 — 5432 is commonly taken):
+
+```bash
+docker run -d --name taskpilot-pg \
+  -e POSTGRES_USER=taskpilot -e POSTGRES_PASSWORD=taskpilot \
+  -e POSTGRES_DB=taskpilot -p 5433:5432 \
+  -v taskpilot-pgdata:/var/lib/postgresql/data \
+  postgres:16
+```
+
+Create a `.env` file in the `server` directory (see `.env.example`):
 
 ```env
 PORT=5000
-MONGODB_URI=your_mongodb_atlas_connection_string
+DATABASE_URL="postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public"
+DIRECT_URL="postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public"
 JWT_SECRET=your_jwt_secret_key_here
 GEMINI_API_KEY=your_google_gemini_api_key
+```
+
+`DATABASE_URL` is the runtime connection; `DIRECT_URL` (session-mode) is for
+migrations and seeds only. Against hosted Supabase these split into the
+pooled (`:6543`) and session (`:5432`) URLs — see `.env.example`.
+
+Apply migrations and seed demo data (SumoOrg + RivalOrg):
+
+```bash
+npx prisma migrate deploy
+npx prisma db seed
 ```
 
 Start the backend server:
@@ -141,31 +165,36 @@ taskpilot/
 │   ├── package.json
 │   └── vite.config.js
 │
-├── server/                    # Express backend application
-│   ├── config/               # Configuration files
-│   │   ├── db.js            # MongoDB connection
-│   │   ├── socket.js        # Socket.IO setup
-│   │   └── gemini.service.js # AI service integration
-│   ├── controllers/          # Route controllers
-│   │   ├── authController.js
-│   │   ├── employeeController.js
-│   │   ├── geminiController.js
-│   │   └── taskController.js
-│   ├── middleware/           # Custom middleware
-│   │   ├── authCheck.middleware.js
-│   │   ├── errorHandler.middleware.js
-│   │   ├── logger.middleware.js
-│   │   └── roleCheck.middleware.js
-│   ├── models/              # Mongoose data models
-│   │   ├── employee.model.js
-│   │   └── task.model.js
-│   ├── routes/               # API routes
-│   │   ├── authRoutes.js
-│   │   ├── employeeRoutes.js
-│   │   ├── geminiRoutes.js
-│   │   └── taskRoutes.js
-│   ├── index.js             # Server entry point
-│   └── package.json
+ ├── server/                    # Express backend application
+ │   ├── config/               # Configuration files
+ │   │   ├── prisma.js        # Shared Prisma client singleton
+ │   │   ├── socket.js        # Socket.IO setup
+ │   │   ├── rooms.js         # Canonical org-namespaced room names
+ │   │   └── gemini.service.js # AI service integration
+ │   ├── controllers/          # Route controllers
+ │   │   ├── authController.js
+ │   │   ├── employeeController.js
+ │   │   ├── geminiController.js
+ │   │   └── taskController.js
+ │   ├── middleware/           # Custom middleware
+ │   │   ├── authCheck.middleware.js
+ │   │   ├── orgScope.middleware.js  # Stamps req.orgId (tenancy boundary)
+ │   │   ├── errorHandler.middleware.js
+ │   │   ├── logger.middleware.js
+ │   │   ├── roleCheck.middleware.js
+ │   │   └── validate.middleware.js  # Zod body/params validation
+ │   ├── validation/           # Zod schemas (task, auth, AI)
+ │   ├── prisma/               # Prisma schema, migrations, seed
+ │   │   ├── schema.prisma
+ │   │   ├── migrations/
+ │   │   └── seed.js           # SumoOrg + RivalOrg demo data
+ │   ├── routes/               # API routes
+ │   │   ├── authRoutes.js
+ │   │   ├── employeeRoutes.js
+ │   │   ├── geminiRoutes.js
+ │   │   └── taskRoutes.js
+ │   ├── index.js             # Server entry point
+ │   └── package.json
 │
 └── README.md
 ```
@@ -303,32 +332,43 @@ npm start
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/dbname
+DATABASE_URL="postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public"
+DIRECT_URL="postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public"
 JWT_SECRET=your_super_secret_jwt_key_here
 GEMINI_API_KEY=your_google_gemini_api_key
 ```
 
-## 📝 Database Schema
+`DATABASE_URL` is the runtime connection; `DIRECT_URL` (session-mode) is for
+migrations and seeds. See `server/.env.example` for the hosted (Supabase)
+layout.
+
+## 📝 Database Schema (PostgreSQL + Prisma)
+
+### Organization Model
+
+- `id` (UUID, primary key)
+- `name` (String, e.g. SumoOrg)
 
 ### Task Model
 
 - `title` (String, required)
-- `description` (String)
-- `category` (String, required)
-- `priority` (String: Low, Medium, High, Average, General)
-- `status` (String: assigned, completed)
-- `dueDate` (Date, required)
-- `assignedTo` (ObjectId, reference to Employee)
-- `assignedBy` (String)
-- `createdAt` (Date, auto-generated)
-- `updatedAt` (Date, auto-generated)
+- `description` (String, required)
+- `category` (Enum: General, Design, Development, Debugging)
+- `priority` (Enum: General, Average, High — default General)
+- `status` (Enum: assigned, completed, failed)
+- `dueDate` (DateTime, required)
+- `orgId` (FK → Organization; Row-Level Security scoped)
+- `assignedTo` (FK → User, restrict on delete)
+- `assignedBy` (FK → User, restrict on delete)
+- `createdAt` / `updatedAt` (auto-generated)
 
-### Employee Model
+### User Model
 
 - `name` (String, required)
-- `email` (String, required, unique)
+- `email` (String, required, globally unique)
 - `password` (String, required, hashed)
-- `role` (String, default: "employee")
+- `role` (Enum: admin, employee — default employee)
+- `orgId` (FK → Organization)
 
 ## 🤝 Contributing
 

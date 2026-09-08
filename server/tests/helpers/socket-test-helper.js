@@ -7,10 +7,11 @@
 // controllers actually execute (verified empirically: the controllers kept
 // seeing the real socket module with uninitialized io).
 //
-// The exception is Mongoose models: models compile onto Mongoose's shared
-// singleton, and the `mongoose.models.X ||` guard in each model file
-// collapses every instance onto ONE object — which is why vi.spyOn() on the
-// models works from tests.
+// The exception used to be Mongoose models: they compiled onto Mongoose's
+// shared singleton, and a `mongoose.models.X ||` guard collapsed every
+// instance onto ONE object — which is why vi.spyOn() on the models worked
+// from tests. (Mongoose is gone now; Prisma stubs go through
+// prisma-test-helper.js instead.)
 //
 // This helper uses plain CJS require() (identical pipeline to the
 // controllers) to initialize the REAL Socket.IO server on an unlistened HTTP
