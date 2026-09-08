@@ -45,7 +45,7 @@ A modern, full-stack task management application built with the PERN stack (Post
 
 - **Node.js** - JavaScript runtime environment
 - **Express.js** - Fast, unopinionated web framework
-- **PostgreSQL** - Relational database (Supabase hosted, Docker locally)
+- **PostgreSQL** - Relational database hosted on Supabase
 - **Prisma** - Type-safe ORM, versioned migrations, PostgreSQL adapter
 - **JWT (jsonwebtoken)** - Secure token-based authentication (carries org claim for multi-tenancy)
 - **bcryptjs** - Password hashing for secure authentication
@@ -66,8 +66,7 @@ Before you begin, ensure you have the following installed:
 
 - **Node.js** (v20 or higher — Prisma 7 requires it)
 - **npm** (v8 or higher) or **yarn**
-- **Docker** - For local PostgreSQL (`docker run` one-liner below; no Dockerfile needed)
-- **Supabase** account (hosted Postgres for demo/production) — or any PostgreSQL
+- **Supabase** account (hosted PostgreSQL for development and production)
 - **Google Gemini API Key** (for AI features)
 
 ## ⚙️ Installation & Setup
@@ -87,29 +86,30 @@ npm install
 npx prisma generate
 ```
 
-Start a local Postgres (host port 5433 — 5432 is commonly taken):
+Start with a hosted Postgres database — create a free project at
+[supabase.com](https://supabase.com), then grab two connection strings from
+Project Settings → Database:
 
-```bash
-docker run -d --name taskpilot-pg \
-  -e POSTGRES_USER=taskpilot -e POSTGRES_PASSWORD=taskpilot \
-  -e POSTGRES_DB=taskpilot -p 5433:5432 \
-  -v taskpilot-pgdata:/var/lib/postgresql/data \
-  postgres:16
-```
+- **Direct / session mode** (`:5432` on the pooler hostname) → `DIRECT_URL`,
+  used for migrations and seeds only.
+- **Pooled / transaction mode** (`:6543` with `?pgbouncer=true`) → `DATABASE_URL`,
+  the runtime connection.
 
 Create a `.env` file in the `server` directory (see `.env.example`):
 
 ```env
 PORT=5000
-DATABASE_URL="postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public"
-DIRECT_URL="postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public"
+DATABASE_URL="postgresql://postgres.PROJECT:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.PROJECT:PASSWORD@aws-0-REGION.pooler.supabase.com:5432/postgres"
 JWT_SECRET=your_jwt_secret_key_here
 GEMINI_API_KEY=your_google_gemini_api_key
 ```
 
-`DATABASE_URL` is the runtime connection; `DIRECT_URL` (session-mode) is for
-migrations and seeds only. Against hosted Supabase these split into the
-pooled (`:6543`) and session (`:5432`) URLs — see `.env.example`.
+> Prefer running Postgres locally instead? Any PostgreSQL 16 instance works —
+> e.g. `docker run -d --name taskpilot-pg -e POSTGRES_USER=taskpilot
+> -e POSTGRES_PASSWORD=taskpilot -e POSTGRES_DB=taskpilot -p 5433:5432
+> -v taskpilot-pgdata:/var/lib/postgresql/data postgres:16`, then point both
+> URLs at `localhost:5433`.
 
 Apply migrations and seed demo data (SumoOrg + RivalOrg):
 
@@ -332,15 +332,15 @@ npm start
 
 ```env
 PORT=5000
-DATABASE_URL="postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public"
-DIRECT_URL="postgresql://taskpilot:taskpilot@localhost:5433/taskpilot?schema=public"
+DATABASE_URL="postgresql://postgres.PROJECT:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.PROJECT:PASSWORD@aws-0-REGION.pooler.supabase.com:5432/postgres"
 JWT_SECRET=your_super_secret_jwt_key_here
 GEMINI_API_KEY=your_google_gemini_api_key
 ```
 
-`DATABASE_URL` is the runtime connection; `DIRECT_URL` (session-mode) is for
-migrations and seeds. See `server/.env.example` for the hosted (Supabase)
-layout.
+`DATABASE_URL` is the pooled runtime connection; `DIRECT_URL` (session-mode)
+is for migrations and seeds. Running Postgres locally instead? Point both at
+your local instance — see `server/.env.example`.
 
 ## 📝 Database Schema (PostgreSQL + Prisma)
 
