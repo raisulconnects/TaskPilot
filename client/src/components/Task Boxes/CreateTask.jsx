@@ -6,6 +6,7 @@ import DashboardCharts from "../Analytics/DashboardCharts";
 import {
   HiOutlineSparkles,
   HiOutlineBolt,
+  HiOutlineExclamationCircle,
 } from "react-icons/hi2";
 
 export default function CreateTask() {
@@ -280,22 +281,23 @@ export default function CreateTask() {
 
           {/* Error Messages */}
           {(formError || error) && (
-            <div className="mt-4 rounded-xl bg-peony/20 border border-peony/40 px-4 py-3 text-sm text-red-500 font-semibold flex items-center gap-2">
-              <span>⚠️</span>
-              {formError ||
-                `${error}. Please fill the whole form and try again.`}
+            <div className="mt-4 rounded-xl bg-peony/30 border border-peony/60 px-4 py-3 text-xs text-apricot font-semibold flex items-center gap-2">
+              <HiOutlineExclamationCircle className="w-4 h-4 shrink-0" />
+              <span>{formError || `${error}. Please complete all required fields.`}</span>
             </div>
           )}
 
           {aiError && (
-            <div className="mt-4 rounded-xl bg-peony/20 border border-peony/40 px-4 py-3 text-sm text-red-500 font-semibold flex items-center gap-2">
-              <span>⚠️</span> {aiError}
+            <div className="mt-4 rounded-xl bg-peony/30 border border-peony/60 px-4 py-3 text-xs text-apricot font-semibold flex items-center gap-2">
+              <HiOutlineExclamationCircle className="w-4 h-4 shrink-0" />
+              <span>{aiError}</span>
             </div>
           )}
 
           {catPriError && (
-            <div className="mt-4 rounded-xl bg-peony/20 border border-peony/40 px-4 py-3 text-sm text-red-500 font-semibold flex items-center gap-2">
-              <span>⚠️</span> {catPriError}
+            <div className="mt-4 rounded-xl bg-peony/30 border border-peony/60 px-4 py-3 text-xs text-apricot font-semibold flex items-center gap-2">
+              <HiOutlineExclamationCircle className="w-4 h-4 shrink-0" />
+              <span>{catPriError}</span>
             </div>
           )}
 
@@ -307,10 +309,10 @@ export default function CreateTask() {
               type="button"
               onClick={handleGenerateCategoryAndPriorityAI}
               disabled={catPriLoading}
-              className={`flex-1 inline-flex items-center justify-center gap-2 rounded-full py-2.5 px-4 text-sm font-medium border transition-all cursor-pointer ${
+              className={`flex-1 inline-flex items-center justify-center gap-2 rounded-full py-2.5 px-4 text-xs font-semibold border transition-all cursor-pointer ${
                 catPriLoading
                   ? "bg-cloud border-mist text-iron cursor-not-allowed"
-                  : "bg-white border-monday-violet text-monday-violet hover:bg-monday-violet/5"
+                  : "bg-white border-monday-violet text-monday-violet hover:bg-monday-violet/5 shadow-2xs"
               }`}
             >
               <HiOutlineBolt className="w-4 h-4" />
@@ -330,10 +332,10 @@ export default function CreateTask() {
               type="button"
               onClick={handleGenerateDescriptionAI}
               disabled={aiLoading}
-              className={`flex-1 inline-flex items-center justify-center gap-2 rounded-full py-2.5 px-4 text-sm font-medium border transition-all cursor-pointer ${
+              className={`flex-1 inline-flex items-center justify-center gap-2 rounded-full py-2.5 px-4 text-xs font-semibold border transition-all cursor-pointer ${
                 aiLoading
                   ? "bg-cloud border-mist text-iron cursor-not-allowed"
-                  : "bg-white border-monday-violet text-monday-violet hover:bg-monday-violet/5"
+                  : "bg-white border-monday-violet text-monday-violet hover:bg-monday-violet/5 shadow-2xs"
               }`}
             >
               <HiOutlineSparkles className="w-4 h-4" />
@@ -354,7 +356,7 @@ export default function CreateTask() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="mt-6 w-full py-3 px-6 bg-monday-violet hover:bg-[#4e4ee0] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+            className="mt-6 w-full py-3 px-6 bg-monday-violet hover:bg-[#4e4ee0] text-white font-medium rounded-full shadow-soft hover:shadow-card transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
             {loading ? (
               <>
