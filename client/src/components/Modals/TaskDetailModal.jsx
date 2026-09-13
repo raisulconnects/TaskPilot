@@ -7,6 +7,7 @@ import {
   HiOutlineCheckCircle,
   HiOutlineClock,
   HiOutlineExclamationTriangle,
+  HiOutlineUser,
 } from "react-icons/hi2";
 
 export default function TaskDetailModal({
@@ -56,6 +57,8 @@ export default function TaskDetailModal({
 
   const isCompleted = task.status === "completed";
   const isFailed = task.status === "failed";
+  const dueDateVal = task.dueDate || task.duedate;
+  const taskTitle = task.title || (task.name ? `${task.name}'s Task` : "Task Details");
 
   return (
     <AnimatePresence>
@@ -75,9 +78,9 @@ export default function TaskDetailModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="relative bg-white rounded-3xl border border-mist shadow-elevated w-full max-w-xl p-6 sm:p-8 z-10 space-y-6"
+          className="relative bg-white rounded-3xl border border-mist shadow-elevated w-full max-w-xl p-6 sm:p-8 z-10 space-y-6 max-h-[90vh] flex flex-col justify-between overflow-hidden"
         >
-          {/* Header */}
+          {/* Header Badges */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2">
               <span
@@ -112,29 +115,43 @@ export default function TaskDetailModal({
             </button>
           </div>
 
-          {/* Title */}
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-ink leading-snug">
-              {task.title}
-            </h2>
-            <div className="flex items-center gap-2 text-xs text-iron mt-2">
-              <HiOutlineCalendar className="w-4 h-4 text-iron" />
-              <span>Due Date: {new Date(task.dueDate).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+          {/* Scrollable Content */}
+          <div className="space-y-4 overflow-y-auto pr-1">
+            {/* Title & Metadata */}
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-ink leading-snug break-words">
+                {taskTitle}
+              </h2>
+              
+              <div className="flex flex-wrap items-center gap-4 text-xs text-iron mt-2.5">
+                {task.name && (
+                  <div className="flex items-center gap-1.5">
+                    <HiOutlineUser className="w-4 h-4 text-monday-violet" />
+                    <span>Assigned to: <strong className="text-ink font-semibold">{task.name}</strong></span>
+                  </div>
+                )}
+                {dueDateVal && (
+                  <div className="flex items-center gap-1.5">
+                    <HiOutlineCalendar className="w-4 h-4 text-iron" />
+                    <span>Due: {new Date(dueDateVal).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Description Body */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-bold text-iron uppercase tracking-wider">
-              Task Description
-            </h4>
-            <div className="bg-cloud/60 border border-mist rounded-2xl p-4 sm:p-5 text-sm text-ink leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto">
-              {task.description || "No description provided."}
+            {/* Description Body */}
+            <div className="space-y-2 pt-2">
+              <h4 className="text-xs font-bold text-iron uppercase tracking-wider">
+                Task Description
+              </h4>
+              <div className="bg-cloud/60 border border-mist rounded-2xl p-4 sm:p-5 text-sm text-ink leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto">
+                {task.description || "No description provided."}
+              </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between gap-3 pt-2 border-t border-mist/60">
+          <div className="flex items-center justify-between gap-3 pt-3 border-t border-mist/60 shrink-0">
             <button
               type="button"
               onClick={onClose}
@@ -157,7 +174,7 @@ export default function TaskDetailModal({
               </button>
             )}
 
-            {isCompleted && (
+            {isCompleted && onMarkComplete && (
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-forest bg-mint/30 border border-mint/60 px-4 py-2 rounded-full">
                 <HiOutlineCheckCircle className="w-4 h-4" />
                 Task Completed
