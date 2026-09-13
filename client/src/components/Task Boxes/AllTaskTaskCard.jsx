@@ -1,6 +1,15 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTaskContext } from "../../context/TaskContext";
-import Swal from "sweetalert2";
+import {
+  HiOutlinePencilSquare,
+  HiOutlineTrash,
+  HiChevronDown,
+  HiOutlineCalendar,
+  HiOutlineUser,
+} from "react-icons/hi2";
+import EditTaskModal from "../Modals/EditTaskModal";
+import DeleteTaskModal from "../Modals/DeleteTaskModal";
 
 export default function AllTaskTaskCard({
   name,
@@ -11,149 +20,140 @@ export default function AllTaskTaskCard({
 }) {
   const { deleteATask, taskEdit } = useTaskContext();
   const [expanded, setExpanded] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const colorClasses = {
     completed: {
-      bg: "bg-green-500/15",
-      border: "border-green-500/30",
-      text: "text-green-400",
-      hover: "hover:bg-green-500/25",
+      bg: "bg-mint/15",
+      border: "border-mint/40",
+      text: "text-forest",
+      badge: "bg-mint/30 text-forest",
     },
     assigned: {
-      bg: "bg-blue-500/15",
-      border: "border-blue-500/30",
-      text: "text-blue-400",
-      hover: "hover:bg-blue-500/25",
+      bg: "bg-periwinkle/20",
+      border: "border-periwinkle/50",
+      text: "text-monday-violet",
+      badge: "bg-periwinkle/40 text-monday-violet",
+    },
+    failed: {
+      bg: "bg-peony/15",
+      border: "border-peony/40",
+      text: "text-red-500",
+      badge: "bg-peony/30 text-red-500",
     },
     pending: {
-      bg: "bg-red-500/15",
-      border: "border-red-500/30",
-      text: "text-red-400",
-      hover: "hover:bg-red-500/25",
+      bg: "bg-cloud",
+      border: "border-mist",
+      text: "text-iron",
+      badge: "bg-cloud text-iron",
     },
   };
 
   const taskColor = colorClasses[status] || colorClasses.pending;
 
-  const handleEdit = () => {
-    Swal.fire({
-      title: "Edit Task",
-      html: `
-        <input id="swal-name" class="swal2-input" placeholder="Task Name" value="${name}" disabled>
-        <textarea id="swal-desc" class="swal2-textarea" placeholder="Description">${description}</textarea>
-        <select id="swal-status" class="swal2-select">
-          <option value="assigned" ${
-            status === "assigned" ? "selected" : ""
-          }>Assigned</option>
-          <option value="completed" ${
-            status === "completed" ? "selected" : ""
-          }>Completed</option>
-        </select>
-      `,
-      showCancelButton: true,
-      confirmButtonText: "Update",
-      preConfirm: () => {
-        return {
-          description: document.getElementById("swal-desc").value,
-          status: document.getElementById("swal-status").value,
-        };
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        taskEdit(id, result.value);
-        // console.log(result.value);
-      }
-    });
-  };
+  const isLongDescription = description && description.length > 50;
 
   return (
-    <div
-      className={`grid grid-cols-1 md:grid-cols-4 items-start md:items-center gap-3 md:gap-0 ${taskColor.bg} ${taskColor.border} px-4 py-4 rounded-xl text-white ${taskColor.hover} transition border`}
-    >
-      <div className="md:col-span-1">
-        <span className="text-xs text-gray-400 md:hidden">Assigned To:</span>
-        <span className="font-medium block">{name}</span>
-      </div>
-      <div className="md:col-span-1">
-        <span className="text-xs text-gray-400 md:hidden">Task:</span>
-        <span
-          className="flex flex-col gap-1"
-          onClick={() => setExpanded((prev) => !prev)}
-        >
-          <span
-            className={`text-gray-200 ${
-              expanded ? "" : "truncate"
-            } cursor-pointer`}
-          >
-            {description}
+    <>
+      <div
+        className={`grid grid-cols-1 md:grid-cols-4 items-start md:items-center gap-3 md:gap-0 ${taskColor.bg} ${taskColor.border} px-4 py-3.5 rounded-2xl text-ink transition-colors duration-200 border`}
+      >
+        {/* Assignee */}
+        <div className="md:col-span-1">
+          <span className="text-xs text-iron md:hidden font-medium">Assigned To:</span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-white border border-mist/80 flex items-center justify-center text-xs font-bold text-slate shadow-xs">
+              {name ? name.charAt(0).toUpperCase() : <HiOutlineUser className="w-3.5 h-3.5" />}
+            </div>
+            <span className="font-semibold text-sm text-ink">{name || "Unassigned"}</span>
+          </div>
+        </div>
+
+        {/* Task Description & Due Date */}
+        <div className="md:col-span-1 pr-2">
+          <span className="text-xs text-iron md:hidden font-medium">Task:</span>
+          <div className="flex flex-col gap-1">
+            <div className="text-sm text-slate">
+              <span className={expanded ? "block leading-relaxed" : "line-clamp-1"}>
+                {description}
+              </span>
+              
+              {isLongDescription && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded((prev) => !prev)}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-monday-violet hover:text-[#4e4ee0] mt-1 transition-colors cursor-pointer"
+                >
+                  <span>{expanded ? "Show less" : "Show more"}</span>
+                  <HiChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      expanded ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5 text-xs text-iron mt-0.5">
+              <HiOutlineCalendar className="w-3.5 h-3.5" />
+              <span>Due {new Date(duedate).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Status */}
+        <div className="md:col-span-1">
+          <span className="text-xs text-iron md:hidden font-medium">Status:</span>
+          <span className="md:flex md:justify-end">
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize ${taskColor.badge}`}
+            >
+              {status}
+            </span>
           </span>
-          <span className="text-xs text-gray-400">
-            Due: {new Date(duedate).toLocaleDateString()}
+        </div>
+
+        {/* Options */}
+        <div className="md:col-span-1">
+          <span className="text-xs text-iron md:hidden mb-2 block font-medium">Options:</span>
+          <span className="flex justify-start md:justify-end gap-2">
+            {/* EDIT */}
+            <button
+              onClick={() => setIsEditOpen(true)}
+              title="Edit Task"
+              className="h-8 w-8 rounded-xl bg-white border border-monday-violet/30 text-monday-violet hover:bg-monday-violet hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-xs"
+            >
+              <HiOutlinePencilSquare className="w-4 h-4" />
+            </button>
+
+            {/* DELETE */}
+            <button
+              title="Delete Task"
+              className="h-8 w-8 rounded-xl bg-white border border-peony/40 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-xs"
+              onClick={() => setIsDeleteOpen(true)}
+            >
+              <HiOutlineTrash className="w-4 h-4" />
+            </button>
           </span>
-        </span>
-      </div>
-      <div className="md:col-span-1">
-        <span className="text-xs text-gray-400 md:hidden">Status:</span>
-        <span className={`md:text-right ${taskColor.text} font-semibold block`}>
-          {status}
-        </span>
+        </div>
       </div>
 
-      <div className="md:col-span-1">
-        <span className="text-xs text-gray-400 md:hidden mb-2 block">Options:</span>
-        <span className="flex justify-start md:justify-end gap-2">
-        {/* EDIT */}
-        <button
-          onClick={handleEdit}
-          title="Edit Task"
-          className="
-            h-9 w-9
-            rounded-lg
-            border border-yellow-500/40
-            text-yellow-400
-            hover:bg-yellow-500/15
-            hover:text-yellow-300
-            transition
-            font-semibold
-          "
-        >
-          ✎
-        </button>
+      {/* Edit Modal */}
+      <EditTaskModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        task={{ id, name, description, status, duedate }}
+        onSave={(taskId, taskData) => taskEdit(taskId, taskData)}
+      />
 
-        {/* DELETE */}
-        <button
-          title="Delete Task"
-          className="
-            h-9 w-9
-            rounded-lg
-            border border-red-500/40
-            text-red-400
-            hover:bg-red-500/15
-            hover:text-red-300
-            transition
-            font-semibold
-          "
-          onClick={() => {
-            Swal.fire({
-              title: "Delete this task?",
-              text: "This action cannot be undone.",
-              icon: "warning",
-              showCancelButton: true,
-              confirmButtonText: "Yes, delete",
-              cancelButtonText: "Cancel",
-              confirmButtonColor: "#ef4444",
-              cancelButtonColor: "#374151",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                deleteATask(id);
-              }
-            });
-          }}
-        >
-          ✕
-        </button>
-        </span>
-      </div>
-    </div>
+      {/* Delete Modal */}
+      <DeleteTaskModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        task={{ id, name, description, duedate }}
+        onConfirm={(taskId) => deleteATask(taskId)}
+      />
+    </>
   );
 }

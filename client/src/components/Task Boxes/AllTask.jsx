@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useTaskContext } from "../../context/TaskContext";
 import AllTaskTaskCard from "./AllTaskTaskCard";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
 
 export default function AllTask() {
   const { fetchTasks, tasks } = useTaskContext();
@@ -15,41 +21,46 @@ export default function AllTask() {
   const filteredTasks =
     filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
 
+  const filters = [
+    { key: "all", label: "All" },
+    { key: "assigned", label: "Assigned" },
+    { key: "failed", label: "Failed" },
+    { key: "completed", label: "Completed" },
+  ];
+
   return (
-    <div className="bg-gray-900/70 p-4 sm:p-6 rounded-2xl space-y-4">
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      className="bg-white rounded-3xl border border-mist shadow-card p-5 sm:p-6 space-y-4"
+    >
       {/* Header + Filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold text-white">All Tasks</h2>
+        <h2 className="text-lg font-bold text-ink">All Tasks</h2>
 
         {/* Filter buttons */}
         <div className="flex flex-wrap gap-2 items-center">
-          <FilterButton
-            label="All"
-            active={filter === "all"}
-            onClick={() => setFilter("all")}
-          />
-          <FilterButton
-            label="Assigned"
-            active={filter === "assigned"}
-            onClick={() => setFilter("assigned")}
-          />
-
-          <FilterButton
-            label="Failed"
-            active={filter === "failed"}
-            onClick={() => setFilter("failed")}
-          />
-
-          <FilterButton
-            label="Completed"
-            active={filter === "completed"}
-            onClick={() => setFilter("completed")}
-          />
+          {filters.map((f) => (
+            <motion.button
+              key={f.key}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setFilter(f.key)}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                filter === f.key
+                  ? "bg-monday-violet text-white shadow-sm"
+                  : "bg-cloud text-slate border border-mist hover:border-monday-violet hover:text-monday-violet"
+              }`}
+            >
+              {f.label}
+            </motion.button>
+          ))}
         </div>
       </div>
 
       {/* Table Header - Hidden on mobile, shown on larger screens */}
-      <div className="hidden md:grid grid-cols-4 items-center text-gray-400 text-sm font-semibold px-4 py-3">
+      <div className="hidden md:grid grid-cols-4 items-center text-xs font-semibold text-iron uppercase tracking-wider px-4 py-2 border-b border-mist">
         <span>Assigned To</span>
         <span>Task</span>
         <span className="text-right">Status</span>
@@ -58,38 +69,34 @@ export default function AllTask() {
 
       {/* Task Cards */}
       {filteredTasks.length > 0 ? (
-        filteredTasks.map((t) => (
-          <AllTaskTaskCard
-            key={t.id}
-            id={t.id}
-            name={t?.assignedTo?.name}
-            description={t?.description}
-            status={t?.status}
-            duedate={t?.dueDate}
-          />
-        ))
+        <div className="space-y-2">
+          {filteredTasks.map((t, idx) => (
+            <motion.div
+              key={t.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.04 }}
+            >
+              <AllTaskTaskCard
+                id={t.id}
+                name={t?.assignedTo?.name}
+                description={t?.description}
+                status={t?.status}
+                duedate={t?.dueDate}
+              />
+            </motion.div>
+          ))}
+        </div>
       ) : (
-        <p className="text-center text-gray-400 py-6">
-          No tasks found for this filter.
-        </p>
+        <div className="text-center py-12">
+          <p className="text-iron text-sm font-medium">
+            No tasks found for this filter.
+          </p>
+          <p className="text-xs text-iron/60 mt-1">
+            Try selecting a different filter above.
+          </p>
+        </div>
       )}
-    </div>
-  );
-}
-
-function FilterButton({ label, active, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition
-        ${
-          active
-            ? "bg-blue-600 text-white"
-            : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-        }
-      `}
-    >
-      {label}
-    </button>
+    </motion.div>
   );
 }
