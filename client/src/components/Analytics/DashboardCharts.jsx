@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   PieChart,
   Pie,
@@ -13,10 +14,17 @@ import {
 } from "recharts";
 import { useTaskContext } from "../../context/TaskContext";
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
 const DashboardCharts = () => {
   const { tasks, fetchTasks, loading } = useTaskContext();
   const [chartWidth, setChartWidth] = useState(300);
-  const COLORS = ["#4ade80", "#facc15", "#f87171"]; // green, yellow, red
+
+  // Brand-aligned pastel palette: mint, cornflower, peony
+  const COLORS = ["#bcfe90", "#93beff", "#fcd0f8"];
 
   useEffect(() => {
     const updateChartWidth = () => {
@@ -78,14 +86,36 @@ const DashboardCharts = () => {
     }));
   }, [tasks]);
 
+  /* ── Shared tooltip style ── */
+  const tooltipStyle = {
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    border: "1px solid #d0d4e4",
+    boxShadow: "0 2px 24px rgba(0,0,0,0.08)",
+    padding: "8px 12px",
+  };
+
   if (loading)
-    return <p className="text-white text-center mt-10">Loading charts...</p>;
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 border-2 border-monday-violet border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate text-sm font-medium">Loading charts...</p>
+        </div>
+      </div>
+    );
 
   return (
-    <div className="p-4 sm:p-6 flex flex-col md:flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {/* Pie Chart */}
-      <div className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="bg-white rounded-3xl border border-mist shadow-card p-5 sm:p-6"
+      >
+        <h2 className="text-base font-bold text-ink mb-4">
           Task Status Distribution
         </h2>
         <div className="flex justify-center overflow-x-auto">
@@ -97,7 +127,13 @@ const DashboardCharts = () => {
               cx="50%"
               cy="50%"
               outerRadius={Math.min(100, (chartWidth - 40) / 2)}
-              label={{ fill: "white", fontSize: chartWidth < 320 ? 10 : 12 }}
+              label={{
+                fill: "#333333",
+                fontSize: chartWidth < 320 ? 10 : 12,
+                fontFamily: "Poppins",
+              }}
+              strokeWidth={2}
+              stroke="#ffffff"
             >
               {taskStatusData.map((entry, index) => (
                 <Cell
@@ -107,49 +143,77 @@ const DashboardCharts = () => {
               ))}
             </Pie>
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#1f2937",
-                borderRadius: "0.5rem",
-                border: "none",
-              }}
-              itemStyle={{ color: "white" }}
-              labelStyle={{ color: "white" }}
+              contentStyle={tooltipStyle}
+              itemStyle={{ color: "#333333", fontSize: 13 }}
+              labelStyle={{ color: "#535768", fontWeight: 600 }}
             />
-            <Legend wrapperStyle={{ color: "white", fontSize: chartWidth < 320 ? 10 : 12 }} iconType="rect" />
+            <Legend
+              wrapperStyle={{
+                color: "#535768",
+                fontSize: chartWidth < 320 ? 10 : 12,
+                fontFamily: "Poppins",
+              }}
+              iconType="circle"
+            />
           </PieChart>
         </div>
-      </div>
+      </motion.div>
 
       {/* Bar Chart */}
-      <div className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-white mb-4 sm:mb-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="bg-white rounded-3xl border border-mist shadow-card p-5 sm:p-6"
+      >
+        <h2 className="text-base font-bold text-ink mb-4">
           Tasks Completed per Employee
         </h2>
         <div className="flex justify-center overflow-x-auto">
           <BarChart width={chartWidth} height={250} data={employeeData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis 
-              dataKey="name" 
-              stroke="white" 
-              tick={{ fill: "#d1d5db", fontSize: chartWidth < 320 ? 9 : 11 }}
+            <CartesianGrid strokeDasharray="3 3" stroke="#d0d4e4" />
+            <XAxis
+              dataKey="name"
+              stroke="#808080"
+              tick={{
+                fill: "#535768",
+                fontSize: chartWidth < 320 ? 9 : 11,
+                fontFamily: "Poppins",
+              }}
               angle={chartWidth < 400 ? -45 : 0}
               textAnchor={chartWidth < 400 ? "end" : "middle"}
               height={chartWidth < 400 ? 60 : 30}
             />
-            <YAxis stroke="white" tick={{ fill: "#d1d5db", fontSize: chartWidth < 320 ? 9 : 11 }} />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#1f2937",
-                borderRadius: "0.5rem",
-                border: "none",
-                color: "white",
+            <YAxis
+              stroke="#808080"
+              tick={{
+                fill: "#535768",
+                fontSize: chartWidth < 320 ? 9 : 11,
+                fontFamily: "Poppins",
               }}
             />
-            <Legend wrapperStyle={{ color: "white", fontSize: chartWidth < 320 ? 10 : 12 }} />
-            <Bar dataKey="completed" fill="#4ade80" radius={[6, 6, 0, 0]} />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              itemStyle={{ color: "#333333" }}
+              cursor={{ fill: "rgba(97, 97, 255, 0.06)" }}
+            />
+            <Legend
+              wrapperStyle={{
+                color: "#535768",
+                fontSize: chartWidth < 320 ? 10 : 12,
+                fontFamily: "Poppins",
+              }}
+            />
+            <Bar
+              dataKey="completed"
+              fill="#6161ff"
+              radius={[8, 8, 0, 0]}
+              maxBarSize={48}
+            />
           </BarChart>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
