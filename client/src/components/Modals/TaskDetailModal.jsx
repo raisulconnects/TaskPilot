@@ -84,7 +84,7 @@ export default function TaskDetailModal({
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${statusStyle.badge}`}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium ${statusStyle.badge}`}
               >
                 <StatusIcon className="w-3.5 h-3.5" />
                 {statusStyle.label}
@@ -92,7 +92,7 @@ export default function TaskDetailModal({
 
               {task.priority && (
                 <span
-                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${priorityStyle.badge}`}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium ${priorityStyle.badge}`}
                 >
                   <HiOutlineFlag className="w-3.5 h-3.5" />
                   {task.priority} Priority
@@ -100,7 +100,7 @@ export default function TaskDetailModal({
               )}
 
               {task.category && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-cloud border border-mist text-slate">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-cloud border border-mist text-slate">
                   <HiOutlineTag className="w-3.5 h-3.5 text-iron" />
                   {task.category}
                 </span>
@@ -175,7 +175,7 @@ export default function TaskDetailModal({
             )}
 
             {isCompleted && onMarkComplete && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-forest bg-mint/30 border border-mint/60 px-4 py-2 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-forest bg-mint/30 border border-mint/60 px-3 py-2 rounded-md">
                 <HiOutlineCheckCircle className="w-4 h-4" />
                 Task Completed
               </span>

@@ -113,7 +113,7 @@ export default function AllTaskTaskCard({
               <HiOutlineCalendar className="w-3.5 h-3.5 shrink-0" />
               <span>Due {new Date(duedate).toLocaleDateString()}</span>
               {category && (
-                <span className="px-2 py-0.5 rounded-full text-3xs font-medium bg-white/90 border border-mist text-slate">
+                <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-white/90 border border-mist text-slate">
                   {category}
                 </span>
               )}
@@ -126,7 +126,7 @@ export default function AllTaskTaskCard({
           <span className="text-xs text-iron md:hidden font-medium">Status:</span>
           <span className="md:flex md:justify-end">
             <span
-              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize ${taskColor.badge}`}
+              className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium capitalize ${taskColor.badge}`}
             >
               {status}
             </span>

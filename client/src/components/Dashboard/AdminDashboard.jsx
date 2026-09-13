@@ -17,7 +17,7 @@ const fadeUp = {
 
 export default function AdminDashboard() {
   return (
-    <div className="min-h-screen bg-cloud font-sans text-ink">
+    <div className="min-h-screen bg-white font-sans text-ink">
       <motion.div
         variants={stagger}
         initial="hidden"

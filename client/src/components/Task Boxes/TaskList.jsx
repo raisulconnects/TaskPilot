@@ -60,7 +60,7 @@ export default function TaskList() {
             >
               <span>{tab.label}</span>
               <span
-                className={`px-1.5 py-0.2 rounded-full text-2xs ${
+                className={`px-1.5 py-0.5 rounded-md text-xs ${
                   filter === tab.key
                     ? "bg-white/20 text-white"
                     : "bg-white text-iron border border-mist"

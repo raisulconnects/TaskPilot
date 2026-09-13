@@ -29,23 +29,14 @@ export default function SingleTask({
   /* ── Visual config per status ── */
   const statusConfig = {
     completed: {
-      border: "border-mint/60",
-      accentLine: "bg-emerald-400",
-      bg: "bg-white",
       badgeBg: "bg-mint/30 text-forest border border-mint/60",
       badgeLabel: "Completed",
     },
     failed: {
-      border: "border-peony/60",
-      accentLine: "bg-red-400",
-      bg: "bg-white",
-      badgeBg: "bg-peony/30 text-red-500 border border-peony/60",
+      badgeBg: "bg-peony/30 text-apricot border border-peony/60",
       badgeLabel: "Due Date Passed",
     },
     assigned: {
-      border: "border-mist",
-      accentLine: "bg-monday-violet",
-      bg: "bg-white",
       badgeBg: "bg-periwinkle/30 text-monday-violet border border-periwinkle/60",
       badgeLabel: "In Progress",
     },
@@ -55,7 +46,7 @@ export default function SingleTask({
 
   /* ── Priority badge colors ── */
   const priorityColors = {
-    High: "bg-peony/30 text-red-500 border border-peony/50",
+    High: "bg-peony/30 text-apricot border border-peony/60",
     Average: "bg-lavender/60 text-ultra-violet border border-lavender",
     General: "bg-cloud text-iron border border-mist",
   };
@@ -69,21 +60,18 @@ export default function SingleTask({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={`
+        className="
           relative bg-white rounded-3xl p-5 sm:p-6
-          border ${config.border} shadow-card hover:shadow-soft
+          border border-mist hover:border-slate/40 shadow-soft hover:shadow-card
           transition-all duration-200 flex flex-col justify-between overflow-hidden
-        `}
+        "
       >
-        {/* Left Color Accent Bar */}
-        <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${config.accentLine}`} />
-
         {/* Top Header: Badges */}
-        <div className="flex items-center justify-between gap-2 pl-2">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
             {/* Priority */}
             <span
-              className={`px-2.5 py-0.5 rounded-full text-2xs font-semibold uppercase tracking-wider ${
+              className={`px-2 py-0.5 rounded-md text-xs font-medium uppercase tracking-wide ${
                 priorityColors[priority] || priorityColors.General
               }`}
             >
@@ -92,7 +80,7 @@ export default function SingleTask({
 
             {/* Category if available */}
             {category && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-medium bg-cloud border border-mist text-slate">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-cloud border border-mist text-slate">
                 <HiOutlineTag className="w-3 h-3 text-iron" />
                 {category}
               </span>
@@ -101,7 +89,7 @@ export default function SingleTask({
         </div>
 
         {/* Middle: Title & Description */}
-        <div className="my-4 pl-2 space-y-2">
+        <div className="my-4 space-y-2">
           <h3
             onClick={() => setIsDetailModalOpen(true)}
             className="font-bold text-base sm:text-lg text-ink leading-snug hover:text-monday-violet transition-colors cursor-pointer"
@@ -110,24 +98,30 @@ export default function SingleTask({
           </h3>
 
           <div className="text-xs sm:text-sm text-slate leading-relaxed">
-            <p className="line-clamp-2">
-              {description}
-            </p>
-
-            {isLongDescription && (
-              <button
-                type="button"
-                onClick={() => setIsDetailModalOpen(true)}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-monday-violet hover:text-[#4e4ee0] mt-1.5 transition-colors cursor-pointer"
-              >
-                <span>Read full description</span>
-              </button>
+            {description && (
+              <p>
+                {isLongDescription
+                  ? description.slice(0, 80).trimEnd()
+                  : description}
+                {isLongDescription && (
+                  <>
+                    {"… "}
+                    <button
+                      type="button"
+                      onClick={() => setIsDetailModalOpen(true)}
+                      className="inline text-xs font-semibold text-monday-violet hover:text-[#4e4ee0] transition-colors cursor-pointer"
+                    >
+                      more
+                    </button>
+                  </>
+                )}
+              </p>
             )}
           </div>
         </div>
 
         {/* Bottom Bar: Due Date & Action */}
-        <div className="pt-3 border-t border-mist/60 flex flex-wrap items-center justify-between gap-3 pl-2">
+        <div className="pt-3 border-t border-mist/60 flex flex-wrap items-center justify-between gap-3">
           {/* Due Date */}
           <div className="flex items-center gap-1.5 text-xs text-iron font-medium">
             <HiOutlineCalendar className="w-4 h-4 text-iron" />
@@ -138,14 +132,14 @@ export default function SingleTask({
           <div>
             {completed ? (
               <span
-                className={`inline-flex items-center gap-1 text-xs font-semibold ${config.badgeBg} px-3 py-1 rounded-full`}
+                className={`inline-flex items-center gap-1 text-xs font-medium ${config.badgeBg} px-2.5 py-1 rounded-md`}
               >
                 <HiOutlineCheckCircle className="w-3.5 h-3.5" />
                 {config.badgeLabel}
               </span>
             ) : failed ? (
               <span
-                className={`inline-flex items-center text-xs font-semibold ${config.badgeBg} px-3 py-1 rounded-full`}
+                className={`inline-flex items-center text-xs font-medium ${config.badgeBg} px-2.5 py-1 rounded-md`}
               >
                 {config.badgeLabel}
               </span>
