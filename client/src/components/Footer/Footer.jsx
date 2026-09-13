@@ -2,7 +2,7 @@ import { FaLinkedin, FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="mt-8 bg-white rounded-2xl border border-mist shadow-soft px-6 py-5">
+    <footer className="mt-8 bg-white rounded-3xl border border-mist shadow-card px-6 py-5">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
         <p className="text-sm text-iron font-medium">
           &copy; {new Date().getFullYear()}{" "}

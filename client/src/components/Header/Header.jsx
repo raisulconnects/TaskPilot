@@ -22,7 +22,7 @@ export default function Header() {
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="bg-white rounded-2xl border border-mist shadow-soft px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+      className="bg-white rounded-3xl border border-mist shadow-card px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
     >
       {/* Left — Brand + Page */}
       <div className="flex items-center gap-3">
