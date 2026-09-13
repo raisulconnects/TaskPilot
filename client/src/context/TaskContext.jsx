@@ -156,16 +156,12 @@ export const TaskContextProvider = ({ children }) => {
     }
   };
 
-  // Optional: Get dashboard stats for employee
+  // Get dashboard stats for employee / admin
   const getDashboardStats = () => {
-    if (!user) return {};
+    if (!user) return { total: 0, assigned: 0, in_progress: 0, completed: 0, failed: 0 };
 
-    const myTasks =
-      user.role === "admin"
-        ? tasks
-        : tasks.filter((t) => t.assignedTo.id === user.id);
-
-    const stats = { assigned: 0, in_progress: 0, completed: 0, failed: 0 };
+    const myTasks = user.role === "admin" ? tasks : tasks;
+    const stats = { total: myTasks.length, assigned: 0, in_progress: 0, completed: 0, failed: 0 };
 
     myTasks.forEach((task) => {
       if (stats[task.status] !== undefined) stats[task.status]++;
