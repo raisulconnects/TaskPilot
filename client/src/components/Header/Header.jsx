@@ -30,8 +30,11 @@ export default function Header() {
           TP
         </div>
         <div>
-          <div className="text-sm text-iron font-medium">
-            Dashboard
+          <div className="text-xs font-medium text-iron">
+            Dashboard •{" "}
+            <span className="text-monday-violet font-semibold capitalize">
+              {user?.role === "admin" ? "Admin Workspace" : "Employee Workspace"}
+            </span>
           </div>
           <div className="text-lg font-bold text-ink leading-tight">
             Hello, <span className="text-monday-violet">{user?.name}</span> 👋
