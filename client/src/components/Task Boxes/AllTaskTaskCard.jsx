@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useTaskContext } from "../../context/TaskContext";
 import {
   HiOutlinePencilSquare,
@@ -7,21 +6,26 @@ import {
   HiChevronDown,
   HiOutlineCalendar,
   HiOutlineUser,
+  HiOutlineTag,
 } from "react-icons/hi2";
 import EditTaskModal from "../Modals/EditTaskModal";
 import DeleteTaskModal from "../Modals/DeleteTaskModal";
+import TaskDetailModal from "../Modals/TaskDetailModal";
 
 export default function AllTaskTaskCard({
   name,
+  title,
   description,
+  priority,
+  category,
   status,
   id,
   duedate,
 }) {
   const { deleteATask, taskEdit } = useTaskContext();
-  const [expanded, setExpanded] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const colorClasses = {
     completed: {
@@ -51,8 +55,8 @@ export default function AllTaskTaskCard({
   };
 
   const taskColor = colorClasses[status] || colorClasses.pending;
-
-  const isLongDescription = description && description.length > 50;
+  const taskTitle = title || (name ? `${name}'s Task` : "Task");
+  const isLongDescription = description && description.length > 40;
 
   return (
     <>
@@ -63,41 +67,56 @@ export default function AllTaskTaskCard({
         <div className="md:col-span-1">
           <span className="text-xs text-iron md:hidden font-medium">Assigned To:</span>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-white border border-mist/80 flex items-center justify-center text-xs font-bold text-slate shadow-xs">
+            <div className="w-7 h-7 rounded-full bg-white border border-mist/80 flex items-center justify-center text-xs font-bold text-slate shadow-xs shrink-0">
               {name ? name.charAt(0).toUpperCase() : <HiOutlineUser className="w-3.5 h-3.5" />}
             </div>
-            <span className="font-semibold text-sm text-ink">{name || "Unassigned"}</span>
+            <span className="font-semibold text-sm text-ink truncate">{name || "Unassigned"}</span>
           </div>
         </div>
 
-        {/* Task Description & Due Date */}
+        {/* Task: Title + Description preview + Show more opening modal */}
         <div className="md:col-span-1 pr-2">
           <span className="text-xs text-iron md:hidden font-medium">Task:</span>
-          <div className="flex flex-col gap-1">
-            <div className="text-sm text-slate">
-              <span className={expanded ? "block leading-relaxed" : "line-clamp-1"}>
-                {description}
-              </span>
-              
-              {isLongDescription && (
-                <button
-                  type="button"
-                  onClick={() => setExpanded((prev) => !prev)}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-monday-violet hover:text-[#4e4ee0] mt-1 transition-colors cursor-pointer"
-                >
-                  <span>{expanded ? "Show less" : "Show more"}</span>
-                  <HiChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      expanded ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-              )}
-            </div>
+          <div className="flex flex-col gap-0.5">
+            {/* Title */}
+            <span
+              onClick={() => setIsDetailOpen(true)}
+              className="font-bold text-sm text-ink hover:text-monday-violet transition-colors cursor-pointer block leading-tight truncate max-w-[200px]"
+              title="Click to view full details"
+            >
+              {taskTitle}
+            </span>
 
-            <div className="flex items-center gap-1.5 text-xs text-iron mt-0.5">
-              <HiOutlineCalendar className="w-3.5 h-3.5" />
+            {/* Description Preview — inline "…more" trigger */}
+            {description && (
+              <p className="text-xs text-slate leading-snug">
+                {isLongDescription
+                  ? description.slice(0, 55).trimEnd()
+                  : description}
+                {isLongDescription && (
+                  <>
+                    {"… "}
+                    <button
+                      type="button"
+                      onClick={() => setIsDetailOpen(true)}
+                      className="inline text-xs font-semibold text-monday-violet hover:text-[#4e4ee0] transition-colors cursor-pointer"
+                    >
+                      more
+                    </button>
+                  </>
+                )}
+              </p>
+            )}
+
+            {/* Due Date + Category Pill */}
+            <div className="flex items-center gap-1.5 text-xs text-iron mt-0.5 flex-wrap">
+              <HiOutlineCalendar className="w-3.5 h-3.5 shrink-0" />
               <span>Due {new Date(duedate).toLocaleDateString()}</span>
+              {category && (
+                <span className="px-2 py-0.5 rounded-full text-3xs font-medium bg-white/90 border border-mist text-slate">
+                  {category}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -138,6 +157,22 @@ export default function AllTaskTaskCard({
           </span>
         </div>
       </div>
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        task={{
+          id,
+          name,
+          title: taskTitle,
+          description,
+          priority: priority || "General",
+          category,
+          status,
+          dueDate: duedate,
+        }}
+      />
 
       {/* Edit Modal */}
       <EditTaskModal

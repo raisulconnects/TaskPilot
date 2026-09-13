@@ -79,8 +79,11 @@ export default function AllTask() {
             >
               <AllTaskTaskCard
                 id={t.id}
+                title={t?.title}
                 name={t?.assignedTo?.name}
                 description={t?.description}
+                priority={t?.priority}
+                category={t?.category}
                 status={t?.status}
                 duedate={t?.dueDate}
               />
