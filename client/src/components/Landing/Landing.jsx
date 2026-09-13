@@ -13,6 +13,7 @@ import {
   HiBars3,
   HiXMark,
 } from "react-icons/hi2";
+import TaskPilotLogo from "../Common/TaskPilotLogo";
 
 /* ═══════════════════════════════════════════════
    ANIMATION VARIANTS
@@ -142,14 +143,7 @@ function Navbar() {
     >
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8 flex items-center justify-between h-16 sm:h-[72px]">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-xl bg-monday-violet flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-            <span className="text-snow font-bold text-sm">T</span>
-          </div>
-          <span className="font-semibold text-lg tracking-tight text-ink">
-            TaskPilot
-          </span>
-        </Link>
+        <TaskPilotLogo size="sm" textSize="text-lg" />
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-2">
@@ -738,14 +732,9 @@ function Footer() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
           {/* Brand */}
           <div>
-            <Link to="/" className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-monday-violet flex items-center justify-center">
-                <span className="text-snow font-bold text-xs">T</span>
-              </div>
-              <span className="font-semibold text-base tracking-tight text-ink">
-                TaskPilot
-              </span>
-            </Link>
+            <div className="mb-3">
+              <TaskPilotLogo size="sm" textSize="text-base" />
+            </div>
             <p className="text-sm text-iron max-w-xs leading-relaxed">
               Task management for small teams. Built with React, Vite, and PostgreSQL.
             </p>

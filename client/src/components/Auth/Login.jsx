@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuthContext } from "../../context/AuthContext";
 import { HiOutlineArrowLeft } from "react-icons/hi2";
+import TaskPilotLogo from "../Common/TaskPilotLogo";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -40,13 +41,8 @@ export default function Login() {
           className="relative max-w-md text-center"
         >
           {/* Logo */}
-          <div className="inline-flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
-              <span className="text-snow font-bold">T</span>
-            </div>
-            <span className="text-xl font-semibold text-snow tracking-tight">
-              TaskPilot
-            </span>
+          <div className="flex justify-center mb-8">
+            <TaskPilotLogo size="lg" textSize="text-2xl" textColor="text-white" />
           </div>
 
           <h1 className="text-4xl xl:text-5xl font-light text-snow tracking-tight leading-tight">
@@ -99,13 +95,8 @@ export default function Login() {
           </Link>
 
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-9 h-9 rounded-xl bg-monday-violet flex items-center justify-center">
-              <span className="text-snow font-bold text-sm">T</span>
-            </div>
-            <span className="font-semibold text-lg tracking-tight text-ink">
-              TaskPilot
-            </span>
+          <div className="lg:hidden mb-8">
+            <TaskPilotLogo size="sm" textSize="text-lg" />
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">

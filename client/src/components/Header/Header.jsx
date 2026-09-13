@@ -6,6 +6,7 @@ import {
   HiOutlineArrowPath,
   HiOutlineArrowRightOnRectangle,
 } from "react-icons/hi2";
+import TaskPilotLogo from "../Common/TaskPilotLogo";
 
 export default function Header() {
   const { logout, user } = useAuthContext();
@@ -25,10 +26,8 @@ export default function Header() {
       className="bg-white rounded-3xl border border-mist shadow-card px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
     >
       {/* Left — Brand + Page */}
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-monday-violet text-white font-bold flex items-center justify-center text-sm shadow-sm">
-          TP
-        </div>
+      <div className="flex items-center gap-3.5">
+        <TaskPilotLogo size="md" showText={false} to="/dashboard" />
         <div>
           <div className="text-xs font-medium text-iron">
             Dashboard •{" "}
@@ -36,7 +35,7 @@ export default function Header() {
               {user?.role === "admin" ? "Admin Workspace" : "Employee Workspace"}
             </span>
           </div>
-          <div className="text-lg font-bold text-ink leading-tight">
+          <div className="text-lg font-bold text-ink leading-tight mt-0.5">
             Hello, <span className="text-monday-violet">{user?.name}</span> 👋
           </div>
         </div>

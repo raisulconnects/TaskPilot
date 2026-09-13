@@ -14,6 +14,7 @@ import {
   HiOutlineShieldCheck,
   HiOutlineBolt,
 } from "react-icons/hi2";
+import TaskPilotLogo from "../Common/TaskPilotLogo";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -93,11 +94,8 @@ export default function Signup() {
           >
             <HiOutlineArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white text-monday-violet font-bold flex items-center justify-center text-xl shadow-md">
-              TP
-            </div>
-            <span className="text-2xl font-bold tracking-tight">TaskPilot</span>
+          <div className="mb-4">
+            <TaskPilotLogo size="lg" textSize="text-2xl" textColor="text-white" />
           </div>
         </div>
 
@@ -152,12 +150,7 @@ export default function Signup() {
             >
               <HiOutlineArrowLeft className="w-4 h-4" /> Back
             </Link>
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-monday-violet text-white font-bold flex items-center justify-center text-xs">
-                TP
-              </div>
-              <span className="font-bold text-ink text-base">TaskPilot</span>
-            </div>
+            <TaskPilotLogo size="sm" textSize="text-base" />
           </div>
 
           {/* Form Card */}
