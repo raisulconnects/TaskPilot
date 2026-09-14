@@ -160,7 +160,10 @@ export const TaskContextProvider = ({ children }) => {
   const getDashboardStats = () => {
     if (!user) return { total: 0, assigned: 0, in_progress: 0, completed: 0, failed: 0 };
 
-    const myTasks = user.role === "admin" ? tasks : tasks;
+    const myTasks =
+      user.role === "admin"
+        ? tasks
+        : tasks.filter((t) => t.assignedTo?.id === user.id);
     const stats = { total: myTasks.length, assigned: 0, in_progress: 0, completed: 0, failed: 0 };
 
     myTasks.forEach((task) => {
