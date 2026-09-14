@@ -27,6 +27,7 @@ const createApp = () => {
   app.use("/api/allemployees", require("./routes/employeeRoutes"));
   app.use("/api/auth", require("./routes/authRoutes"));
   app.use("/api/tasks", require("./routes/taskRoutes"));
+  app.use("/api/users", require("./routes/userRoutes"));
 
   // AI Route (Special)
   app.use("/api/ai/", require("./routes/geminiRoutes"));

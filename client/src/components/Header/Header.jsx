@@ -1,22 +1,12 @@
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuthContext } from "../../context/AuthContext";
 import { useTaskContext } from "../../context/TaskContext";
-import {
-  HiOutlineArrowPath,
-  HiOutlineArrowRightOnRectangle,
-} from "react-icons/hi2";
+import { HiOutlineArrowPath } from "react-icons/hi2";
 import TaskPilotLogo from "../Common/TaskPilotLogo";
 
 export default function Header() {
-  const { logout, user } = useAuthContext();
+  const { user } = useAuthContext();
   const { fetchTasks } = useTaskContext();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/", { replace: true });
-  };
 
   return (
     <motion.header
@@ -41,7 +31,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Right — Actions */}
+      {/* Right — Actions (logout lives in the sidebar user chip) */}
       <div className="flex gap-2 w-full sm:w-auto">
         <motion.button
           whileHover={{ scale: 1.03 }}
@@ -51,16 +41,6 @@ export default function Header() {
         >
           <HiOutlineArrowPath className="w-4 h-4" />
           Refresh
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={handleLogout}
-          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-peony/20 border border-peony/40 text-red-500 text-sm font-medium hover:bg-peony/30 transition-all cursor-pointer"
-        >
-          <HiOutlineArrowRightOnRectangle className="w-4 h-4" />
-          Logout
         </motion.button>
       </div>
     </motion.header>

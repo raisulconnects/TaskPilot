@@ -16,33 +16,31 @@ const fadeUp = {
 
 export default function EmployeeDashboard() {
   return (
-    <div className="min-h-screen bg-white font-sans text-ink">
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="visible"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
-      >
-        {/* Top Header */}
-        <motion.div variants={fadeUp}>
-          <Header />
-        </motion.div>
-
-        {/* KPI Stat Cards */}
-        <motion.div variants={fadeUp}>
-          <NewTask />
-        </motion.div>
-
-        {/* Tasks Workspace */}
-        <motion.div variants={fadeUp}>
-          <TaskList />
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div variants={fadeUp}>
-          <Footer />
-        </motion.div>
+    <motion.div
+      variants={stagger}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      {/* Top Header */}
+      <motion.div variants={fadeUp}>
+        <Header />
       </motion.div>
-    </div>
+
+      {/* KPI Stat Cards */}
+      <motion.div variants={fadeUp}>
+        <NewTask />
+      </motion.div>
+
+      {/* Tasks Workspace */}
+      <motion.div variants={fadeUp}>
+        <TaskList />
+      </motion.div>
+
+      {/* Footer */}
+      <motion.div variants={fadeUp}>
+        <Footer />
+      </motion.div>
+    </motion.div>
   );
 }
