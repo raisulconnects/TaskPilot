@@ -4,7 +4,7 @@ import {
   updateTaskSchema,
   taskIdParamSchema,
 } from "../validation/task.schemas.js";
-import { loginSchema } from "../validation/auth.schemas.js";
+import { loginSchema, signupSchema } from "../validation/auth.schemas.js";
 import { aiTitleSchema } from "../validation/ai.schemas.js";
 
 const OID = "123e4567-e89b-12d3-a456-426614174000";
@@ -128,6 +128,36 @@ describe("loginSchema", () => {
   it("rejects non-string email (NoSQL-injection shaped input)", () => {
     expect(
       loginSchema.safeParse({ email: { $gt: "" }, password: "pw" }).success
+    ).toBe(false);
+  });
+});
+
+describe("signupSchema", () => {
+  const valid = {
+    orgName: "Acme Studios",
+    name: "Alex Morgan",
+    email: "Alex@Acme.com",
+    password: "supersecret1",
+  };
+
+  it("accepts a valid payload and normalizes email", () => {
+    const r = signupSchema.safeParse(valid);
+    expect(r.success).toBe(true);
+    expect(r.data.email).toBe("alex@acme.com");
+  });
+
+  it("rejects short org names, short names, bad emails, short passwords", () => {
+    expect(signupSchema.safeParse({ ...valid, orgName: "A" }).success).toBe(false);
+    expect(signupSchema.safeParse({ ...valid, name: "A" }).success).toBe(false);
+    expect(
+      signupSchema.safeParse({ ...valid, email: "nope" }).success
+    ).toBe(false);
+    expect(signupSchema.safeParse({ ...valid, password: "short" }).success).toBe(false);
+  });
+
+  it("rejects smuggled role/orgId keys (strict mode)", () => {
+    expect(
+      signupSchema.safeParse({ ...valid, role: "admin", orgId: "x" }).success
     ).toBe(false);
   });
 });

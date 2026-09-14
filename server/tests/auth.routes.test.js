@@ -86,6 +86,93 @@ describe("POST /api/auth/login", () => {
   });
 });
 
+describe("POST /api/auth/signup", () => {
+  const validSignup = {
+    orgName: "Acme Studios",
+    name: "Alex Morgan",
+    email: "alex@acme.com",
+    password: "supersecret1",
+  };
+  const txOrgCreate = vi.fn();
+  const txUserCreate = vi.fn();
+
+  beforeEach(() => {
+    // $transaction lives on the prisma root (not a model delegate), so it is
+    // assigned directly on the shared instance the helper exposes.
+    prismaHelper.prisma.$transaction = vi.fn(async (cb) =>
+      cb({ organization: { create: txOrgCreate }, user: { create: txUserCreate } })
+    );
+  });
+
+  it("returns 400 for an empty body (validation, no DB hit)", async () => {
+    const res = await request(app).post("/api/auth/signup").send({});
+    expect(res.status).toBe(400);
+    expect(user.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 for short org name, short password, and smuggled role", async () => {
+    for (const body of [
+      { ...validSignup, orgName: "A" },
+      { ...validSignup, password: "short" },
+      { ...validSignup, role: "admin" },
+    ]) {
+      const res = await request(app).post("/api/auth/signup").send(body);
+      expect(res.status).toBe(400);
+    }
+    expect(user.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("returns 409 when the email is taken (transaction never runs)", async () => {
+    user.findUnique.mockResolvedValue(dbUser);
+    const res = await request(app).post("/api/auth/signup").send(validSignup);
+    expect(res.status).toBe(409);
+    expect(res.body.message).toBe("Email already registered");
+    expect(prismaHelper.prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("creates org + admin atomically, hashes the password, auto-logs in", async () => {
+    const org = { id: "org9", name: "Acme Studios" };
+    const created = {
+      id: "user9",
+      orgId: "org9",
+      name: "Alex Morgan",
+      email: "alex@acme.com",
+      role: "admin",
+    };
+    txOrgCreate.mockResolvedValue(org);
+    txUserCreate.mockResolvedValue({ ...created, password: "hashed" });
+    const res = await request(app).post("/api/auth/signup").send(validSignup);
+    expect(res.status).toBe(201);
+    expect(txOrgCreate).toHaveBeenCalledWith({
+      data: { name: "Acme Studios" },
+    });
+    const userArg = txUserCreate.mock.calls[0][0];
+    expect(userArg.data).toMatchObject({
+      orgId: "org9",
+      name: "Alex Morgan",
+      email: "alex@acme.com",
+      role: "admin",
+    });
+    // Role is forced server-side and the password actually hashed (not stored raw).
+    expect(userArg.data.password).not.toBe("supersecret1");
+    expect(
+      await bcrypt.compare("supersecret1", userArg.data.password)
+    ).toBe(true);
+    expect(res.body.user).toMatchObject(created);
+    const token = res.headers["set-cookie"]
+      .join(";")
+      .match(/token=([^;]+)/)[1];
+    expect(jwt.decode(token)).toMatchObject({ id: "user9", orgId: "org9" });
+  });
+
+  it("creates nothing when org creation fails mid-transaction", async () => {
+    txOrgCreate.mockRejectedValue(new Error("db down"));
+    const res = await request(app).post("/api/auth/signup").send(validSignup);
+    expect(res.status).toBe(500);
+    expect(txUserCreate).not.toHaveBeenCalled();
+  });
+});
+
 describe("GET /api/auth/me", () => {
   it("returns 401 without a cookie", async () => {
     const res = await request(app).get("/api/auth/me");
