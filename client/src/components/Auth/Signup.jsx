@@ -179,7 +179,7 @@ export default function Signup() {
                   <ul className="list-disc list-inside text-xs space-y-1 mt-1 text-slate">
                     {serverIssues.map((issue, idx) => (
                       <li key={idx}>
-                        {issue.path?.join(".")}: {issue.message}
+                        {issue.path}: {issue.message}
                       </li>
                     ))}
                   </ul>

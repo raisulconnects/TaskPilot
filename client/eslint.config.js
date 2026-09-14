@@ -23,7 +23,13 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // NOTE: `motion` is exempt because this toolchain's scope analysis does
+      // not count `<motion.*>` JSX member usage as a reference (minimal repro
+      // confirmed), so every framer-motion import would false-positive.
+      // The imports are genuinely used at runtime (build green, animations
+      // render). Revisit if the toolchain is upgraded — or remove
+      // framer-motion (see PR discussion) to drop this carve-out entirely.
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]|^motion$' }],
     },
   },
 ])
