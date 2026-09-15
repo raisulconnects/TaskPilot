@@ -14,6 +14,7 @@ import {
   HiXMark,
 } from "react-icons/hi2";
 import TaskPilotLogo from "../Common/TaskPilotLogo";
+import { useAuthContext } from "../../context/AuthContext";
 
 /* ═══════════════════════════════════════════════
    ANIMATION VARIANTS
@@ -126,6 +127,7 @@ const STEPS = [
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, loading } = useAuthContext();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -163,18 +165,32 @@ function Navbar() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            to="/login"
-            className="px-5 py-2.5 text-sm font-medium text-slate border border-pebble rounded-pill hover:border-mist hover:bg-cloud transition-all duration-200"
-          >
-            Log in
-          </Link>
-          <Link
-            to="/signup"
-            className="px-5 py-2.5 text-sm font-medium text-snow bg-monday-violet rounded-pill hover:bg-ultra-violet transition-all duration-200 active:scale-[0.97]"
-          >
-            Get Started
-          </Link>
+          {loading ? (
+            <div className="h-10 w-44 animate-pulse rounded-pill bg-cloud" />
+          ) : user ? (
+            <Link
+              to="/dashboard"
+              className="group inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-snow bg-monday-violet rounded-pill hover:bg-ultra-violet transition-all duration-200 active:scale-[0.97]"
+            >
+              Go to Dashboard
+              <HiOutlineArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-5 py-2.5 text-sm font-medium text-slate border border-pebble rounded-pill hover:border-mist hover:bg-cloud transition-all duration-200"
+              >
+                Log in
+              </Link>
+              <Link
+                to="/signup"
+                className="px-5 py-2.5 text-sm font-medium text-snow bg-monday-violet rounded-pill hover:bg-ultra-violet transition-all duration-200 active:scale-[0.97]"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Hamburger */}
@@ -211,18 +227,32 @@ function Navbar() {
               How it works
             </a>
             <hr className="my-2 border-cloud" />
-            <Link
-              to="/login"
-              className="px-4 py-3 text-sm font-medium text-slate text-center border border-pebble rounded-xl hover:bg-cloud transition-colors"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/signup"
-              className="px-4 py-3 text-sm font-medium text-snow text-center bg-monday-violet rounded-xl hover:bg-ultra-violet transition-colors"
-            >
-              Get Started
-            </Link>
+            {loading ? (
+              <div className="h-12 animate-pulse rounded-xl bg-cloud" />
+            ) : user ? (
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileOpen(false)}
+                className="px-4 py-3 text-sm font-medium text-snow text-center bg-monday-violet rounded-xl hover:bg-ultra-violet transition-colors"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="px-4 py-3 text-sm font-medium text-slate text-center border border-pebble rounded-xl hover:bg-cloud transition-colors"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-4 py-3 text-sm font-medium text-snow text-center bg-monday-violet rounded-xl hover:bg-ultra-violet transition-colors"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </motion.div>
       )}
@@ -236,6 +266,7 @@ function Navbar() {
 
 function Hero() {
   const { scrollYProgress } = useScroll();
+  const { user, loading } = useAuthContext();
   const shapeY1 = useTransform(scrollYProgress, [0, 0.3], [0, -60]);
   const shapeY2 = useTransform(scrollYProgress, [0, 0.3], [0, -40]);
   const shapeY3 = useTransform(scrollYProgress, [0, 0.3], [0, -80]);
@@ -304,13 +335,25 @@ function Hero() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
         >
-          <Link
-            to="/signup"
-            className="group inline-flex items-center gap-2 px-7 py-3.5 text-base font-medium text-snow bg-monday-violet rounded-pill hover:bg-ultra-violet transition-all duration-200 active:scale-[0.97] shadow-soft"
-          >
-            Get Started Free
-            <HiOutlineArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          {loading ? (
+            <div className="h-[52px] w-48 animate-pulse rounded-pill bg-cloud" />
+          ) : user ? (
+            <Link
+              to="/dashboard"
+              className="group inline-flex items-center gap-2 px-7 py-3.5 text-base font-medium text-snow bg-monday-violet rounded-pill hover:bg-ultra-violet transition-all duration-200 active:scale-[0.97] shadow-soft"
+            >
+              Go to Dashboard
+              <HiOutlineArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ) : (
+            <Link
+              to="/signup"
+              className="group inline-flex items-center gap-2 px-7 py-3.5 text-base font-medium text-snow bg-monday-violet rounded-pill hover:bg-ultra-violet transition-all duration-200 active:scale-[0.97] shadow-soft"
+            >
+              Get Started Free
+              <HiOutlineArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          )}
           <a
             href="#how-it-works"
             className="group inline-flex items-center gap-2 px-7 py-3.5 text-base font-medium text-slate border border-pebble rounded-pill hover:border-mist hover:bg-cloud transition-all duration-200"
@@ -687,6 +730,8 @@ function StepVisual({ step }) {
    ═══════════════════════════════════════════════ */
 
 function CTABanner() {
+  const { user, loading } = useAuthContext();
+
   return (
     <section className="py-20 sm:py-28 bg-cloud">
       <motion.div
@@ -703,18 +748,32 @@ function CTABanner() {
           <div className="absolute top-1/2 right-[25%] w-14 h-14 rounded-full bg-white/5 animate-float-fast pointer-events-none" />
 
           <h2 className="relative text-2xl sm:text-4xl lg:text-[44px] font-light text-snow tracking-tight leading-tight max-w-2xl mx-auto">
-            Ready to stop losing tasks in chat threads?
+            {user ? "Pick up right where you left off?" : "Ready to stop losing tasks in chat threads?"}
           </h2>
           <p className="relative mt-4 text-base text-snow/70 max-w-md mx-auto">
-            Create your workspace in seconds. No credit card, no setup complexity.
+            {user
+              ? "Your workspace is waiting — jump back into your tasks."
+              : "Create your workspace in seconds. No credit card, no setup complexity."}
           </p>
-          <Link
-            to="/signup"
-            className="relative group inline-flex items-center gap-2 mt-8 px-8 py-4 text-base font-medium text-monday-violet bg-snow rounded-pill hover:bg-cloud transition-all duration-200 active:scale-[0.97]"
-          >
-            Get Started Free
-            <HiOutlineArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          {loading ? (
+            <div className="relative mx-auto mt-8 h-[56px] w-48 animate-pulse rounded-pill bg-white/20" />
+          ) : user ? (
+            <Link
+              to="/dashboard"
+              className="relative group inline-flex items-center gap-2 mt-8 px-8 py-4 text-base font-medium text-monday-violet bg-snow rounded-pill hover:bg-cloud transition-all duration-200 active:scale-[0.97]"
+            >
+              Go to Dashboard
+              <HiOutlineArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ) : (
+            <Link
+              to="/signup"
+              className="relative group inline-flex items-center gap-2 mt-8 px-8 py-4 text-base font-medium text-monday-violet bg-snow rounded-pill hover:bg-cloud transition-all duration-200 active:scale-[0.97]"
+            >
+              Get Started Free
+              <HiOutlineArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          )}
         </div>
       </motion.div>
     </section>
@@ -726,6 +785,8 @@ function CTABanner() {
    ═══════════════════════════════════════════════ */
 
 function Footer() {
+  const { user, loading } = useAuthContext();
+
   return (
     <footer className="bg-snow border-t border-cloud py-12 sm:py-16">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
@@ -766,18 +827,31 @@ function Footer() {
                 Account
               </p>
               <div className="flex flex-col gap-2">
-                <Link
-                  to="/login"
-                  className="text-sm text-slate hover:text-ink transition-colors"
-                >
-                  Log in
-                </Link>
-                <Link
-                  to="/signup"
-                  className="text-sm text-slate hover:text-ink transition-colors"
-                >
-                  Sign up
-                </Link>
+                {loading ? (
+                  <div className="h-4 w-20 animate-pulse rounded bg-cloud" />
+                ) : user ? (
+                  <Link
+                    to="/dashboard"
+                    className="text-sm text-slate hover:text-ink transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="text-sm text-slate hover:text-ink transition-colors"
+                    >
+                      Log in
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="text-sm text-slate hover:text-ink transition-colors"
+                    >
+                      Sign up
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
