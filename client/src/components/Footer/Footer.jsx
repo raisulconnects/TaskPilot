@@ -12,7 +12,7 @@ export default function Footer() {
 
         <div className="flex space-x-5">
           <a
-            href="https://www.linkedin.com/in/your-linkedin"
+            href="https://www.linkedin.com/in/raisul-tanna/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-iron hover:text-monday-violet transition-colors duration-200 text-sm font-medium"
@@ -21,7 +21,7 @@ export default function Footer() {
             <span className="hidden sm:inline">LinkedIn</span>
           </a>
           <a
-            href="https://github.com/your-github"
+            href="https://github.com/raisulconnects"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-iron hover:text-ink transition-colors duration-200 text-sm font-medium"

@@ -15,6 +15,7 @@ import {
 } from "react-icons/hi2";
 import TaskPilotLogo from "../Common/TaskPilotLogo";
 import { useAuthContext } from "../../context/AuthContext";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 /* ═══════════════════════════════════════════════
    ANIMATION VARIANTS
@@ -790,15 +791,36 @@ function Footer() {
   return (
     <footer className="bg-snow border-t border-cloud py-12 sm:py-16">
       <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-8">
           {/* Brand */}
           <div>
             <div className="mb-3">
               <TaskPilotLogo size="sm" textSize="text-base" />
             </div>
             <p className="text-sm text-iron max-w-xs leading-relaxed">
-              Task management for small teams. Built with React, Vite, and PostgreSQL.
+              Isolated workspaces, realtime tracking, and AI-assisted task
+              creation for small teams.
             </p>
+            <div className="mt-4 flex items-center gap-3">
+              <a
+                href="https://github.com/raisulconnects/TaskPilot"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TaskPilot source code on GitHub"
+                className="p-2 rounded-lg text-iron hover:text-ink hover:bg-cloud transition-colors"
+              >
+                <FaGithub size={18} />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/raisul-tanna/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Builder on LinkedIn"
+                className="p-2 rounded-lg text-iron hover:text-ink hover:bg-cloud transition-colors"
+              >
+                <FaLinkedin size={18} />
+              </a>
+            </div>
           </div>
 
           {/* Links */}
@@ -819,6 +841,35 @@ function Footer() {
                   className="text-sm text-slate hover:text-ink transition-colors"
                 >
                   How it works
+                </a>
+                <Link
+                  to="/signup"
+                  className="text-sm text-slate hover:text-ink transition-colors"
+                >
+                  Get started
+                </Link>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-ink uppercase tracking-wider mb-3">
+                Resources
+              </p>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="https://github.com/raisulconnects/TaskPilot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-slate hover:text-ink transition-colors"
+                >
+                  Source code
+                </a>
+                <a
+                  href="https://github.com/raisulconnects/TaskPilot/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-slate hover:text-ink transition-colors"
+                >
+                  Report an issue
                 </a>
               </div>
             </div>
@@ -863,7 +914,15 @@ function Footer() {
             © {new Date().getFullYear()} TaskPilot. All rights reserved.
           </p>
           <p className="text-xs text-iron">
-            Built with React 19, Vite, Tailwind CSS, and PostgreSQL
+            Built by{" "}
+            <a
+              href="https://www.linkedin.com/in/raisul-tanna/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-slate hover:text-ink transition-colors"
+            >
+              Raisul Tanna
+            </a>
           </p>
         </div>
       </div>
