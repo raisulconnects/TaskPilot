@@ -20,7 +20,9 @@ const AuthContext = createContext(null);
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [socket, setSocket] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // Start true so consumers (e.g. landing CTAs, route guards) can wait for
+  // the /auth/me restore instead of flashing logged-out UI.
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const isAuthenticated = !!user;
