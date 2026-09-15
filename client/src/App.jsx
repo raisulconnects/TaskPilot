@@ -11,8 +11,8 @@ import { useAuthContext } from "./context/AuthContext";
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white font-sans">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
+    <div className="min-h-screen flex items-center justify-center bg-cloud font-sans">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-monday-violet"></div>
     </div>
   );
 }
@@ -50,7 +50,15 @@ function RequireAdmin() {
 }
 
 function RoleDashboard() {
-  const { user } = useAuthContext();
+  const { user, loading } = useAuthContext();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   return user.role === "admin" ? <AdminDashboard /> : <EmployeeDashboard />;
 }

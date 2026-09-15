@@ -8,8 +8,11 @@ import TaskPilotLogo from "../Common/TaskPilotLogo";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Local submitting state — the shared `loading` flag is also true during
+  // the initial /auth/me restore, which would wrongly disable this button.
+  const [submitting, setSubmitting] = useState(false);
 
-  const { login, loading, error, user } = useAuthContext();
+  const { login, error, user } = useAuthContext();
   const navigate = useNavigate();
 
   // If already authenticated, redirect to dashboard
@@ -19,7 +22,9 @@ export default function Login() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     const success = await login(email, password);
+    setSubmitting(false);
     if (success) {
       navigate("/dashboard");
     }
@@ -156,10 +161,10 @@ export default function Login() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={submitting}
               className="w-full rounded-pill bg-monday-violet text-snow font-medium py-3.5 text-base hover:bg-ultra-violet active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Logging in…" : "Log in"}
+              {submitting ? "Logging in…" : "Log in"}
             </button>
           </form>
 
