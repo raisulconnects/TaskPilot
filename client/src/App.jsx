@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import "./App.css";
 import Landing from "./components/Landing/Landing";
 import Login from "./components/Auth/Login";
@@ -15,6 +16,27 @@ function LoadingScreen() {
       <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-monday-violet"></div>
     </div>
   );
+}
+
+const DEFAULT_TITLE = "TaskPilot — Task Management for Small Teams";
+
+const ROUTE_TITLES = {
+  "/": DEFAULT_TITLE,
+  "/login": "Log in • TaskPilot",
+  "/signup": "Sign up • TaskPilot",
+  "/dashboard": "Dashboard • TaskPilot",
+  "/dashboard/members": "Members • TaskPilot",
+};
+
+// Keeps the browser tab in sync with the current route.
+function RouteTitles() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    document.title = ROUTE_TITLES[pathname] ?? DEFAULT_TITLE;
+  }, [pathname]);
+
+  return null;
 }
 
 function RequireAuth() {
@@ -65,7 +87,9 @@ function RoleDashboard() {
 
 function App() {
   return (
-    <Routes>
+    <>
+      <RouteTitles />
+      <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
@@ -78,7 +102,8 @@ function App() {
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 
