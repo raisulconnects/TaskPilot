@@ -1,5 +1,6 @@
 // socket.js
 const { adminRoom, employeeRoom, userRoom } = require("./rooms");
+const { socketAuthMiddleware } = require("./socketAuth");
 
 let io;
 
@@ -14,11 +15,14 @@ const initSocket = (server) => {
     },
   });
 
+  // Every connection must carry a valid auth cookie; identity (and so the
+  // rooms joined) comes from the verified token, not from the client.
+  io.use(socketAuthMiddleware);
+
   io.on("connection", (socket) => {
-    // Phase 1 cleanup: handshake.auth debug log removed (was commented out).
-    // Tenancy: orgId joins the handshake (see AuthContext); rooms are
-    // namespaced per org via config/rooms.js — no cross-tenant delivery.
-    const { userId, role, orgId } = socket.handshake.auth;
+    // Tenancy: rooms are namespaced per org via config/rooms.js — no
+    // cross-tenant delivery.
+    const { id: userId, role, orgId } = socket.data.user;
     console.log("🔌 Socket connected:", socket.id);
 
     //If It's an Admin, we Join them to Admin room
