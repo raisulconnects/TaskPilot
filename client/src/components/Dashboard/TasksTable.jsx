@@ -85,7 +85,7 @@ function SkeletonRows() {
 }
 
 export default function TasksTable({ tasks, loading }) {
-  const { taskEdit, deleteATask } = useTaskContext();
+  const { taskEdit, deleteATask, allEmployees } = useTaskContext();
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [modal, setModal] = useState({ type: null, task: null });
@@ -106,8 +106,11 @@ export default function TasksTable({ tasks, loading }) {
     });
   }, [tasks, filter, query]);
 
+  const employees = useMemo(() => (allEmployees ?? []).filter((e) => e.role !== "admin"), [allEmployees]);
+
   const open = (type, task) => setModal({ type, task });
-  const close = () => setModal({ type: null, task: null });
+  // Keep the task while the dialog animates out.
+  const close = () => setModal((m) => ({ ...m, type: null }));
   const t = modal.task;
 
   return (
@@ -290,17 +293,19 @@ export default function TasksTable({ tasks, loading }) {
               status: t.status,
               dueDate: t.dueDate,
             }}
+            onEdit={() => open("edit", t)}
           />
           <EditTaskModal
             isOpen={modal.type === "edit"}
             onClose={close}
-            task={{ id: t.id, name: t.assignedTo?.name, description: t.description, status: t.status, duedate: t.dueDate }}
+            task={t}
+            employees={employees}
             onSave={(taskId, data) => taskEdit(taskId, data)}
           />
           <DeleteTaskModal
             isOpen={modal.type === "delete"}
             onClose={close}
-            task={{ id: t.id, name: t.assignedTo?.name, description: t.description, duedate: t.dueDate }}
+            task={{ id: t.id, title: t.title, name: t.assignedTo?.name, description: t.description, duedate: t.dueDate }}
             onConfirm={(taskId) => deleteATask(taskId)}
           />
         </>
