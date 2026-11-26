@@ -15,18 +15,28 @@ import {
 import { HiOutlineChartPie, HiOutlineChartBar } from "react-icons/hi2";
 import { computeStats, workloadByPerson } from "../../services/taskStats";
 import { STATUS_STYLES } from "../Common/taskStyles";
+import { CHART_COLORS } from "../Common/themeColors";
+import { useDashboardTheme } from "../../context/DashboardThemeContext";
 
 const ORDER = ["assigned", "completed", "failed"];
 
-const tooltipStyle = {
-  backgroundColor: "#ffffff",
-  borderRadius: 12,
-  border: "1px solid #dddfeb",
-  boxShadow: "0 8px 24px rgba(51,51,51,0.08)",
-  padding: "8px 12px",
-  fontFamily: "Poppins",
-  fontSize: 12,
-};
+function useChartColors() {
+  const { theme } = useDashboardTheme();
+  const c = CHART_COLORS[theme] ?? CHART_COLORS.light;
+  return {
+    ...c,
+    tooltip: {
+      backgroundColor: c.surface,
+      color: c.text,
+      borderRadius: 12,
+      border: `1px solid ${c.border}`,
+      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+      padding: "8px 12px",
+      fontFamily: "Poppins",
+      fontSize: 12,
+    },
+  };
+}
 
 function ChartCard({ icon, title, subtitle, legend, children, className = "" }) {
   const Icon = icon;
@@ -63,6 +73,7 @@ function EmptyChart({ text }) {
 }
 
 function StatusDonut({ tasks }) {
+  const colors = useChartColors();
   const stats = useMemo(() => computeStats(tasks), [tasks]);
   const data = ORDER.map((k) => ({ key: k, name: STATUS_STYLES[k].label, value: stats[k], color: STATUS_STYLES[k].chart }));
 
@@ -93,7 +104,7 @@ function StatusDonut({ tasks }) {
                       <Cell key={d.key} fill={d.color} />
                     ))}
                 </Pie>
-                <Tooltip contentStyle={tooltipStyle} />
+                <Tooltip contentStyle={colors.tooltip} itemStyle={{ color: colors.text }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
@@ -120,6 +131,7 @@ function StatusDonut({ tasks }) {
 }
 
 function TeamWorkload({ tasks, employees }) {
+  const colors = useChartColors();
   const data = useMemo(
     () =>
       workloadByPerson(tasks, employees).map((r) => ({
@@ -154,22 +166,23 @@ function TeamWorkload({ tasks, employees }) {
         <div className="flex-1 min-h-[240px] -ml-3">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} barCategoryGap="28%">
-              <CartesianGrid vertical={false} stroke="#e6e7ea" strokeDasharray="4 4" />
+              <CartesianGrid vertical={false} stroke={colors.grid} strokeDasharray="4 4" />
               <XAxis
                 dataKey="short"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: "#535768", fontSize: 12, fontFamily: "Poppins" }}
+                tick={{ fill: colors.tick, fontSize: 12, fontFamily: "Poppins" }}
               />
               <YAxis
                 allowDecimals={false}
                 tickLine={false}
                 axisLine={false}
                 width={36}
-                tick={{ fill: "#808080", fontSize: 11, fontFamily: "Poppins" }}
+                tick={{ fill: colors.tickMuted, fontSize: 11, fontFamily: "Poppins" }}
               />
               <Tooltip
-                contentStyle={tooltipStyle}
+                contentStyle={colors.tooltip}
+                labelStyle={{ color: colors.text, fontWeight: 600 }}
                 cursor={{ fill: "rgba(97, 97, 255, 0.05)", radius: 8 }}
                 labelFormatter={(_, payload) => payload?.[0]?.payload?.name ?? ""}
               />

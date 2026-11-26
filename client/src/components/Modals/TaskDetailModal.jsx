@@ -69,7 +69,7 @@ export default function TaskDetailModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-ink/40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
         />
 
         {/* Modal Card */}
@@ -78,7 +78,7 @@ export default function TaskDetailModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="relative bg-white rounded-3xl border border-mist shadow-elevated w-full max-w-xl p-6 sm:p-8 z-10 space-y-6 max-h-[90vh] flex flex-col justify-between overflow-hidden"
+          className="relative bg-snow rounded-3xl border border-mist shadow-elevated w-full max-w-xl p-6 sm:p-8 z-10 space-y-6 max-h-[90vh] flex flex-col justify-between overflow-hidden"
         >
           {/* Header Badges */}
           <div className="flex items-start justify-between gap-4">

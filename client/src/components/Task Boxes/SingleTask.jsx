@@ -72,7 +72,7 @@ export default function SingleTask({ id, dueDate, priority, category, descriptio
             <div className="flex items-center gap-2 min-w-0">
               <span
                 className={`inline-flex w-8 h-8 shrink-0 items-center justify-center rounded-xl ${
-                  due.tone === "overdue" ? "bg-peony/50" : due.tone === "soon" ? "bg-amber-50" : due.tone === "done" ? "bg-mint/40" : "bg-cloud"
+                  due.tone === "overdue" ? "bg-peony/50" : due.tone === "soon" ? "bg-warn-wash" : due.tone === "done" ? "bg-mint/40" : "bg-cloud"
                 } ${DUE_TONE[due.tone]}`}
               >
                 <HiOutlineCalendar className="w-4 h-4" />
@@ -94,7 +94,7 @@ export default function SingleTask({ id, dueDate, priority, category, descriptio
             ) : (
               <button
                 onClick={() => setConfirmOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-pill bg-monday-violet hover:bg-ultra-violet text-snow text-xs font-medium transition-all active:scale-[0.97] cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-pill bg-monday-violet hover:bg-ultra-violet text-white text-xs font-medium transition-all active:scale-[0.97] cursor-pointer"
               >
                 <HiOutlineCheckCircle className="w-4 h-4" />
                 Mark complete
@@ -117,7 +117,7 @@ export default function SingleTask({ id, dueDate, priority, category, descriptio
                 animate={{ scale: [0.4, 1.15, 1], rotate: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 onAnimationComplete={() => setTimeout(() => setCelebrate(false), 900)}
-                className="inline-flex w-14 h-14 items-center justify-center rounded-full bg-green-500 text-snow shadow-[0_10px_30px_-10px_rgb(34_197_94/0.8)]"
+                className="inline-flex w-14 h-14 items-center justify-center rounded-full bg-green-500 text-white shadow-[0_10px_30px_-10px_rgb(34_197_94/0.8)]"
               >
                 <HiCheck className="w-7 h-7" />
               </motion.span>

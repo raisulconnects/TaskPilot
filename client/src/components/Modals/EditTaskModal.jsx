@@ -54,7 +54,7 @@ export default function EditTaskModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-ink/40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
         />
 
         {/* Modal Card */}
@@ -63,7 +63,7 @@ export default function EditTaskModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="relative bg-white rounded-3xl border border-mist shadow-elevated w-full max-w-lg p-6 sm:p-7 z-10 space-y-6"
+          className="relative bg-snow rounded-3xl border border-mist shadow-elevated w-full max-w-lg p-6 sm:p-7 z-10 space-y-6"
         >
           {/* Header */}
           <div className="flex items-start justify-between">
@@ -114,7 +114,7 @@ export default function EditTaskModal({
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Enter detailed task description..."
                   required
-                  className="w-full px-4 py-3 bg-cloud/40 border border-mist rounded-2xl text-ink text-sm placeholder:text-iron/50 focus:outline-none focus:border-monday-violet focus:ring-2 focus:ring-monday-violet/20 focus:bg-white transition-all resize-none"
+                  className="w-full px-4 py-3 bg-cloud/40 border border-mist rounded-2xl text-ink text-sm placeholder:text-iron/50 focus:outline-none focus:border-monday-violet focus:ring-2 focus:ring-monday-violet/20 focus:bg-snow transition-all resize-none"
                 />
               </div>
             </div>
@@ -127,7 +127,7 @@ export default function EditTaskModal({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-4 py-2.5 bg-cloud/40 border border-mist rounded-2xl text-ink text-sm focus:outline-none focus:border-monday-violet focus:ring-2 focus:ring-monday-violet/20 focus:bg-white transition-all cursor-pointer font-medium"
+                className="w-full px-4 py-2.5 bg-cloud/40 border border-mist rounded-2xl text-ink text-sm focus:outline-none focus:border-monday-violet focus:ring-2 focus:ring-monday-violet/20 focus:bg-snow transition-all cursor-pointer font-medium"
               >
                 <option value="assigned">Assigned</option>
                 <option value="completed">Completed</option>

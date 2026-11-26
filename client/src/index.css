@@ -26,6 +26,10 @@
   --color-peony: #fcd0f8;
   --color-periwinkle-wash: #dbdbff;
   --color-prism: #8181ff;
+  /* semantic tones (overridden in .dark) */
+  --color-sky-ink: #1d6fa3;
+  --color-warn: #d97706;
+  --color-warn-wash: #fffbeb;
 
   /* ── Typography ── */
   --font-poppins: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -59,6 +63,47 @@
   --animate-float-slow: float-slow 8s ease-in-out infinite;
   --animate-float-fast: float-fast 5s ease-in-out infinite;
   --animate-gradient-x: gradient-x 8s ease infinite;
+}
+
+/* ── Dark mode (dashboard only) ──
+   The dashboard shell adds `.dark` to its own root, so these overrides
+   never reach the landing or auth pages. Every token
+   utility (bg-snow, text-ink, border-mist, …) reads these variables, so
+   components flip without per-component dark classes. */
+.dark {
+  color-scheme: dark;
+
+  /* surfaces + text */
+  --color-snow: #181a22;
+  --color-cloud: #101116;
+  --color-ink: #ededf3;
+  --color-slate: #b3b6c6;
+  --color-iron: #858899;
+  --color-fog: #4b4e5e;
+  --color-mist: #2b2e3a;
+  --color-pebble: #363948;
+  --color-shadow-dust: #23252f;
+
+  /* tints: mid-tone so `/30`–`/60` washes read on dark surfaces */
+  --color-periwinkle: #2c2f66;
+  --color-periwinkle-wash: #3a3e85;
+  --color-lavender: #4a3478;
+  --color-mint: #2e7d55;
+  --color-sky: #1f5f86;
+  --color-peony: #7a2f5c;
+  --color-aqua: #1d5f66;
+
+  /* accents lifted for contrast on dark */
+  --color-monday-violet: #7b7bff;
+  --color-ultra-violet: #b58cff;
+  --color-forest: #7be0a8;
+  --color-sky-ink: #a5d8ff;
+  --color-warn: #fbbf24;
+  --color-warn-wash: #3a2e12;
+
+  --shadow-card: rgba(0, 0, 0, 0.45) 0px 2px 40px 0px;
+  --shadow-soft: rgba(0, 0, 0, 0.35) 0px 2px 20px 0px;
+  --shadow-elevated: rgba(0, 0, 0, 0.6) 0px 10px 50px 0px;
 }
 
 /* ── Base ── */

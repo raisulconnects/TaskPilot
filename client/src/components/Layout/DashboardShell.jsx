@@ -8,8 +8,11 @@ import {
   HiOutlineXMark,
   HiOutlineArrowRightOnRectangle,
   HiOutlineHome,
+  HiOutlineSun,
+  HiOutlineMoon,
 } from "react-icons/hi2";
 import { useAuthContext } from "../../context/AuthContext";
+import { DashboardThemeProvider, useDashboardTheme } from "../../context/DashboardThemeContext";
 import TaskPilotLogo from "../Common/TaskPilotLogo";
 import Avatar from "../Common/Avatar";
 
@@ -105,11 +108,48 @@ function UserCard() {
   );
 }
 
+function ThemeSwitch({ layoutId }) {
+  const { theme, setTheme } = useDashboardTheme();
+  const options = [
+    { value: "light", label: "Light", icon: HiOutlineSun },
+    { value: "dark", label: "Dark", icon: HiOutlineMoon },
+  ];
+  return (
+    <div role="radiogroup" aria-label="Theme" className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-cloud border border-mist/70">
+      {options.map((o) => {
+        const on = theme === o.value;
+        return (
+          <button
+            key={o.value}
+            role="radio"
+            aria-checked={on}
+            onClick={() => setTheme(o.value)}
+            className={`relative inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+              on ? "text-ink" : "text-iron hover:text-ink"
+            }`}
+          >
+            {on && (
+              <motion.span
+                layoutId={layoutId}
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                className="absolute inset-0 rounded-lg bg-snow shadow-soft"
+              />
+            )}
+            <o.icon className="relative w-4 h-4" />
+            <span className="relative">{o.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function SidebarContent({ onNavigate, layoutId }) {
   return (
     <>
       <NavItems onNavigate={onNavigate} layoutId={layoutId} />
-      <div className="mt-auto">
+      <div className="mt-auto space-y-3">
+        <ThemeSwitch layoutId={`${layoutId}-theme`} />
         <UserCard />
       </div>
     </>
@@ -117,6 +157,15 @@ function SidebarContent({ onNavigate, layoutId }) {
 }
 
 export default function DashboardShell() {
+  return (
+    <DashboardThemeProvider>
+      <ShellLayout />
+    </DashboardThemeProvider>
+  );
+}
+
+function ShellLayout() {
+  const { theme, toggle } = useDashboardTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user } = useAuthContext();
   const { pathname } = useLocation();
@@ -140,7 +189,7 @@ export default function DashboardShell() {
   }, [mobileOpen]);
 
   return (
-    <div className="min-h-screen bg-cloud font-sans text-ink md:flex">
+    <div className={`${theme === "dark" ? "dark" : ""} min-h-screen bg-cloud font-sans text-ink md:flex transition-colors duration-300`}>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 shrink-0 flex-col gap-8 bg-snow border-r border-mist/80 px-4 py-5 sticky top-0 h-screen">
         <div className="px-2">
@@ -153,6 +202,13 @@ export default function DashboardShell() {
       <div className="md:hidden sticky top-0 z-40 bg-snow/85 backdrop-blur-xl border-b border-mist/80 px-4 h-14 flex items-center justify-between">
         <TaskPilotLogo size="sm" to="/dashboard" />
         <div className="flex items-center gap-2">
+          <button
+            onClick={toggle}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            className="p-2 rounded-xl text-slate hover:bg-cloud transition-colors cursor-pointer"
+          >
+            {theme === "dark" ? <HiOutlineSun className="w-5 h-5" /> : <HiOutlineMoon className="w-5 h-5" />}
+          </button>
           <Avatar name={user?.name} size="sm" />
           <button
             onClick={() => setMobileOpen(true)}
@@ -174,7 +230,7 @@ export default function DashboardShell() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="absolute inset-0 bg-ink/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.aside
               initial={{ x: "-100%" }}
