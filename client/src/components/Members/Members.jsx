@@ -11,6 +11,7 @@ import {
 import { useTaskContext } from "../../context/TaskContext";
 import { createMember, deleteMember } from "../../services/memberService";
 import { validateMemberForm } from "../../services/validateMemberForm";
+import PageHeader from "../Common/PageHeader";
 
 const inputClass =
   "w-full pl-10 pr-4 py-2.5 bg-cloud border border-pebble rounded-xl text-sm text-ink placeholder:text-iron/60 focus:outline-hidden focus:border-monday-violet focus:bg-white transition-all";
@@ -122,14 +123,11 @@ export default function Members() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
-          Team Members
-        </h1>
-        <p className="text-slate text-sm mt-1">
-          Add people to your organization and manage who has access.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Admin workspace"
+        title="Team members"
+        subtitle="Add people to your organization and manage who has access."
+      />
 
       {listError && (
         <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-500 font-medium">

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HiOutlineSquares2X2,
@@ -7,47 +7,58 @@ import {
   HiOutlineBars3,
   HiOutlineXMark,
   HiOutlineArrowRightOnRectangle,
+  HiOutlineHome,
 } from "react-icons/hi2";
 import { useAuthContext } from "../../context/AuthContext";
 import TaskPilotLogo from "../Common/TaskPilotLogo";
+import Avatar from "../Common/Avatar";
 
-const linkBase =
-  "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all";
-const linkIdle = "text-slate hover:bg-cloud hover:text-ink";
-const linkActive = "bg-monday-violet text-white shadow-md";
+const NAV = [
+  { to: "/dashboard", label: "Overview", icon: HiOutlineSquares2X2, end: true },
+  { to: "/dashboard/members", label: "Members", icon: HiOutlineUsers, adminOnly: true },
+];
 
-function NavItems({ onNavigate }) {
+function NavItems({ onNavigate, layoutId }) {
   const { user } = useAuthContext();
+  const items = NAV.filter((n) => !n.adminOnly || user?.role === "admin");
+
   return (
-    <nav className="flex flex-col gap-1.5">
-      <NavLink
-        to="/dashboard"
-        end
-        onClick={onNavigate}
-        className={({ isActive }) =>
-          `${linkBase} ${isActive ? linkActive : linkIdle}`
-        }
-      >
-        <HiOutlineSquares2X2 className="w-5 h-5 shrink-0" />
-        Tasks
-      </NavLink>
-      {user?.role === "admin" && (
+    <nav className="flex flex-col gap-1">
+      <p className="px-3 mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-iron">
+        Workspace
+      </p>
+      {items.map((item) => (
         <NavLink
-          to="/dashboard/members"
+          key={item.to}
+          to={item.to}
+          end={item.end}
           onClick={onNavigate}
           className={({ isActive }) =>
-            `${linkBase} ${isActive ? linkActive : linkIdle}`
+            `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              isActive ? "text-monday-violet" : "text-slate hover:text-ink hover:bg-cloud"
+            }`
           }
         >
-          <HiOutlineUsers className="w-5 h-5 shrink-0" />
-          Members
+          {({ isActive }) => (
+            <>
+              {isActive && (
+                <motion.span
+                  layoutId={layoutId}
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                  className="absolute inset-0 rounded-xl bg-periwinkle/70 ring-1 ring-periwinkle-wash"
+                />
+              )}
+              <item.icon className="relative w-5 h-5 shrink-0" />
+              <span className="relative">{item.label}</span>
+            </>
+          )}
         </NavLink>
-      )}
+      ))}
     </nav>
   );
 }
 
-function UserChip() {
+function UserCard() {
   const { user, logout } = useAuthContext();
   const navigate = useNavigate();
 
@@ -57,75 +68,139 @@ function UserChip() {
   };
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-9 h-9 rounded-full bg-monday-violet text-white flex items-center justify-center text-sm font-bold shrink-0">
-        {user?.name?.charAt(0)?.toUpperCase() || "?"}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-semibold text-ink truncate">
-          {user?.name}
+    <div className="rounded-2xl border border-mist/80 bg-cloud/60 p-3">
+      <div className="flex items-center gap-3">
+        <Avatar name={user?.name} size="md" />
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-ink truncate">{user?.name}</div>
+          <div className="text-xs text-iron truncate">{user?.email}</div>
         </div>
-        <div className="text-xs text-iron capitalize">{user?.role}</div>
       </div>
-      <button
-        onClick={handleLogout}
-        title="Logout"
-        className="p-2 rounded-xl text-slate hover:bg-peony/20 hover:text-red-500 transition-all cursor-pointer"
-      >
-        <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
-      </button>
+      <div className="mt-3 flex items-center gap-2">
+        <span
+          className={`px-2 py-0.5 rounded-md text-[11px] font-semibold capitalize ${
+            user?.role === "admin" ? "bg-monday-violet/10 text-monday-violet" : "bg-mint/40 text-forest"
+          }`}
+        >
+          {user?.role}
+        </span>
+        <Link
+          to="/"
+          title="Back to site"
+          aria-label="Back to site"
+          className="ml-auto p-1.5 rounded-lg text-iron hover:text-ink hover:bg-snow transition-colors"
+        >
+          <HiOutlineHome className="w-4 h-4" />
+        </Link>
+        <button
+          onClick={handleLogout}
+          title="Log out"
+          aria-label="Log out"
+          className="p-1.5 rounded-lg text-iron hover:text-red-500 hover:bg-snow transition-colors cursor-pointer"
+        >
+          <HiOutlineArrowRightOnRectangle className="w-4 h-4" />
+        </button>
+      </div>
     </div>
+  );
+}
+
+function SidebarContent({ onNavigate, layoutId }) {
+  return (
+    <>
+      <NavItems onNavigate={onNavigate} layoutId={layoutId} />
+      <div className="mt-auto">
+        <UserCard />
+      </div>
+    </>
   );
 }
 
 export default function DashboardShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user } = useAuthContext();
+  const { pathname } = useLocation();
+
+  // Close the drawer on route change (e.g. browser back).
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    setMobileOpen(false);
+  }
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e) => e.key === "Escape" && setMobileOpen(false);
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   return (
-    <div className="min-h-screen bg-cloud font-sans text-ink flex">
+    <div className="min-h-screen bg-cloud font-sans text-ink md:flex">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 shrink-0 flex-col gap-6 bg-white border-r border-mist p-5 sticky top-0 h-screen">
-        <TaskPilotLogo size="md" to="/dashboard" />
-        <NavItems />
-        <div className="mt-auto pt-4 border-t border-mist">
-          <UserChip />
+      <aside className="hidden md:flex w-64 shrink-0 flex-col gap-8 bg-snow border-r border-mist/80 px-4 py-5 sticky top-0 h-screen">
+        <div className="px-2">
+          <TaskPilotLogo size="md" to="/dashboard" />
         </div>
+        <SidebarContent layoutId="nav-active" />
       </aside>
 
-      {/* Mobile topbar + drawer */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-white/90 backdrop-blur border-b border-mist px-4 py-3 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <div className="md:hidden sticky top-0 z-40 bg-snow/85 backdrop-blur-xl border-b border-mist/80 px-4 h-14 flex items-center justify-between">
         <TaskPilotLogo size="sm" to="/dashboard" />
-        <button
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-label="Toggle menu"
-          className="p-2 rounded-xl text-slate hover:bg-cloud transition-all cursor-pointer"
-        >
-          {mobileOpen ? (
-            <HiOutlineXMark className="w-6 h-6" />
-          ) : (
+        <div className="flex items-center gap-2">
+          <Avatar name={user?.name} size="sm" />
+          <button
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            className="p-2 rounded-xl text-slate hover:bg-cloud transition-colors cursor-pointer"
+          >
             <HiOutlineBars3 className="w-6 h-6" />
-          )}
-        </button>
+          </button>
+        </div>
       </div>
+
+      {/* Mobile drawer */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden fixed top-[60px] inset-x-0 z-40 bg-white border-b border-mist p-4 space-y-4"
-          >
-            <NavItems onNavigate={() => setMobileOpen(false)} />
-            <div className="pt-3 border-t border-mist">
-              <UserChip />
-            </div>
-          </motion.div>
+          <div className="md:hidden fixed inset-0 z-50">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="absolute inset-0 bg-ink/30 backdrop-blur-sm"
+            />
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", stiffness: 380, damping: 38 }}
+              className="absolute inset-y-0 left-0 w-[82%] max-w-xs bg-snow shadow-elevated flex flex-col gap-8 px-4 py-5"
+            >
+              <div className="flex items-center justify-between px-2">
+                <TaskPilotLogo size="sm" to="/dashboard" />
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Close menu"
+                  className="p-2 rounded-xl text-slate hover:bg-cloud transition-colors cursor-pointer"
+                >
+                  <HiOutlineXMark className="w-5 h-5" />
+                </button>
+              </div>
+              <SidebarContent onNavigate={() => setMobileOpen(false)} layoutId="nav-active-mobile" />
+            </motion.aside>
+          </div>
         )}
       </AnimatePresence>
 
       {/* Page content */}
-      <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 py-6 pt-20 md:pt-6">
+      <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-10 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
           <Outlet />
         </div>

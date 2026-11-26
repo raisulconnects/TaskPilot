@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
-import Footer from "../Footer/Footer";
-import Header from "../Header/Header";
+import PageHeader from "../Common/PageHeader";
+import { useAuthContext } from "../../context/AuthContext";
+import { useTaskContext } from "../../context/TaskContext";
+import { greeting } from "../../services/dateLabels";
 import NewTask from "../Task Boxes/NewTask";
 import TaskList from "../Task Boxes/TaskList";
 
@@ -15,6 +17,9 @@ const fadeUp = {
 };
 
 export default function EmployeeDashboard() {
+  const { user } = useAuthContext();
+  const { fetchTasks } = useTaskContext();
+
   return (
     <motion.div
       variants={stagger}
@@ -24,7 +29,12 @@ export default function EmployeeDashboard() {
     >
       {/* Top Header */}
       <motion.div variants={fadeUp}>
-        <Header />
+        <PageHeader
+          eyebrow="My workspace"
+          title={`${greeting()}, ${user?.name?.split(" ")[0] ?? ""}`}
+          subtitle="Here's what's on your plate."
+          onRefresh={fetchTasks}
+        />
       </motion.div>
 
       {/* KPI Stat Cards */}
@@ -35,11 +45,6 @@ export default function EmployeeDashboard() {
       {/* Tasks Workspace */}
       <motion.div variants={fadeUp}>
         <TaskList />
-      </motion.div>
-
-      {/* Footer */}
-      <motion.div variants={fadeUp}>
-        <Footer />
       </motion.div>
     </motion.div>
   );
