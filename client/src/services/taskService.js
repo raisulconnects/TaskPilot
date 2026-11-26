@@ -1,5 +1,15 @@
 import { API_BASE_URL } from "../api";
 
+// Turn a failed response into an Error carrying the server's message (and
+// zod issue details when present), falling back to `fallback`.
+const errorFrom = async (res, fallback) => {
+  const data = await res.json().catch(() => ({}));
+  const details = Array.isArray(data.issues)
+    ? data.issues.map((i) => `${i.path}: ${i.message}`).join("; ")
+    : "";
+  return new Error([data.message || fallback, details].filter(Boolean).join(" — "));
+};
+
 /**
  * Simulate fetching all tasks (admin)
  */
@@ -33,7 +43,7 @@ export const updateTaskStatus = async (taskId) => {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to mark task as completed");
+      throw await errorFrom(res, "Failed to mark task as completed");
     }
 
     return await res.json();
@@ -57,7 +67,7 @@ export const deleteTaskStatus = async (taskId) => {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to Delete Task");
+      throw await errorFrom(res, "Failed to Delete Task");
     }
 
     return await res.json();
@@ -80,7 +90,7 @@ export const updateTaskEdit = async (taskId, taskData) => {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to Edit Task");
+      throw await errorFrom(res, "Failed to Edit Task");
     }
 
     return await res.json();
