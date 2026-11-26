@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { describeDue, greeting, formatShortDate } from "./dateLabels";
+import { describeDue, greeting, formatShortDate, toLocalDateInput } from "./dateLabels";
 
 const NOW = new Date(2026, 10, 26, 15, 0); // Nov 26 2026, 3pm local
 const day = (offset) => new Date(2026, 10, 26 + offset, 9, 0);
@@ -31,6 +31,17 @@ describe("describeDue", () => {
   it("handles invalid dates", () => {
     expect(describeDue("nope", "assigned", NOW)).toMatchObject({ label: "No due date", days: null });
     expect(formatShortDate("nope")).toBe("—");
+  });
+});
+
+describe("toLocalDateInput", () => {
+  it("uses the local calendar date, not the UTC one", () => {
+    expect(toLocalDateInput(new Date(2026, 10, 26, 23, 30))).toBe("2026-11-26");
+    expect(toLocalDateInput(new Date(2026, 0, 5, 0, 15))).toBe("2026-01-05");
+  });
+
+  it("returns an empty string for invalid input", () => {
+    expect(toLocalDateInput("nope")).toBe("");
   });
 });
 

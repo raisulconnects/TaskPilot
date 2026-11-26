@@ -158,6 +158,18 @@ const editATask = async (req, res) => {
           .json({ message: "Assignee does not exist" });
       }
     }
+    // Reassignment: remember who held the task so they can be told to drop
+    // it — the update below only reaches the admins and the NEW assignee.
+    const before =
+      assignedTo !== undefined
+        ? await prisma.task.findUnique({
+            where: { id: req.params.taskId },
+            select: { assignedToId: true, orgId: true },
+          })
+        : null;
+    const previousAssigneeId =
+      before?.orgId === req.orgId ? before.assignedToId : null;
+
     const task = await prisma.task.update({
       where: { id: req.params.taskId },
       data: newTaskData,
@@ -170,6 +182,13 @@ const editATask = async (req, res) => {
     io.to(adminRoom(task.orgId)).emit("task:updated", task);
     if (assignedUserId) {
       io.to(userRoom(req.orgId, assignedUserId)).emit("task:updated", task);
+    }
+    if (previousAssigneeId && previousAssigneeId !== assignedUserId) {
+      // The task left this person's list. Send only the id: it is no longer
+      // theirs, so they shouldn't receive its updated contents.
+      io.to(userRoom(req.orgId, previousAssigneeId)).emit("task:deleted", {
+        id: task.id,
+      });
     }
 
     res.status(200).json({ message: "Task Was Updated", task });
