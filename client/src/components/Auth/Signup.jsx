@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { useAuthContext } from "../../context/AuthContext";
-import { signupOrg } from "../../services/authService";
-import { validateSignupForm } from "../../services/validateSignupForm";
 import {
-  HiOutlineArrowLeft,
   HiOutlineBuildingOffice2,
   HiOutlineUser,
   HiOutlineEnvelope,
@@ -13,8 +8,64 @@ import {
   HiOutlineSparkles,
   HiOutlineShieldCheck,
   HiOutlineBolt,
+  HiOutlineCheck,
 } from "react-icons/hi2";
-import TaskPilotLogo from "../Common/TaskPilotLogo";
+import { useAuthContext } from "../../context/AuthContext";
+import { signupOrg } from "../../services/authService";
+import { validateSignupForm, SIGNUP_ERRORS } from "../../services/validateSignupForm";
+import { passwordStrength } from "../../services/passwordStrength";
+import AuthLayout, { AuthField, PasswordField, AuthAlert, SubmitButton } from "./AuthLayout";
+
+// Which field each client-side validation message belongs to, so the error
+// shows under that field instead of in a generic banner.
+const ERROR_FIELD = {
+  [SIGNUP_ERRORS.ORG_NAME]: "orgName",
+  [SIGNUP_ERRORS.NAME]: "name",
+  [SIGNUP_ERRORS.EMAIL]: "email",
+  [SIGNUP_ERRORS.PASSWORD]: "password",
+  [SIGNUP_ERRORS.CONFIRM]: "confirmPassword",
+};
+
+const PERKS = [
+  { icon: HiOutlineShieldCheck, title: "Your own isolated workspace", text: "Row-level security keeps every organization's data separate." },
+  { icon: HiOutlineBolt, title: "Realtime from day one", text: "Assignments and completions sync instantly for the whole team." },
+  { icon: HiOutlineSparkles, title: "AI-assisted task creation", text: "Type a title; Gemini drafts the rest." },
+];
+
+function Perks() {
+  return (
+    <ul className="space-y-4">
+      {PERKS.map((p) => (
+        <li key={p.title} className="flex gap-3.5">
+          <span className="inline-flex w-9 h-9 shrink-0 items-center justify-center rounded-xl bg-white/15 border border-white/20">
+            <p.icon className="w-4 h-4" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">{p.title}</p>
+            <p className="text-sm text-white/70">{p.text}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const STRENGTH_BAR = ["bg-mist", "bg-red-400", "bg-amber-400", "bg-cornflower", "bg-green-500"];
+
+function StrengthMeter({ password }) {
+  if (!password) return <p className="mt-1.5 text-xs text-iron">At least 8 characters.</p>;
+  const { score, label } = passwordStrength(password);
+  return (
+    <div className="mt-2 flex items-center gap-3" aria-live="polite">
+      <div className="flex-1 grid grid-cols-4 gap-1">
+        {[1, 2, 3, 4].map((i) => (
+          <span key={i} className={`h-1 rounded-full transition-colors ${i <= score ? STRENGTH_BAR[score] : "bg-cloud"}`} />
+        ))}
+      </div>
+      <span className="text-xs font-medium text-slate w-16 text-right">{label}</span>
+    </div>
+  );
+}
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -31,7 +82,6 @@ export default function Signup() {
   const { user, login } = useAuthContext();
   const navigate = useNavigate();
 
-  // If already authenticated, redirect to dashboard
   useEffect(() => {
     if (user) navigate("/dashboard", { replace: true });
   }, [user, navigate]);
@@ -48,7 +98,6 @@ export default function Signup() {
     setFormError("");
     setServerIssues([]);
 
-    // Client-side pure guard validation
     const validationError = validateSignupForm(formData);
     if (validationError) {
       setFormError(validationError);
@@ -58,291 +107,141 @@ export default function Signup() {
     setIsSubmitting(true);
     try {
       await signupOrg({
-        orgName: formData.orgName,
-        name: formData.name,
-        email: formData.email,
+        orgName: formData.orgName.trim(),
+        name: formData.name.trim(),
+        email: formData.email.trim(),
         password: formData.password,
       });
-
-      // Login contextually or navigate to dashboard
-      await login(formData.email, formData.password);
+      await login(formData.email.trim(), formData.password);
       navigate("/dashboard", { replace: true });
     } catch (err) {
       setFormError(err.message || "Failed to create organization account.");
-      if (err.issues && Array.isArray(err.issues)) {
-        setServerIssues(err.issues);
-      }
+      if (Array.isArray(err.issues)) setServerIssues(err.issues);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const errorField = ERROR_FIELD[formError];
+  const fieldError = (name) => (errorField === name ? formError : undefined);
+  const bannerError = formError && !errorField ? formError : "";
+  const confirmMatches =
+    formData.confirmPassword.length > 0 && formData.confirmPassword === formData.password;
+
   return (
-    <div className="min-h-screen bg-cloud flex items-stretch font-sans">
-      {/* ── Left Brand / Art Panel (Desktop) ── */}
-      <div className="hidden lg:flex lg:w-[45%] bg-linear-to-br from-[#6161ff] via-[#4e4ee0] to-[#262680] text-white p-12 flex-col justify-between relative overflow-hidden">
-        {/* Decorative background shapes */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-peony/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-sky/20 rounded-full blur-2xl pointer-events-none" />
+    <AuthLayout
+      eyebrow={
+        <>
+          <HiOutlineSparkles className="w-3.5 h-3.5" /> Set up in under a minute
+        </>
+      }
+      headline="Launch your team's workspace."
+      subline="Create your organization, invite your team, and start assigning work in minutes."
+      visual={<Perks />}
+    >
+      <h2 className="text-2xl sm:text-[28px] font-semibold text-ink tracking-tight">Create your organization</h2>
+      <p className="mt-1.5 text-sm text-slate">You'll be the admin. Add your team once you're in.</p>
 
-        {/* Top brand header */}
-        <div className="relative z-10">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-medium mb-8"
-          >
-            <HiOutlineArrowLeft className="w-4 h-4" /> Back to Home
-          </Link>
-          <div className="mb-4">
-            <TaskPilotLogo size="lg" textSize="text-2xl" textColor="text-white" />
-          </div>
+      <form onSubmit={handleSubmit} className="mt-8 space-y-4" noValidate>
+        <AuthField
+          id="orgName"
+          name="orgName"
+          label="Organization name"
+          icon={HiOutlineBuildingOffice2}
+          autoFocus
+          placeholder="Acme Studios"
+          value={formData.orgName}
+          onChange={handleChange}
+          error={fieldError("orgName")}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <AuthField
+            id="name"
+            name="name"
+            label="Your name"
+            icon={HiOutlineUser}
+            autoComplete="name"
+            placeholder="Alex Morgan"
+            value={formData.name}
+            onChange={handleChange}
+            error={fieldError("name")}
+          />
+          <AuthField
+            id="email"
+            name="email"
+            type="email"
+            label="Work email"
+            icon={HiOutlineEnvelope}
+            autoComplete="email"
+            placeholder="alex@acme.com"
+            value={formData.email}
+            onChange={handleChange}
+            error={fieldError("email")}
+          />
         </div>
 
-        {/* Middle Value Prop */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative z-10 space-y-6 max-w-md my-auto"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-medium text-white backdrop-blur-xs">
-            <HiOutlineSparkles className="w-3.5 h-3.5 text-amber-300" />
-            Set up in under 60 seconds
-          </div>
-          <h2 className="text-3xl xl:text-4xl font-light leading-tight">
-            Launch your company workspace today.
-          </h2>
-          <p className="text-white/80 text-sm leading-relaxed">
-            Get instant access to AI-powered task breakdowns, realtime team tracking, and automated overdue management.
-          </p>
-
-          <div className="space-y-3 pt-4">
-            <div className="flex items-center gap-3 text-sm text-white/90">
-              <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center text-emerald-300 shrink-0">
-                <HiOutlineShieldCheck className="w-4 h-4" />
-              </div>
-              <span>Isolated multi-tenant PostgreSQL database</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-white/90">
-              <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center text-sky-300 shrink-0">
-                <HiOutlineBolt className="w-4 h-4" />
-              </div>
-              <span>Live Socket.IO updates for every member</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Bottom copyright */}
-        <div className="relative z-10 text-xs text-white/60">
-          © {new Date().getFullYear()} TaskPilot Technologies. All rights reserved.
-        </div>
-      </div>
-
-      {/* ── Right Form Container ── */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 overflow-y-auto">
-        <div className="w-full max-w-md">
-          {/* Mobile Back / Brand */}
-          <div className="lg:hidden flex items-center justify-between mb-8">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-slate hover:text-ink text-sm font-medium"
-            >
-              <HiOutlineArrowLeft className="w-4 h-4" /> Back
-            </Link>
-            <TaskPilotLogo size="sm" textSize="text-base" />
-          </div>
-
-          {/* Form Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-mist"
-          >
-            <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
-                Create an Organization
-              </h1>
-              <p className="text-slate text-sm mt-1.5">
-                Sign up as an administrator and start managing your team.
+        <PasswordField
+          id="password"
+          name="password"
+          label="Password"
+          icon={HiOutlineLockClosed}
+          autoComplete="new-password"
+          placeholder="Create a password"
+          value={formData.password}
+          onChange={handleChange}
+          error={fieldError("password")}
+          hint={<StrengthMeter password={formData.password} />}
+        />
+        <PasswordField
+          id="confirmPassword"
+          name="confirmPassword"
+          label="Confirm password"
+          icon={HiOutlineLockClosed}
+          autoComplete="new-password"
+          placeholder="Type it again"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          error={fieldError("confirmPassword")}
+          hint={
+            confirmMatches ? (
+              <p className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-green-600">
+                <HiOutlineCheck className="w-3.5 h-3.5" /> Passwords match
               </p>
-            </div>
+            ) : null
+          }
+        />
 
-            {/* Error alerts */}
-            {formError && (
-              <div className="mb-6 p-4 rounded-xl bg-peony/20 border border-peony/50 text-peony text-sm flex flex-col gap-1.5 animate-fade-up">
-                <div className="font-semibold flex items-center gap-2">
-                  <span>⚠️</span> {formError}
-                </div>
-                {serverIssues.length > 0 && (
-                  <ul className="list-disc list-inside text-xs space-y-1 mt-1 text-slate">
-                    {serverIssues.map((issue, idx) => (
-                      <li key={idx}>
-                        {issue.path}: {issue.message}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
+        <AuthAlert>
+          {bannerError && (
+            <>
+              <p className="font-medium">{bannerError}</p>
+              {serverIssues.length > 0 && (
+                <ul className="mt-1 list-disc list-inside text-xs space-y-0.5 text-red-500">
+                  {serverIssues.map((issue, idx) => (
+                    <li key={idx}>
+                      {issue.path}: {issue.message}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
+        </AuthAlert>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Section 1: Organization Details */}
-              <div className="space-y-3">
-                <div className="text-xs font-semibold text-iron uppercase tracking-wider">
-                  1. Organization
-                </div>
-                <div>
-                  <label
-                    htmlFor="orgName"
-                    className="block text-xs font-semibold text-slate mb-1.5"
-                  >
-                    Organization Name
-                  </label>
-                  <div className="relative">
-                    <HiOutlineBuildingOffice2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-iron" />
-                    <input
-                      id="orgName"
-                      name="orgName"
-                      type="text"
-                      required
-                      placeholder="Acme Studios"
-                      value={formData.orgName}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2.5 bg-cloud border border-pebble rounded-xl text-sm text-ink placeholder:text-iron/60 focus:outline-hidden focus:border-monday-violet focus:bg-white transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Section Divider */}
-              <div className="border-t border-mist/60 pt-4 space-y-3">
-                <div className="text-xs font-semibold text-iron uppercase tracking-wider">
-                  2. Administrator Account
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-xs font-semibold text-slate mb-1.5"
-                  >
-                    Your Full Name
-                  </label>
-                  <div className="relative">
-                    <HiOutlineUser className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-iron" />
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      required
-                      placeholder="Alex Morgan"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2.5 bg-cloud border border-pebble rounded-xl text-sm text-ink placeholder:text-iron/60 focus:outline-hidden focus:border-monday-violet focus:bg-white transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-xs font-semibold text-slate mb-1.5"
-                  >
-                    Work Email
-                  </label>
-                  <div className="relative">
-                    <HiOutlineEnvelope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-iron" />
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required
-                      placeholder="alex@acme.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2.5 bg-cloud border border-pebble rounded-xl text-sm text-ink placeholder:text-iron/60 focus:outline-hidden focus:border-monday-violet focus:bg-white transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label
-                      htmlFor="password"
-                      className="block text-xs font-semibold text-slate mb-1.5"
-                    >
-                      Password
-                    </label>
-                    <div className="relative">
-                      <HiOutlineLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-iron" />
-                      <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        placeholder="••••••••"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 bg-cloud border border-pebble rounded-xl text-sm text-ink placeholder:text-iron/60 focus:outline-hidden focus:border-monday-violet focus:bg-white transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="confirmPassword"
-                      className="block text-xs font-semibold text-slate mb-1.5"
-                    >
-                      Confirm Password
-                    </label>
-                    <div className="relative">
-                      <HiOutlineLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-iron" />
-                      <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        required
-                        placeholder="••••••••"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2.5 bg-cloud border border-pebble rounded-xl text-sm text-ink placeholder:text-iron/60 focus:outline-hidden focus:border-monday-violet focus:bg-white transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full mt-2 py-3 px-6 bg-monday-violet hover:bg-[#4e4ee0] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Creating Organization...
-                  </>
-                ) : (
-                  "Create Organization & Workspace"
-                )}
-              </motion.button>
-            </form>
-
-            <div className="mt-6 text-center text-xs text-slate">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="font-semibold text-monday-violet hover:underline"
-              >
-                Sign In
-              </Link>
-            </div>
-          </motion.div>
+        <div className="pt-2">
+          <SubmitButton busy={isSubmitting} busyLabel="Creating your workspace…">
+            Create organization
+          </SubmitButton>
         </div>
-      </div>
-    </div>
+      </form>
+
+      <p className="mt-8 text-sm text-slate text-center">
+        Already have an account?{" "}
+        <Link to="/login" className="font-semibold text-monday-violet hover:text-ultra-violet transition-colors">
+          Log in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }
