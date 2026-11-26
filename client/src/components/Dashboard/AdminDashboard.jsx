@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import DashboardCharts from "../Analytics/DashboardCharts";
-import Footer from "../Footer/Footer";
-import Header from "../Header/Header";
+import PageHeader from "../Common/PageHeader";
+import { useAuthContext } from "../../context/AuthContext";
+import { useTaskContext } from "../../context/TaskContext";
+import { greeting } from "../../services/dateLabels";
 import AllTask from "../Task Boxes/AllTask";
 import CreateTask from "../Task Boxes/CreateTask";
 
@@ -16,6 +17,9 @@ const fadeUp = {
 };
 
 export default function AdminDashboard() {
+  const { user } = useAuthContext();
+  const { fetchTasks } = useTaskContext();
+
   return (
     <motion.div
       variants={stagger}
@@ -24,7 +28,12 @@ export default function AdminDashboard() {
       className="space-y-6"
     >
       <motion.div variants={fadeUp}>
-        <Header />
+        <PageHeader
+          eyebrow="Admin workspace"
+          title={`${greeting()}, ${user?.name?.split(" ")[0] ?? ""}`}
+          subtitle="Here's how your team is doing today."
+          onRefresh={fetchTasks}
+        />
       </motion.div>
 
       <motion.div variants={fadeUp}>
@@ -33,10 +42,6 @@ export default function AdminDashboard() {
 
       <motion.div variants={fadeUp}>
         <AllTask />
-      </motion.div>
-
-      <motion.div variants={fadeUp}>
-        <Footer />
       </motion.div>
     </motion.div>
   );
