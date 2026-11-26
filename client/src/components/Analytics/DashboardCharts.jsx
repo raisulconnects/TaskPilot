@@ -1,221 +1,202 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   PieChart,
   Pie,
   Cell,
   Tooltip,
-  Legend,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
+  ResponsiveContainer,
 } from "recharts";
-import { useTaskContext } from "../../context/TaskContext";
+import { HiOutlineChartPie, HiOutlineChartBar } from "react-icons/hi2";
+import { computeStats, workloadByPerson } from "../../services/taskStats";
+import { STATUS_STYLES } from "../Common/taskStyles";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+const ORDER = ["assigned", "completed", "failed"];
+
+const tooltipStyle = {
+  backgroundColor: "#ffffff",
+  borderRadius: 12,
+  border: "1px solid #dddfeb",
+  boxShadow: "0 8px 24px rgba(51,51,51,0.08)",
+  padding: "8px 12px",
+  fontFamily: "Poppins",
+  fontSize: 12,
 };
 
-const DashboardCharts = () => {
-  const { tasks, fetchTasks, loading } = useTaskContext();
-  const [chartWidth, setChartWidth] = useState(300);
-
-  // Brand-aligned pastel palette: mint, cornflower, peony
-  const COLORS = ["#bcfe90", "#93beff", "#fcd0f8"];
-
-  useEffect(() => {
-    const updateChartWidth = () => {
-      const width = window.innerWidth;
-      if (width < 640) {
-        setChartWidth(280);
-      } else if (width < 768) {
-        setChartWidth(320);
-      } else if (width < 1024) {
-        setChartWidth(350);
-      } else {
-        setChartWidth(400);
-      }
-    };
-
-    updateChartWidth();
-    window.addEventListener("resize", updateChartWidth);
-    return () => window.removeEventListener("resize", updateChartWidth);
-  }, []);
-
-  useEffect(() => {
-    fetchTasks();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Derived synchronously during render (no setState-in-effect): recomputed
-  // only when `tasks` changes.
-  const taskStatusData = useMemo(() => {
-    if (!tasks || tasks.length === 0) return [];
-
-    // 1️⃣ Task Status Distribution
-    const statusCounts = { completed: 0, assigned: 0, failed: 0 };
-    tasks.forEach((task) => {
-      const status = task.status || "pending";
-      statusCounts[status] = (statusCounts[status] || 0) + 1;
-    });
-
-    return [
-      { name: "Completed", value: statusCounts.completed },
-      { name: "Assigned", value: statusCounts.assigned },
-      { name: "Failed", value: statusCounts.failed },
-    ];
-  }, [tasks]);
-
-  // 2️⃣ Tasks Completed per Employee
-  const employeeData = useMemo(() => {
-    if (!tasks || tasks.length === 0) return [];
-
-    const employeeMap = {};
-    tasks.forEach((task) => {
-      const name = task.assignedTo?.name || "Unknown";
-      if (!employeeMap[name]) employeeMap[name] = 0;
-      if (task.status === "completed") employeeMap[name] += 1;
-    });
-
-    return Object.keys(employeeMap).map((name) => ({
-      name,
-      completed: employeeMap[name],
-    }));
-  }, [tasks]);
-
-  /* ── Shared tooltip style ── */
-  const tooltipStyle = {
-    backgroundColor: "#ffffff",
-    borderRadius: "12px",
-    border: "1px solid #d0d4e4",
-    boxShadow: "0 2px 24px rgba(0,0,0,0.08)",
-    padding: "8px 12px",
-  };
-
-  if (loading)
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 border-2 border-monday-violet border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate text-sm font-medium">Loading charts...</p>
-        </div>
-      </div>
-    );
-
+function ChartCard({ icon, title, subtitle, legend, children, className = "" }) {
+  const Icon = icon;
   return (
-    <div className="flex flex-col gap-5">
-      {/* Pie Chart */}
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="bg-white rounded-3xl border border-mist shadow-card p-5 sm:p-6"
-      >
-        <h2 className="text-base font-bold text-ink mb-4">
-          Task Status Distribution
-        </h2>
-        <div className="flex justify-center overflow-x-auto">
-          <PieChart width={chartWidth} height={250}>
-            <Pie
-              data={taskStatusData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={Math.min(100, (chartWidth - 40) / 2)}
-              label={{
-                fill: "#333333",
-                fontSize: chartWidth < 320 ? 10 : 12,
-                fontFamily: "Poppins",
-              }}
-              strokeWidth={2}
-              stroke="#ffffff"
-            >
-              {taskStatusData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={tooltipStyle}
-              itemStyle={{ color: "#333333", fontSize: 13 }}
-              labelStyle={{ color: "#535768", fontWeight: 600 }}
-            />
-            <Legend
-              wrapperStyle={{
-                color: "#535768",
-                fontSize: chartWidth < 320 ? 10 : 12,
-                fontFamily: "Poppins",
-              }}
-              iconType="circle"
-            />
-          </PieChart>
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={`flex flex-col rounded-3xl border border-mist/70 bg-snow p-5 sm:p-6 ${className}`}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2.5">
+          <span className="inline-flex w-8 h-8 items-center justify-center rounded-xl bg-periwinkle text-monday-violet">
+            <Icon className="w-4 h-4" />
+          </span>
+          <div>
+            <h2 className="text-base font-semibold text-ink leading-tight">{title}</h2>
+            <p className="text-xs text-iron">{subtitle}</p>
+          </div>
         </div>
-      </motion.div>
+        {legend}
+      </div>
+      {children}
+    </motion.section>
+  );
+}
 
-      {/* Bar Chart */}
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="bg-white rounded-3xl border border-mist shadow-card p-5 sm:p-6"
-      >
-        <h2 className="text-base font-bold text-ink mb-4">
-          Tasks Completed per Employee
-        </h2>
-        <div className="flex justify-center overflow-x-auto">
-          <BarChart width={chartWidth} height={250} data={employeeData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#d0d4e4" />
-            <XAxis
-              dataKey="name"
-              stroke="#808080"
-              tick={{
-                fill: "#535768",
-                fontSize: chartWidth < 320 ? 9 : 11,
-                fontFamily: "Poppins",
-              }}
-              angle={chartWidth < 400 ? -45 : 0}
-              textAnchor={chartWidth < 400 ? "end" : "middle"}
-              height={chartWidth < 400 ? 60 : 30}
-            />
-            <YAxis
-              stroke="#808080"
-              tick={{
-                fill: "#535768",
-                fontSize: chartWidth < 320 ? 9 : 11,
-                fontFamily: "Poppins",
-              }}
-            />
-            <Tooltip
-              contentStyle={tooltipStyle}
-              itemStyle={{ color: "#333333" }}
-              cursor={{ fill: "rgba(97, 97, 255, 0.06)" }}
-            />
-            <Legend
-              wrapperStyle={{
-                color: "#535768",
-                fontSize: chartWidth < 320 ? 10 : 12,
-                fontFamily: "Poppins",
-              }}
-            />
-            <Bar
-              dataKey="completed"
-              fill="#6161ff"
-              radius={[8, 8, 0, 0]}
-              maxBarSize={48}
-            />
-          </BarChart>
-        </div>
-      </motion.div>
+function EmptyChart({ text }) {
+  return (
+    <div className="h-[220px] flex items-center justify-center rounded-2xl border border-dashed border-mist text-sm text-iron">
+      {text}
     </div>
   );
-};
+}
 
-export default DashboardCharts;
+function StatusDonut({ tasks }) {
+  const stats = useMemo(() => computeStats(tasks), [tasks]);
+  const data = ORDER.map((k) => ({ key: k, name: STATUS_STYLES[k].label, value: stats[k], color: STATUS_STYLES[k].chart }));
+
+  return (
+    <ChartCard icon={HiOutlineChartPie} title="Status breakdown" subtitle="Every task in your workspace" className="lg:col-span-2">
+      {stats.total === 0 ? (
+        <EmptyChart text="No tasks yet" />
+      ) : (
+        <div className="flex flex-col sm:flex-row lg:flex-col 2xl:flex-row items-center gap-6">
+          <div className="relative w-[200px] h-[200px] shrink-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data.filter((d) => d.value > 0)}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={64}
+                  outerRadius={92}
+                  paddingAngle={3}
+                  cornerRadius={6}
+                  stroke="none"
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {data
+                    .filter((d) => d.value > 0)
+                    .map((d) => (
+                      <Cell key={d.key} fill={d.color} />
+                    ))}
+                </Pie>
+                <Tooltip contentStyle={tooltipStyle} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-3xl font-semibold text-ink tabular-nums">{stats.total}</span>
+              <span className="text-xs text-iron">tasks</span>
+            </div>
+          </div>
+          <ul className="w-full sm:flex-1 lg:flex-none lg:w-full 2xl:flex-1 min-w-0 space-y-2">
+            {data.map((d) => (
+              <li key={d.key} className="grid grid-cols-[auto_minmax(0,1fr)_auto_2.75rem] items-center gap-3 rounded-xl px-3 py-2 bg-cloud/60">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+                <span className="text-sm text-slate truncate">{d.name}</span>
+                <span className="text-sm font-semibold text-ink tabular-nums">{d.value}</span>
+                <span className="text-right text-xs text-iron tabular-nums">
+                  {Math.round((d.value / stats.total) * 100)}%
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </ChartCard>
+  );
+}
+
+function TeamWorkload({ tasks, employees }) {
+  const data = useMemo(
+    () =>
+      workloadByPerson(tasks, employees).map((r) => ({
+        ...r,
+        short: r.name?.split(" ")[0] ?? "?",
+      })),
+    [tasks, employees]
+  );
+
+  const legend = (
+    <div className="flex items-center gap-3">
+      {ORDER.map((k) => (
+        <span key={k} className="inline-flex items-center gap-1.5 text-xs text-slate">
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_STYLES[k].chart }} />
+          {STATUS_STYLES[k].label}
+        </span>
+      ))}
+    </div>
+  );
+
+  return (
+    <ChartCard
+      icon={HiOutlineChartBar}
+      title="Team workload"
+      subtitle="Tasks per person, by status"
+      legend={legend}
+      className="lg:col-span-3"
+    >
+      {data.length === 0 ? (
+        <EmptyChart text="Add team members to see their workload" />
+      ) : (
+        <div className="flex-1 min-h-[240px] -ml-3">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} barCategoryGap="28%">
+              <CartesianGrid vertical={false} stroke="#e6e7ea" strokeDasharray="4 4" />
+              <XAxis
+                dataKey="short"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#535768", fontSize: 12, fontFamily: "Poppins" }}
+              />
+              <YAxis
+                allowDecimals={false}
+                tickLine={false}
+                axisLine={false}
+                width={36}
+                tick={{ fill: "#808080", fontSize: 11, fontFamily: "Poppins" }}
+              />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={{ fill: "rgba(97, 97, 255, 0.05)", radius: 8 }}
+                labelFormatter={(_, payload) => payload?.[0]?.payload?.name ?? ""}
+              />
+              {ORDER.map((k, i) => (
+                <Bar
+                  key={k}
+                  dataKey={k}
+                  name={STATUS_STYLES[k].label}
+                  stackId="s"
+                  fill={STATUS_STYLES[k].chart}
+                  maxBarSize={44}
+                  radius={i === ORDER.length - 1 ? [8, 8, 0, 0] : [0, 0, 0, 0]}
+                />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </ChartCard>
+  );
+}
+
+export default function DashboardCharts({ tasks, employees }) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <StatusDonut tasks={tasks} />
+      <TeamWorkload tasks={tasks} employees={employees} />
+    </div>
+  );
+}
