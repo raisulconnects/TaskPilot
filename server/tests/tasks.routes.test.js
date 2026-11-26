@@ -232,6 +232,26 @@ describe("PATCH /api/tasks/:taskId/complete", () => {
     expect(toSpy).toHaveBeenCalledWith(`org_${ORG_ID}:admin-room`);
   });
 
+  it("only lets the assignee complete the task", async () => {
+    task.update.mockResolvedValue(taskDoc({ status: "completed" }));
+    await request(app)
+      .patch(`/api/tasks/${OID}/complete`)
+      .set("Cookie", cookieFor(EMP));
+    expect(task.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: OID, assignedToId: EMP.id } })
+    );
+  });
+
+  it("returns 404 when the task belongs to another employee", async () => {
+    // The assignee-scoped where clause matches nothing → Prisma P2025.
+    task.update.mockRejectedValue({ code: "P2025", message: "Not found" });
+    const res = await request(app)
+      .patch(`/api/tasks/${OID}/complete`)
+      .set("Cookie", cookieFor({ ...EMP, id: "123e4567-e89b-12d3-a456-426614174099" }));
+    expect(res.status).toBe(404);
+    expect(mockEmit).not.toHaveBeenCalled();
+  });
+
   it("returns 404 when the task does not exist", async () => {
     task.update.mockRejectedValue({ code: "P2025", message: "Not found" });
     const res = await request(app)
