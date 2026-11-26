@@ -16,12 +16,16 @@ export const handleLogin = async (email, password) => {
       throw new Error(data.message || "Invalid credentials");
     }
 
-    // success case
+    // success case — orgId is required: AuthContext passes this object to
+    // the socket handshake, and the server names every room by orgId.
+    // Without it a fresh login joins "org_undefined" rooms and gets no
+    // realtime events until a page refresh restores the user via /auth/me.
     return {
       id: data.user.id,
       name: data.user.name,
       email: data.user.email,
       role: data.user.role,
+      orgId: data.user.orgId,
     };
   } catch (err) {
     console.error("Auth error:", err.message);
