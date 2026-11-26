@@ -27,11 +27,12 @@ export const AuthContextProvider = ({ children }) => {
 
   const isAuthenticated = !!user;
 
-  const connectSocket = (userData) => {
+  const connectSocket = () => {
     const s = io(SOCKET_URL, {
-      // Tenancy: orgId namespaces all socket rooms server-side (see
-      // server/config/rooms.js). Present on login response and /me alike.
-      auth: { userId: userData.id, role: userData.role, orgId: userData.orgId },
+      // The server derives identity (user, role, org → rooms) from the
+      // httpOnly auth cookie, so send it with the handshake. Nothing
+      // client-supplied is trusted (see server/config/socketAuth.js).
+      withCredentials: true,
     });
     setSocket(s);
     return s;
@@ -46,7 +47,7 @@ export const AuthContextProvider = ({ children }) => {
         });
         if (res.ok) {
           const data = await res.json();
-          connectSocket(data);
+          connectSocket();
           setUser(data);
         } else {
           setUser(null);
@@ -76,7 +77,7 @@ export const AuthContextProvider = ({ children }) => {
       setUser(loggedInUser);
 
       if (!socket) {
-        connectSocket(loggedInUser);
+        connectSocket();
       }
 
       return true;
