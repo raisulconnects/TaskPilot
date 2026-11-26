@@ -93,6 +93,36 @@ body {
   50% { background-position: 100% 50%; }
 }
 
+/* ── Landing: grid backgrounds ── */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(97 97 255 / 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(97 97 255 / 0.09) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.bg-grid-light {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.12) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.mask-fade-top {
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, #000 35%, transparent 100%);
+}
+
+.mask-vignette {
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 20%, transparent 85%);
+}
+
+.text-wordmark {
+  background-image: linear-gradient(to bottom, rgb(97 97 255 / 0.22), rgb(97 97 255 / 0));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /* ── Scrollbar hiding for task list ── */
 #TaskList::-webkit-scrollbar {
   /* display: none; */
