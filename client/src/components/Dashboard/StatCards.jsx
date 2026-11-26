@@ -3,7 +3,7 @@ import { motion, animate, useReducedMotion } from "framer-motion";
 
 const TONES = {
   violet: "bg-periwinkle text-monday-violet",
-  sky: "bg-sky/40 text-[#1d6fa3]",
+  sky: "bg-sky/40 text-sky-ink",
   mint: "bg-mint/50 text-forest",
   peony: "bg-peony/60 text-red-500",
   lavender: "bg-lavender text-ultra-violet",

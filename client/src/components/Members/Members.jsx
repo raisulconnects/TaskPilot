@@ -20,6 +20,8 @@ import PageHeader from "../Common/PageHeader";
 import SlideOver from "../Common/SlideOver";
 import Avatar from "../Common/Avatar";
 import { STATUS_STYLES } from "../Common/taskStyles";
+import { swalTheme } from "../Common/themeColors";
+import { useDashboardTheme } from "../../context/DashboardThemeContext";
 
 const EMPTY = { name: "", email: "", password: "", role: "employee" };
 
@@ -69,6 +71,7 @@ function WorkloadBar({ row }) {
 
 export default function Members() {
   const { user } = useAuthContext();
+  const { theme } = useDashboardTheme();
   const { allEmployees, fetchOnlyEmployees, fetchTasks, tasks } = useTaskContext();
   const [form, setForm] = useState(EMPTY);
   const [formError, setFormError] = useState("");
@@ -135,6 +138,7 @@ export default function Members() {
       setPanelOpen(false);
       await fetchOnlyEmployees();
       Swal.fire({
+        ...swalTheme(theme),
         toast: true,
         position: "bottom-end",
         icon: "success",
@@ -152,6 +156,7 @@ export default function Members() {
 
   const handleRemove = (member) => {
     Swal.fire({
+      ...swalTheme(theme),
       title: `Remove ${member.name}?`,
       text: `${member.email} will lose access immediately. Their tasks must be reassigned first.`,
       icon: "warning",
@@ -159,7 +164,7 @@ export default function Members() {
       confirmButtonText: "Remove member",
       cancelButtonText: "Cancel",
       confirmButtonColor: "#ef4444",
-      cancelButtonColor: "#535768",
+      cancelButtonColor: theme === "dark" ? "#363948" : "#535768",
     }).then(async (result) => {
       if (!result.isConfirmed) return;
       try {
@@ -168,6 +173,7 @@ export default function Members() {
         await fetchTasks();
       } catch (err) {
         Swal.fire({
+          ...swalTheme(theme),
           title: "Could not remove member",
           text: err.message || "Something went wrong.",
           icon: "error",
@@ -186,7 +192,7 @@ export default function Members() {
         actions={
           <button
             onClick={() => setPanelOpen(true)}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-pill text-sm font-medium text-snow bg-monday-violet hover:bg-ultra-violet shadow-[0_6px_20px_-8px_rgb(97_97_255/0.7)] transition-all active:scale-[0.97] cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-pill text-sm font-medium text-white bg-monday-violet hover:bg-ultra-violet shadow-[0_6px_20px_-8px_rgb(97_97_255/0.7)] transition-all active:scale-[0.97] cursor-pointer"
           >
             <HiOutlineUserPlus className="w-4 h-4" />
             Add member
@@ -322,9 +328,9 @@ export default function Members() {
               type="submit"
               form="add-member-form"
               disabled={adding}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-pill text-sm font-medium text-snow bg-monday-violet hover:bg-ultra-violet disabled:opacity-60 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-pill text-sm font-medium text-white bg-monday-violet hover:bg-ultra-violet disabled:opacity-60 transition-colors cursor-pointer"
             >
-              {adding && <span className="w-4 h-4 border-2 border-snow border-t-transparent rounded-full animate-spin" />}
+              {adding && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
               {adding ? "Adding…" : "Add member"}
             </button>
           </div>

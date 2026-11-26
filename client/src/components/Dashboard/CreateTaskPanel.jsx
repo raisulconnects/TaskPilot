@@ -10,6 +10,8 @@ import { useTaskContext } from "../../context/TaskContext";
 import { validateTaskForm } from "../../services/validateTaskForm";
 import { API_BASE_URL } from "../../api";
 import SlideOver from "../Common/SlideOver";
+import { swalTheme } from "../Common/themeColors";
+import { useDashboardTheme } from "../../context/DashboardThemeContext";
 import { CATEGORIES, PRIORITIES, PRIORITY_STYLES } from "../Common/taskStyles";
 
 const EMPTY = { title: "", assignedTo: "", dueDate: "", category: "", priority: "", description: "" };
@@ -69,6 +71,7 @@ async function postAI(path, title) {
 
 export default function CreateTaskPanel({ open, onClose, employees }) {
   const { createTask, error } = useTaskContext();
+  const { theme } = useDashboardTheme();
   const [form, setForm] = useState(EMPTY);
   const [aiFilled, setAiFilled] = useState({});
   const [busy, setBusy] = useState({ catpri: false, desc: false, submit: false });
@@ -134,6 +137,7 @@ export default function CreateTaskPanel({ open, onClose, employees }) {
     setAiFilled({});
     onClose();
     Swal.fire({
+      ...swalTheme(theme),
       toast: true,
       position: "bottom-end",
       icon: "success",
@@ -167,9 +171,9 @@ export default function CreateTaskPanel({ open, onClose, employees }) {
             type="submit"
             form="create-task-form"
             disabled={busy.submit}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-pill text-sm font-medium text-snow bg-monday-violet hover:bg-ultra-violet disabled:opacity-60 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-pill text-sm font-medium text-white bg-monday-violet hover:bg-ultra-violet disabled:opacity-60 transition-colors cursor-pointer"
           >
-            {busy.submit && <span className="w-4 h-4 border-2 border-snow border-t-transparent rounded-full animate-spin" />}
+            {busy.submit && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
             {busy.submit ? "Creating…" : "Create task"}
           </button>
         </div>

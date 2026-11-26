@@ -53,7 +53,7 @@ export default function AdminDashboard() {
         actions={
           <button
             onClick={() => setCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-pill text-sm font-medium text-snow bg-monday-violet hover:bg-ultra-violet shadow-[0_6px_20px_-8px_rgb(97_97_255/0.7)] transition-all active:scale-[0.97] cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-pill text-sm font-medium text-white bg-monday-violet hover:bg-ultra-violet shadow-[0_6px_20px_-8px_rgb(97_97_255/0.7)] transition-all active:scale-[0.97] cursor-pointer"
           >
             <HiOutlinePlus className="w-4 h-4" />
             New task

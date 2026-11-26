@@ -16,7 +16,7 @@ export const PRIORITY_STYLES = {
 export const DUE_TONE = {
   done: "text-forest",
   overdue: "text-red-500",
-  soon: "text-amber-600",
+  soon: "text-warn",
   normal: "text-slate",
 };
 

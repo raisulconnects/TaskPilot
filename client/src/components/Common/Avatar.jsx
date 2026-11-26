@@ -4,7 +4,7 @@ const TINTS = [
   "bg-periwinkle text-monday-violet",
   "bg-mint/60 text-forest",
   "bg-peony/70 text-ultra-violet",
-  "bg-sky/60 text-[#1d6fa3]",
+  "bg-sky/60 text-sky-ink",
   "bg-lavender text-ultra-violet",
   "bg-apricot/20 text-apricot",
 ];

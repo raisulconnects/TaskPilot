@@ -37,7 +37,7 @@ export default function DeleteTaskModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-ink/40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
         />
 
         {/* Modal Card */}
@@ -46,7 +46,7 @@ export default function DeleteTaskModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="relative bg-white rounded-3xl border border-mist shadow-elevated w-full max-w-md p-6 sm:p-7 z-10 space-y-5 text-center"
+          className="relative bg-snow rounded-3xl border border-mist shadow-elevated w-full max-w-md p-6 sm:p-7 z-10 space-y-5 text-center"
         >
           {/* Close button */}
           <button
