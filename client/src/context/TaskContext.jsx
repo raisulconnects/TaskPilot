@@ -33,9 +33,18 @@ export const TaskContextProvider = ({ children }) => {
     };
 
     const handleTaskUpdated = (updatedTask) => {
-      setTasks((prev) =>
-        prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
-      );
+      setTasks((prev) => {
+        // Employees only hold their own tasks, so a reassignment must move
+        // the task in or out of the list rather than just replace it.
+        if (user.role !== "admin") {
+          const mine = updatedTask.assignedTo?.id === user.id;
+          if (!mine) return prev.filter((task) => task.id !== updatedTask.id);
+          if (!prev.some((task) => task.id === updatedTask.id)) {
+            return [updatedTask, ...prev];
+          }
+        }
+        return prev.map((task) => (task.id === updatedTask.id ? updatedTask : task));
+      });
     };
 
     const handleTaskDeleted = (deletedTask) => {

@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import createApp from "../app.js";
 import prismaHelper from "./helpers/prisma-test-helper.js";
 import socketHelper from "./helpers/socket-test-helper.js";
+import { userRoom } from "../config/rooms.js";
 
 // Prisma stubs are installed on the controllers' instance via the CJS helper
 // (see helpers/prisma-test-helper.js for why vi.mock/vi.spyOn can't reach it).
@@ -12,6 +13,7 @@ import socketHelper from "./helpers/socket-test-helper.js";
 const task = {
   create: vi.fn(),
   findMany: vi.fn(),
+  findUnique: vi.fn(),
   updateMany: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
@@ -302,6 +304,52 @@ describe("PATCH /api/tasks/:taskId/edit", () => {
     expect(res.status).toBe(400);
     expect(res.body.message).toBe("Assignee does not exist");
     expect(task.update).not.toHaveBeenCalled();
+  });
+
+  describe("reassignment", () => {
+    const NEW_ID = "123e4567-e89b-12d3-a456-426614174009";
+
+    it("tells the previous assignee to drop the task (id only)", async () => {
+      user.findUnique.mockResolvedValue({ orgId: ORG_ID });
+      task.findUnique.mockResolvedValue({ assignedToId: OID, orgId: ORG_ID });
+      const updated = taskDoc({ assignedToId: NEW_ID, assignedTo: { id: NEW_ID, name: "New", email: "n@x.com" } });
+      task.update.mockResolvedValue(updated);
+
+      const res = await request(app)
+        .patch(`/api/tasks/${OID}/edit`)
+        .set("Cookie", cookieFor(ADMIN))
+        .send({ assignedTo: NEW_ID });
+
+      expect(res.status).toBe(200);
+      expect(toSpy).toHaveBeenCalledWith(userRoom(ORG_ID, NEW_ID));
+      expect(toSpy).toHaveBeenCalledWith(userRoom(ORG_ID, OID));
+      expect(mockEmit).toHaveBeenCalledWith("task:deleted", { id: updated.id });
+    });
+
+    it("does not notify anyone extra when the assignee is unchanged", async () => {
+      user.findUnique.mockResolvedValue({ orgId: ORG_ID });
+      task.findUnique.mockResolvedValue({ assignedToId: OID, orgId: ORG_ID });
+      task.update.mockResolvedValue(taskDoc());
+
+      await request(app)
+        .patch(`/api/tasks/${OID}/edit`)
+        .set("Cookie", cookieFor(ADMIN))
+        .send({ assignedTo: OID });
+
+      expect(mockEmit).not.toHaveBeenCalledWith("task:deleted", expect.anything());
+    });
+
+    it("skips the lookup when the assignee isn't being changed", async () => {
+      task.update.mockResolvedValue(taskDoc({ description: "x" }));
+
+      await request(app)
+        .patch(`/api/tasks/${OID}/edit`)
+        .set("Cookie", cookieFor(ADMIN))
+        .send({ description: "x" });
+
+      expect(task.findUnique).not.toHaveBeenCalled();
+      expect(mockEmit).not.toHaveBeenCalledWith("task:deleted", expect.anything());
+    });
   });
 });
 

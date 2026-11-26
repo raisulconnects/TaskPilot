@@ -8,6 +8,7 @@ import {
 } from "react-icons/hi2";
 import { useTaskContext } from "../../context/TaskContext";
 import { validateTaskForm } from "../../services/validateTaskForm";
+import { toLocalDateInput } from "../../services/dateLabels";
 import { API_BASE_URL } from "../../api";
 import SlideOver from "../Common/SlideOver";
 import Segmented from "../Common/Segmented";
@@ -122,7 +123,7 @@ export default function CreateTaskPanel({ open, onClose, employees }) {
     });
   };
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toLocalDateInput();
   const aiBtn =
     "inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer disabled:cursor-wait";
 

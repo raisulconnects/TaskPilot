@@ -9,6 +9,15 @@ const startOfDay = (d) => {
   return x;
 };
 
+// Local calendar date as YYYY-MM-DD, for <input type="date"> values.
+// (toISOString() would give the UTC date, which is a day off near midnight.)
+export function toLocalDateInput(value = new Date()) {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 export function greeting(date = new Date()) {
   const h = date.getHours();
   if (h < 12) return "Good morning";

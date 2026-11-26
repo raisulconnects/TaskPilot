@@ -3,20 +3,12 @@ import { HiOutlinePencilSquare } from "react-icons/hi2";
 import Dialog, { DialogClose, DialogError } from "../Common/Dialog";
 import Segmented from "../Common/Segmented";
 import { CATEGORIES, PRIORITIES, PRIORITY_STYLES, STATUS_STYLES } from "../Common/taskStyles";
+import { toLocalDateInput } from "../../services/dateLabels";
 
 const STATUSES = ["assigned", "completed", "failed"];
 
 const inputCls =
   "w-full px-3.5 py-2.5 bg-snow border border-mist rounded-xl text-sm text-ink placeholder:text-iron/60 focus:outline-none focus:border-monday-violet focus:ring-2 focus:ring-monday-violet/15 transition-all";
-
-// Local calendar date (YYYY-MM-DD) so the picker shows the day the user saw
-// in the table, not the UTC day.
-function toDateInput(value) {
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
 
 function Label({ htmlFor, children }) {
   return (
@@ -33,7 +25,7 @@ function EditForm({ task, employees, onSave, onClose }) {
     title: task.title ?? "",
     description: task.description ?? "",
     assignedTo: task.assignedTo?.id ?? "",
-    dueDate: toDateInput(task.dueDate),
+    dueDate: toLocalDateInput(task.dueDate),
     category: task.category ?? "General",
     priority: task.priority ?? "General",
     status: task.status ?? "assigned",
@@ -53,7 +45,7 @@ function EditForm({ task, employees, onSave, onClose }) {
       .filter(([k, v]) => v !== (typeof original[k] === "string" ? original[k].trim() : original[k]))
   );
   const dirty = Object.keys(changes).length > 0;
-  const pastDue = form.dueDate && form.dueDate < toDateInput(new Date()) && form.status === "assigned";
+  const pastDue = form.dueDate && form.dueDate < toLocalDateInput(new Date()) && form.status === "assigned";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
