@@ -99,8 +99,10 @@ const getAllTasks = async (req, res) => {
 // Mark task as completed
 const markTaskCompleted = async (req, res) => {
   try {
+    // Only the assignee can complete their task. Someone else's task is
+    // treated as missing (P2025 → 404), matching the cross-org policy.
     const task = await prisma.task.update({
-      where: { id: req.params.taskId },
+      where: { id: req.params.taskId, assignedToId: req.user.id },
       data: { status: "completed" },
       include: { assignedTo: { select: ASSIGNEE_SELECT } },
     });
